@@ -152,6 +152,10 @@ export const CsvImportExportDemo: React.FC = () => {
 
     setIsProcessing(true);
     try {
+      console.log('=== TESTE DE IMPORTAÇÃO ===');
+      console.log('Conteúdo CSV a ser testado:');
+      console.log(csvContent);
+      
       // Usar o parser aprimorado para teste
       const parser = new EnhancedCsvParser();
       const result = parser.parseAndValidate(csvContent, 'demo-user-id');
@@ -170,6 +174,7 @@ export const CsvImportExportDemo: React.FC = () => {
         });
       }
     } catch (error: any) {
+      console.error('Erro no teste de importação:', error);
       showError({ 
         title: 'Erro no Teste', 
         description: error.message 
@@ -178,6 +183,18 @@ export const CsvImportExportDemo: React.FC = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Função para testar com CSV simples
+  const handleTestSimpleCsv = () => {
+    const simpleCsv = `Tipo Aparelho;Modelo Aparelho;Qualidade;Servico Realizado;Observacoes;Preco Total;Preco Parcelado;Parcelas;Metodo de Pagamento;Garantia (meses);Validade (dias);Inclui Entrega;Inclui Pelicula
+Smartphone;iPhone 13;Original;Troca de Tela;Teste de importação;450.00;500.00;2;Cartao de Credito;3;15;nao;sim`;
+    
+    setCsvContent(simpleCsv);
+    showSuccess({ 
+      title: 'CSV Simples Gerado', 
+      description: 'CSV simples criado para teste de importação' 
+    });
   };
 
   // Upload de arquivo
@@ -248,6 +265,15 @@ export const CsvImportExportDemo: React.FC = () => {
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Baixar CSV Gerado
+                </Button>
+                
+                <Button 
+                  onClick={handleTestSimpleCsv}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  CSV Simples para Teste
                 </Button>
               </div>
             </CardContent>

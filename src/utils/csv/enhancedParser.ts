@@ -174,13 +174,62 @@ export class EnhancedCsvParser {
   public parseAndValidate(csvText: string, userId: string): ImportSummary {
     const allLines = csvText.split(/\r\n|\n/);
     
-    // Encontrar cabeçalho - deve ser exatamente igual ao formato de exportação
-    const headerRowIndex = allLines.findIndex(line => 
+    // Debug: Log das primeiras linhas para diagnóstico
+    console.log('=== DEBUG ENHANCED CSV PARSER ===');
+    console.log('Total de linhas:', allLines.length);
+    console.log('Primeiras 10 linhas:');
+    allLines.slice(0, 10).forEach((line, index) => {
+      console.log(`Linha ${index}:`, JSON.stringify(line));
+    });
+    
+    // Encontrar cabeçalho com busca mais flexível
+    let headerRowIndex = -1;
+    
+    // Primeira tentativa: busca exata
+    headerRowIndex = allLines.findIndex(line => 
       line.includes('Tipo Aparelho') && line.includes('Modelo Aparelho') && line.includes('Preco Total')
     );
+    
+    // Segunda tentativa: busca mais flexível (sem acentos, case insensitive)
+    if (headerRowIndex === -1) {
+      headerRowIndex = allLines.findIndex(line => {
+        const normalizedLine = line.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return normalizedLine.includes('tipo aparelho') && 
+               normalizedLine.includes('modelo aparelho') && 
+               normalizedLine.includes('preco total');
+      });
+    }
+    
+    // Terceira tentativa: busca por qualquer combinação dos campos principais
+    if (headerRowIndex === -1) {
+      headerRowIndex = allLines.findIndex(line => {
+        const hasTypeField = line.includes('Tipo') || line.includes('tipo') || line.includes('Aparelho');
+        const hasModelField = line.includes('Modelo') || line.includes('modelo');
+        const hasPriceField = line.includes('Preco') || line.includes('preco') || line.includes('Total') || line.includes('total');
+        return hasTypeField && hasModelField && hasPriceField;
+      });
+    }
+
+    console.log('Índice do cabeçalho encontrado:', headerRowIndex);
+    if (headerRowIndex >= 0) {
+      console.log('Linha do cabeçalho:', JSON.stringify(allLines[headerRowIndex]));
+    }
 
     if (headerRowIndex === -1) {
-      throw new Error("Não foi possível encontrar o cabeçalho no arquivo CSV. Verifique se o arquivo contém as colunas necessárias.");
+      // Mostrar todas as linhas para debug
+      console.log('=== TODAS AS LINHAS DO ARQUIVO (Enhanced Parser) ===');
+      allLines.forEach((line, index) => {
+        console.log(`${index}: ${JSON.stringify(line)}`);
+      });
+      
+      throw new Error(`Não foi possível encontrar o cabeçalho no arquivo CSV. 
+      
+Verifique se o arquivo contém uma linha com os campos:
+- 'Tipo Aparelho'
+- 'Modelo Aparelho' 
+- 'Preco Total'
+
+Arquivo analisado tem ${allLines.length} linhas. Verifique o console para mais detalhes.`);
     }
 
     // Filtrar linhas vazias
