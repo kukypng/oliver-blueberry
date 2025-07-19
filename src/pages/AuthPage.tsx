@@ -11,6 +11,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLicenseValidation } from '@/hooks/useLicenseValidation';
 import { Separator } from '@/components/ui/separator';
 import { LicenseActivationSection } from '@/components/auth/LicenseActivationSection';
+import { LicenseActivationIOS } from '@/components/auth/LicenseActivationIOS';
+import { useIOSDetection } from '@/hooks/useIOSDetection';
 
 export const AuthPage = () => {
   const [email, setEmail] = useState('');
@@ -21,6 +23,7 @@ export const AuthPage = () => {
   const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
   const { data: isLicenseValid } = useLicenseValidation();
+  const isIOS = useIOSDetection();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,10 +207,17 @@ export const AuthPage = () => {
 
         {/* License Activation Section - Only show if user is logged in but license is invalid */}
         {user && isLicenseValid === false && (
-          <LicenseActivationSection 
-            user={user} 
-            onLicenseActivated={handleLicenseActivated}
-          />
+          isIOS ? (
+            <LicenseActivationIOS 
+              user={user} 
+              onLicenseActivated={handleLicenseActivated}
+            />
+          ) : (
+            <LicenseActivationSection 
+              user={user} 
+              onLicenseActivated={handleLicenseActivated}
+            />
+          )
         )}
       </div>
     </div>

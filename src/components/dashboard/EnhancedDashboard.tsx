@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { UserLicenseCard } from '@/components/dashboard/UserLicenseCard';
+import { UserLicenseCardIOS } from '@/components/dashboard/UserLicenseCardIOS';
+import { useIOSDetection } from '@/hooks/useIOSDetection';
 import { LicenseStatus } from '@/components/dashboard/LicenseStatus';
 import { Sparkles, ShoppingBag, CreditCard, MessageCircle, HeartCrack, AlertTriangle, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,27 +18,41 @@ interface ModernDashboardProps {
 
 export const EnhancedDashboard = ({ onNavigateTo, activeView }: ModernDashboardProps) => {
   const { profile } = useAuth();
+  const isIOS = useIOSDetection();
+  useLicenseNotifications();
 
-  const { data: budgets, isLoading: budgetsLoading } = useQuery({
-    queryKey: ['recent-budgets'],
-    queryFn: async () => {
-      if (!profile?.id) return [];
+  const [budgets, setBudgets] = useState<any[]>([]);
+  const [budgetsLoading, setBudgetsLoading] = useState(false);
 
-      const { data, error } = await supabase
-        .from('budgets')
-        .select('id, client_name, created_at, total_price')
-        .eq('owner_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
+  useEffect(() => {
+    const fetchBudgets = async () => {
+      if (!profile?.id) return;
 
-      if (error) {
+      setBudgetsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('budgets')
+          .select('id, client_name, created_at, total_price')
+          .eq('owner_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (error) {
+          console.error('Error fetching recent budgets:', error);
+          setBudgets([]);
+        } else {
+          setBudgets(data || []);
+        }
+      } catch (error) {
         console.error('Error fetching recent budgets:', error);
-        return [];
+        setBudgets([]);
+      } finally {
+        setBudgetsLoading(false);
       }
-      return data;
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+    };
+
+    fetchBudgets();
+  }, [profile?.id]);
 
   return (
     <div className="space-y-6">
@@ -55,7 +70,7 @@ export const EnhancedDashboard = ({ onNavigateTo, activeView }: ModernDashboardP
 
       {/* License Status Card - New Addition */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <UserLicenseCard />
+        {isIOS ? <UserLicenseCardIOS /> : <UserLicenseCard />}
         
         <Card className="glass-card shadow-strong animate-slide-up">
           <CardHeader className="space-y-1">
