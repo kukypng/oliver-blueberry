@@ -400,6 +400,33 @@ export type Database = {
         }
         Relationships: []
       }
+      licenses: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          user_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ranking_invaders: {
         Row: {
           created_at: string
@@ -647,6 +674,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_license: {
+        Args: { license_code: string; p_user_id: string }
+        Returns: Json
+      }
+      admin_create_license: {
+        Args: { p_expires_at?: string }
+        Returns: Json
+      }
       admin_delete_user: {
         Args: { p_user_id: string }
         Returns: boolean
@@ -668,6 +703,19 @@ export type Database = {
       admin_get_dashboard_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      admin_get_licenses_with_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          code: string
+          user_id: string
+          user_email: string
+          user_name: string
+          expires_at: string
+          created_at: string
+          is_active: boolean
+        }[]
       }
       admin_get_logs: {
         Args: Record<PropertyKey, never>
@@ -708,6 +756,10 @@ export type Database = {
           p_sort_by?: string
           p_sort_order?: string
         }
+        Returns: Json
+      }
+      admin_renew_license: {
+        Args: { license_id: string; additional_days?: number }
         Returns: Json
       }
       admin_renew_user_license: {
@@ -761,6 +813,10 @@ export type Database = {
       fix_orphaned_budgets: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      generate_license_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_allowed_redirect_domains: {
         Args: Record<PropertyKey, never>

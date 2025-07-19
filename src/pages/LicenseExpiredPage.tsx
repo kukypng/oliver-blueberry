@@ -1,84 +1,165 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, CreditCard, ShieldCheck, User, HeartCrack, MessageCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { supabase } from '@/integrations/supabase/client';
+import { Shield, Key, MessageCircle, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export const LicenseExpiredPage = () => {
-  const { profile } = useAuth();
+  const [licenseCode, setLicenseCode] = useState('');
+  const [isActivating, setIsActivating] = useState(false);
+  const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
 
-  const isNewUser = !profile?.expiration_date;
+  const handleActivateLicense = async () => {
+    if (!licenseCode.trim()) {
+      showError({
+        title: 'Código Obrigatório',
+        description: 'Por favor, insira um código de licença válido.'
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      showError({
+        title: 'Erro de Autenticação',
+        description: 'Usuário não encontrado. Faça login novamente.'
+      });
+      return;
+    }
+
+    setIsActivating(true);
+
+    try {
+      const { data, error } = await supabase.rpc('activate_license', {
+        license_code: licenseCode.trim(),
+        p_user_id: user.id
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.success) {
+        showSuccess({
+          title: 'Licença Ativada!',
+          description: data.message || 'Sua licença foi ativada com sucesso.'
+        });
+        // Reload to refresh auth state
+        window.location.reload();
+      } else {
+        showError({
+          title: 'Erro na Ativação',
+          description: data?.error || 'Código de licença inválido ou já utilizado.'
+        });
+      }
+    } catch (error: any) {
+      console.error('Error activating license:', error);
+      showError({
+        title: 'Erro Inesperado',
+        description: 'Ocorreu um erro ao ativar a licença. Tente novamente.'
+      });
+    } finally {
+      setIsActivating(false);
+    }
+  };
 
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent('Olá! Preciso de ajuda com minha licença do sistema.');
+    const message = encodeURIComponent('Olá! Preciso de ajuda com minha licença do Oliver Blueberry.');
     const whatsappUrl = `https://wa.me/5511999999999?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
 
-  const pageContent = {
-    icon: isNewUser
-      ? <User className="w-12 h-12 text-primary" />
-      : <HeartCrack className="w-12 h-12 text-red-500" />,
-    title: isNewUser ? 'Ative sua Conta' : 'Licença Expirada',
-    titleColor: isNewUser ? 'text-primary' : 'text-[#ff0000]',
-    statusIcon: isNewUser ? <ShieldCheck className="w-5 h-5" /> : <Clock className="w-5 h-5" />,
-    statusText: isNewUser ? 'Sua conta precisa ser ativada' : 'Sua licença expirou',
-    statusColor: isNewUser ? 'text-blue-500' : 'text-red-600',
-    description: isNewUser
-      ? 'Para começar a usar o sistema, você precisa de uma assinatura ativa.'
-      : 'Para continuar usando o sistema, você precisa renovar sua licença.',
-    ctaTitle: isNewUser ? 'Como ativar sua assinatura?' : 'Como renovar sua licença?',
-    ctaDescription: isNewUser
-      ? 'Para ativar sua conta, entre em contato com o nosso suporte para que possamos liberar seu acesso.'
-      : 'Para renovar sua licença e continuar aproveitando todos os recursos do sistema, entre em contato com nosso suporte.',
-    footerText: isNewUser
-      ? 'Após a ativação, você terá acesso completo ao sistema.'
-      : 'Após a renovação, você terá acesso completo ao sistema.',
-  };
-
-  return <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4">
-            {pageContent.icon}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-orange-600" />
           </div>
-          <CardTitle className={`text-2xl font-bold ${pageContent.titleColor}`}>
-            {pageContent.title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-6">
-          <div className="space-y-3">
-            <div className={`flex items-center justify-center space-x-2 ${pageContent.statusColor}`}>
-              {pageContent.statusIcon}
-              <span className="font-medium">{pageContent.statusText}</span>
+          <h1 className="text-3xl font-bold text-foreground">Licença Expirada</h1>
+          <p className="text-muted-foreground">
+            Sua licença expirou ou não está ativa. Ative uma nova licença para continuar.
+          </p>
+        </div>
+
+        {/* License Activation Card */}
+        <Card className="shadow-lg">
+          <CardHeader className="text-center pb-4">
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-2">
+              <Key className="h-6 w-6 text-primary" />
             </div>
-            <p className="text-slate-50">
-              {pageContent.description}
+            <CardTitle className="text-xl">Ativar Licença</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Digite seu código de licença para reativar o acesso
             </p>
-          </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="license-code" className="text-sm font-medium text-foreground">
+                Código da Licença
+              </label>
+              <Input
+                id="license-code"
+                type="text"
+                placeholder="Ex: 3443331234567"
+                value={licenseCode}
+                onChange={(e) => setLicenseCode(e.target.value)}
+                className="font-mono text-center tracking-wider"
+                maxLength={13}
+              />
+              <p className="text-xs text-muted-foreground text-center">
+                Formato: 344333XXXXXXX (13 dígitos)
+              </p>
+            </div>
 
-          <div className="border border-primary/20 bg-secondary rounded-lg p-4">
-            <h3 className="font-semibold mb-2 text-foreground">
-              {pageContent.ctaTitle}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {pageContent.ctaDescription}
-            </p>
-            
-            <Button
-              onClick={handleWhatsAppContact}
-              className="w-full bg-green-500 hover:bg-green-600 text-white"
-              size="lg"
+            <Button 
+              onClick={handleActivateLicense}
+              disabled={isActivating || !licenseCode.trim()}
+              className="w-full"
             >
-              <MessageCircle className="mr-2 h-4 w-4" />
-              Contatar Suporte via WhatsApp
+              {isActivating ? 'Ativando...' : 'Ativar Licença'}
             </Button>
-          </div>
 
-          <div className="text-xs text-muted-foreground border-t pt-4">
-            <p>{pageContent.footerText}</p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>;
+            <Alert>
+              <Shield className="h-4 w-4" />
+              <AlertDescription className="text-sm">
+                Cada código de licença só pode ser usado uma vez. Certifique-se de digitar corretamente.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+
+        {/* Support Card */}
+        <Card className="shadow-lg">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <MessageCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">Precisa de Ajuda?</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Entre em contato conosco pelo WhatsApp para obter suporte ou adquirir uma nova licença.
+                </p>
+              </div>
+              <Button 
+                onClick={handleWhatsAppContact}
+                variant="outline"
+                className="w-full"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Falar no WhatsApp
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 };
