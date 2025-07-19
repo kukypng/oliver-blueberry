@@ -142,13 +142,14 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
         <h1 className="text-xl font-bold">Painel Admin</h1>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 space-y-4">
+      <div className="flex-1 overflow-auto p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch' }}>
         {/* Tabs */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
           <Button 
             variant={activeTab === 'users' ? 'default' : 'outline'}
             onClick={() => setActiveTab('users')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 whitespace-nowrap"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             <Users className="h-4 w-4" />
             Usuários
@@ -156,7 +157,8 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
           <Button 
             variant={activeTab === 'beta' ? 'default' : 'outline'}
             onClick={() => setActiveTab('beta')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 whitespace-nowrap"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             <Settings className="h-4 w-4" />
             Beta
@@ -164,7 +166,8 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
           <Button 
             variant={activeTab === 'game' ? 'default' : 'outline'}
             onClick={() => setActiveTab('game')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 whitespace-nowrap"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             <Gamepad2 className="h-4 w-4" />
            Jogo
