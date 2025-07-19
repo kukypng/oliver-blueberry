@@ -51,8 +51,8 @@ export const useEnhancedCsvData = () => {
         device_type: b.device_type,
         device_model: b.device_model,
         part_quality: b.part_quality,
-        issue: b.issue,
-        qualidade_final: b.part_quality || b.issue || '(vazio)'
+        notes: b.notes,
+        qualidade_final: b.part_quality || b.notes || '(vazio)'
       })));
 
       const csvContent = generateExportCsv(budgets);

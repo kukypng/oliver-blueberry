@@ -71,7 +71,7 @@ export const AuthPage = () => {
 
       if (error) throw error;
 
-      if (data?.success) {
+      if ((data as any)?.success) {
         showSuccess({
           title: 'Licença Ativada!',
           description: 'Redirecionando para o dashboard...'
@@ -80,7 +80,7 @@ export const AuthPage = () => {
       } else {
         showError({
           title: 'Erro na Ativação',
-          description: data?.error || 'Código inválido'
+          description: (data as any)?.error || 'Código inválido'
         });
       }
     } catch (error: any) {

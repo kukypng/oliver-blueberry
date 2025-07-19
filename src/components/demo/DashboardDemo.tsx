@@ -206,12 +206,7 @@ export const DashboardDemo: React.FC = () => {
             }}
           />
         ) : (
-          <ModernDashboard
-            onNewBudget={() => console.log('New budget')}
-            onViewBudgets={() => console.log('View budgets')}
-            onViewClients={() => console.log('View clients')}
-            onViewReports={() => console.log('View reports')}
-          />
+          <ModernDashboard />
         )}
       </div>
     </div>

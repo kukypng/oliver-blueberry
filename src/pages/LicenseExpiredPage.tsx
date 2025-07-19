@@ -44,17 +44,17 @@ export const LicenseExpiredPage = () => {
         throw error;
       }
 
-      if (data?.success) {
+      if ((data as any)?.success) {
         showSuccess({
           title: 'Licença Ativada!',
-          description: data.message || 'Sua licença foi ativada com sucesso.'
+          description: (data as any).message || 'Sua licença foi ativada com sucesso.'
         });
         // Reload to refresh auth state
         window.location.reload();
       } else {
         showError({
           title: 'Erro na Ativação',
-          description: data?.error || 'Código de licença inválido ou já utilizado.'
+          description: (data as any)?.error || 'Código de licença inválido ou já utilizado.'
         });
       }
     } catch (error: any) {

@@ -77,7 +77,7 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
     const pending = budgets.filter(b => b.status === 'pending').length;
     const revenue = budgets
       .filter(b => b.status === 'approved')
-      .reduce((sum, b) => sum + (b.total_amount || 0), 0);
+      .reduce((sum, b) => sum + (b.total_price || 0), 0);
 
     return { total, approved, pending, revenue };
   }, [budgets]);
@@ -90,9 +90,9 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
       .slice(0, 5)
       .map(budget => ({
         id: budget.id,
-        title: budget.device_info || 'Orçamento',
+        title: `${budget.device_type} ${budget.device_model}` || 'Orçamento',
         subtitle: budget.client_name || 'Cliente não informado',
-        value: `R$ ${(budget.total_amount || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        value: `R$ ${(budget.total_price || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
         status: budget.status === 'approved' ? 'success' as const :
                 budget.status === 'pending' ? 'warning' as const : 'info' as const
       }));
@@ -158,7 +158,7 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
               <Heading level="h1" size="2xl" className="mb-1">
-                Olá, {profile?.full_name?.split(' ')[0] || 'Usuário'}! 👋
+                Olá, {profile?.name?.split(' ')[0] || 'Usuário'}! 👋
               </Heading>
               <Text color="secondary">
                 Gerencie sua assistência técnica de forma profissional
@@ -363,7 +363,7 @@ export const EnhancedDashboard: React.FC<EnhancedDashboardProps> = ({
                         <Text size="sm">Licença</Text>
                       </div>
                       <Text size="sm" color="secondary">
-                        {profile?.license_expires_at ? 'Ativa' : 'Expirada'}
+                        {profile?.expiration_date && new Date(profile.expiration_date) > new Date() ? 'Ativa' : 'Expirada'}
                       </Text>
                     </div>
                   </div>

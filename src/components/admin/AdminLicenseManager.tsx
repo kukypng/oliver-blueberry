@@ -79,7 +79,7 @@ export const AdminLicenseManager = () => {
     onSuccess: (data) => {
       showSuccess({
         title: 'Licença Criada!',
-        description: `Nova licença criada: ${data.code}`
+        description: `Nova licença criada: ${(data as any).code}`
       });
       queryClient.invalidateQueries({ queryKey: ['admin-licenses'] });
       setExpirationDate('');
