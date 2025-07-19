@@ -8,7 +8,7 @@ import { AdminTestPanel } from '@/components/AdminTestPanel';
 import { SiteSettingsContent } from '@/components/SiteSettingsContent';
 import { AdminImageManager } from '@/components/admin/AdminImageManager';
 import { GameSettingsPanel } from '@/components/admin/GameSettingsPanel';
-import { AdminLicenseManager } from '@/components/admin/AdminLicenseManager';
+import { AdminLicenseManagerEnhanced } from '@/components/admin/AdminLicenseManagerEnhanced';
 import { Users, Shield, UserPlus, Settings, ChevronLeft, Globe, Image, Gamepad2, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -155,7 +155,7 @@ export const AdminPanel = () => {
         </TabsContent>
 
         <TabsContent value="licenses" className="mt-6 animate-fade-in">
-          <AdminLicenseManager />
+          <AdminLicenseManagerEnhanced />
         </TabsContent>
 
         <TabsContent value="site" className="mt-6 animate-fade-in">
