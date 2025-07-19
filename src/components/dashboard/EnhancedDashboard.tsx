@@ -25,8 +25,8 @@ export const EnhancedDashboard = ({ onNavigateTo, activeView }: ModernDashboardP
 
       const { data, error } = await supabase
         .from('budgets')
-        .select('id, name, created_at, total_amount')
-        .eq('user_id', profile.id)
+        .select('id, client_name, created_at, total_price')
+        .eq('owner_id', profile.id)
         .order('created_at', { ascending: false })
         .limit(5);
 
@@ -117,13 +117,13 @@ export const EnhancedDashboard = ({ onNavigateTo, activeView }: ModernDashboardP
               {budgets.map((budget) => (
                 <Card key={budget.id} className="bg-muted/50">
                   <CardHeader>
-                    <CardTitle>{budget.name}</CardTitle>
+                    <CardTitle>{budget.client_name}</CardTitle>
                     <CardTitle className="text-sm text-muted-foreground">
                       Criado em {new Date(budget.created_at).toLocaleDateString()}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold">R$ {budget.total_amount}</p>
+                    <p className="text-2xl font-bold">R$ {budget.total_price}</p>
                     <Button
                       variant="secondary"
                       className="w-full"
