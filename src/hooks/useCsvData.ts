@@ -25,6 +25,7 @@ export const useCsvData = () => {
     }
 
     try {
+      // BUSCA TODOS OS ORÇAMENTOS do usuário, incluindo os com campos vazios/zerados
       const { data: budgets, error } = await supabase
         .from('budgets')
         .select('*')
@@ -39,6 +40,17 @@ export const useCsvData = () => {
         setIsProcessing(false);
         return;
       }
+
+      console.log(`=== EXPORTAÇÃO CSV ===`);
+      console.log(`Total de orçamentos encontrados: ${budgets.length}`);
+      console.log('Orçamentos que serão exportados:', budgets.map(b => ({
+        id: b.id,
+        device_type: b.device_type,
+        device_model: b.device_model,
+        part_quality: b.part_quality,
+        issue: b.issue,
+        qualidade_final: b.part_quality || b.issue || '(vazio)'
+      })));
 
       const csvContent = generateExportCsv(budgets);
       

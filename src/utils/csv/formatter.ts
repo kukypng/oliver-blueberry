@@ -18,6 +18,7 @@ const formatCsvField = (value: any): string => {
 
 /**
  * Gera o conteúdo CSV para exportação a partir de uma lista de orçamentos.
+ * EXPORTA TODOS OS ORÇAMENTOS, mesmo com campos vazios ou zerados.
  * Usa cabeçalhos idênticos ao template de importação para garantir compatibilidade total.
  * @param budgets - A lista de orçamentos a ser exportada.
  * @returns O conteúdo do arquivo CSV como uma string.
@@ -31,6 +32,7 @@ export const generateExportCsv = (budgets: any[]): string => {
     'Inclui Pelicula'
   ];
 
+  // PROCESSA TODOS OS ORÇAMENTOS - não filtra nenhum registro
   const formattedData = budgets.map(b => {
     const validUntilDate = b.valid_until ? new Date(b.valid_until) : null;
     let validityDays = '';
@@ -48,19 +50,19 @@ export const generateExportCsv = (budgets: any[]): string => {
     const installmentPrice = b.installment_price ? (Number(b.installment_price) / 100).toFixed(2) : '';
 
     return [
-      b.device_type,                                    // Tipo Aparelho
-      b.device_model,                                   // Modelo Aparelho  
-      b.part_quality || b.issue || '',                 // Qualidade
-      b.part_type || b.device_info || '',              // Servico Realizado
-      b.notes || '',                                    // Observacoes
-      totalPrice,                                       // Preco Total
-      installmentPrice,                                 // Preco Parcelado
-      b.installments || '',                             // Parcelas
-      b.payment_condition || '',                        // Metodo de Pagamento
-      b.warranty_months || '',                          // Garantia (meses)
-      validityDays,                                     // Validade (dias)
-      b.includes_delivery ? 'sim' : 'nao',             // Inclui Entrega
-      b.includes_screen_protector ? 'sim' : 'nao',     // Inclui Pelicula
+      b.device_type || '',                              // Tipo Aparelho - SEMPRE exporta, mesmo vazio
+      b.device_model || '',                             // Modelo Aparelho - SEMPRE exporta, mesmo vazio
+      b.part_quality || b.issue || '',                 // Qualidade - SEMPRE exporta, mesmo vazio
+      b.part_type || b.device_info || '',              // Servico Realizado - SEMPRE exporta, mesmo vazio
+      b.notes || '',                                    // Observacoes - SEMPRE exporta, mesmo vazio
+      totalPrice,                                       // Preco Total - SEMPRE exporta (mínimo 0.00)
+      installmentPrice,                                 // Preco Parcelado - SEMPRE exporta, mesmo vazio
+      b.installments || '1',                           // Parcelas - SEMPRE exporta (padrão 1)
+      b.payment_condition || 'A Vista',                // Metodo de Pagamento - SEMPRE exporta (padrão A Vista)
+      b.warranty_months || '3',                        // Garantia (meses) - SEMPRE exporta (padrão 3)
+      validityDays || '15',                            // Validade (dias) - SEMPRE exporta (padrão 15)
+      b.includes_delivery ? 'sim' : 'nao',             // Inclui Entrega - SEMPRE exporta
+      b.includes_screen_protector ? 'sim' : 'nao',     // Inclui Pelicula - SEMPRE exporta
     ];
   });
 
