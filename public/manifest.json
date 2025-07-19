@@ -1,0 +1,110 @@
+{
+  "name": "Oliver - Sistema de Orçamentos",
+  "short_name": "Oliver",
+  "description": "O melhor sistema de orçamentos para sua empresa",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "scope": "/",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Orçamento",
+      "short_name": "Novo",
+      "description": "Criar um novo orçamento",
+      "url": "/new-budget",
+      "icons": [
+        {
+          "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Orçamentos",
+      "short_name": "Lista",
+      "description": "Ver todos os orçamentos",
+      "url": "/budgets",
+      "icons": [
+        {
+          "src": "/lovable-uploads/70ac6704-1861-419e-87c1-7d93fe885876.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/lovable-uploads/logoo.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard do Oliver"
+    },
+    {
+      "src": "/lovable-uploads/logoo.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Oliver Mobile"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
