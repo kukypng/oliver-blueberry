@@ -18,9 +18,9 @@ export const generateTemplateCsv = (): string => {
     ''
   ];
 
-  // Cabeçalhos alinhados com o formato de exportação para garantir compatibilidade.
+  // Cabeçalhos IDÊNTICOS ao formato de exportação para garantir compatibilidade total.
   const headers = [
-    'Aparelho/Serviço', 'Modelo Aparelho', 'Qualidade',
+    'Tipo Aparelho', 'Modelo Aparelho', 'Qualidade',
     'Servico Realizado', 'Observacoes', 'Preco Total', 'Preco Parcelado', 'Parcelas',
     'Metodo de Pagamento', 'Garantia (meses)', 'Validade (dias)', 'Inclui Entrega',
     'Inclui Pelicula'

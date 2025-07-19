@@ -51,7 +51,7 @@ export const parseAndPrepareBudgets = (csvText: string, userId: string): BudgetI
     }
 
     if (!rowObject['tipo_aparelho'] || !rowObject['modelo_aparelho'] || !rowObject['qualidade'] || !rowObject['servico_realizado']) {
-      throw new Error(`Dados obrigatórios faltando na linha ${headerRowIndex + rowIndex + 2}. Verifique 'Aparelho/Serviço', 'Modelo Aparelho', 'Qualidade' e 'Servico Realizado'.`);
+      throw new Error(`Dados obrigatórios faltando na linha ${headerRowIndex + rowIndex + 2}. Verifique 'Tipo Aparelho', 'Modelo Aparelho', 'Qualidade' e 'Servico Realizado'.`);
     }
 
     const installmentPriceString = String(rowObject['preco_parcelado'] || '0').replace(',', '.');

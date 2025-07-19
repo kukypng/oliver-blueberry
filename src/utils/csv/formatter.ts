@@ -18,15 +18,15 @@ const formatCsvField = (value: any): string => {
 
 /**
  * Gera o conteúdo CSV para exportação a partir de uma lista de orçamentos.
- * Usa cabeçalhos limpos e pode ser re-importado.
+ * Usa cabeçalhos idênticos ao template de importação para garantir compatibilidade total.
  * @param budgets - A lista de orçamentos a ser exportada.
  * @returns O conteúdo do arquivo CSV como uma string.
  */
 export const generateExportCsv = (budgets: any[]): string => {
-  // Cabeçalhos para exportação devem ser limpos e consistentes para re-importação.
+  // Cabeçalhos IDÊNTICOS ao template de importação para garantir re-importação perfeita
   const headers = [
-    'Tipo Aparelho', 'Aparelho/Serviço', 'Qualidade',
-    'Observacoes', 'Preco Total', 'Preco Parcelado', 'Parcelas',
+    'Tipo Aparelho', 'Modelo Aparelho', 'Qualidade',
+    'Servico Realizado', 'Observacoes', 'Preco Total', 'Preco Parcelado', 'Parcelas',
     'Metodo de Pagamento', 'Garantia (meses)', 'Validade (dias)', 'Inclui Entrega',
     'Inclui Pelicula'
   ];
@@ -48,18 +48,19 @@ export const generateExportCsv = (budgets: any[]): string => {
     const installmentPrice = b.installment_price ? (Number(b.installment_price) / 100).toFixed(2) : '';
 
     return [
-      b.device_type,
-      b.device_model,
-      b.part_quality || b.issue || '',
-      b.notes || '',
-      totalPrice,
-      installmentPrice,
-      b.installments,
-      b.payment_condition,
-      b.warranty_months,
-      validityDays,
-      b.includes_delivery ? 'sim' : 'nao',
-      b.includes_screen_protector ? 'sim' : 'nao',
+      b.device_type,                                    // Tipo Aparelho
+      b.device_model,                                   // Modelo Aparelho  
+      b.part_quality || b.issue || '',                 // Qualidade
+      b.part_type || b.device_info || '',              // Servico Realizado
+      b.notes || '',                                    // Observacoes
+      totalPrice,                                       // Preco Total
+      installmentPrice,                                 // Preco Parcelado
+      b.installments || '',                             // Parcelas
+      b.payment_condition || '',                        // Metodo de Pagamento
+      b.warranty_months || '',                          // Garantia (meses)
+      validityDays,                                     // Validade (dias)
+      b.includes_delivery ? 'sim' : 'nao',             // Inclui Entrega
+      b.includes_screen_protector ? 'sim' : 'nao',     // Inclui Pelicula
     ];
   });
 

@@ -42,16 +42,16 @@ interface FadeInUpProps {
   duration?: number;
 }
 
-export const FadeInUp: React.FC<FadeInUpProps> = ({ 
-  children, 
-  delay = 0, 
+export const FadeInUp: React.FC<FadeInUpProps> = ({
+  children,
+  delay = 0,
   className,
-  duration = 0.5 
+  duration = 0.5
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ 
+    transition={{
       duration,
       delay,
       ease: [0.4, 0, 0.2, 1]
@@ -69,10 +69,10 @@ interface ScaleOnHoverProps {
   className?: string;
 }
 
-export const ScaleOnHover: React.FC<ScaleOnHoverProps> = ({ 
-  children, 
+export const ScaleOnHover: React.FC<ScaleOnHoverProps> = ({
+  children,
   scale = 1.02,
-  className 
+  className
 }) => (
   <motion.div
     whileHover={{ scale }}
@@ -90,12 +90,12 @@ interface SkeletonProps {
   variant?: 'text' | 'rectangular' | 'circular';
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({ 
-  className, 
-  variant = 'rectangular' 
+export const Skeleton: React.FC<SkeletonProps> = ({
+  className,
+  variant = 'rectangular'
 }) => {
   const baseClasses = "animate-pulse bg-gradient-to-r from-muted via-muted/50 to-muted";
-  
+
   const variantClasses = {
     text: "h-4 rounded",
     rectangular: "rounded-lg",
@@ -103,7 +103,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   };
 
   return (
-    <div 
+    <div
       className={cn(
         baseClasses,
         variantClasses[variant],
@@ -119,9 +119,9 @@ interface PageTransitionProps {
   className?: string;
 }
 
-export const PageTransition: React.FC<PageTransitionProps> = ({ 
-  children, 
-  className 
+export const PageTransition: React.FC<PageTransitionProps> = ({
+  children,
+  className
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
@@ -141,10 +141,10 @@ interface StaggerListProps {
   staggerDelay?: number;
 }
 
-export const StaggerList: React.FC<StaggerListProps> = ({ 
-  children, 
+export const StaggerList: React.FC<StaggerListProps> = ({
+  children,
   className,
-  staggerDelay = 0.1 
+  staggerDelay = 0.1
 }) => (
   <motion.div
     variants={staggerContainer}
@@ -171,10 +171,10 @@ interface BounceProps {
   className?: string;
 }
 
-export const Bounce: React.FC<BounceProps> = ({ 
-  children, 
+export const Bounce: React.FC<BounceProps> = ({
+  children,
   trigger = false,
-  className 
+  className
 }) => (
   <motion.div
     animate={trigger ? { scale: [1, 1.1, 1] } : {}}
@@ -193,11 +193,11 @@ interface SlideModalProps {
   direction?: 'up' | 'down' | 'left' | 'right';
 }
 
-export const SlideModal: React.FC<SlideModalProps> = ({ 
-  children, 
-  isOpen, 
+export const SlideModal: React.FC<SlideModalProps> = ({
+  children,
+  isOpen,
   onClose,
-  direction = 'up' 
+  direction = 'up'
 }) => {
   const slideVariants = {
     up: { y: '100%' },

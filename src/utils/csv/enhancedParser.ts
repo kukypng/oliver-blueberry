@@ -174,11 +174,9 @@ export class EnhancedCsvParser {
   public parseAndValidate(csvText: string, userId: string): ImportSummary {
     const allLines = csvText.split(/\r\n|\n/);
     
-    // Encontrar cabeçalho
+    // Encontrar cabeçalho - deve ser exatamente igual ao formato de exportação
     const headerRowIndex = allLines.findIndex(line => 
-      line.includes('Tipo Aparelho') || 
-      line.includes('tipo_aparelho') ||
-      line.includes('Device Type')
+      line.includes('Tipo Aparelho') && line.includes('Modelo Aparelho') && line.includes('Preco Total')
     );
 
     if (headerRowIndex === -1) {
