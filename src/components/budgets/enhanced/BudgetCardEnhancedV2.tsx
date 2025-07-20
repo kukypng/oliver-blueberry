@@ -208,7 +208,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                 {budget.installments && budget.installments > 1 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Parcelado:</span>
-                    <span className="font-medium">{budget.installments}x {formatCurrency((budget.installment_price || budget.total_price || 0) / budget.installments)}</span>
+                    <span className="font-medium">{budget.installments}x {formatCurrency(budget.installment_price || 0)}</span>
                   </div>
                 )}
               </div>
