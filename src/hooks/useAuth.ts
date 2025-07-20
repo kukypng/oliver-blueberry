@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
-export type UserRole = 'user' | 'admin' | 'manager';
+export type UserRole = 'user' | 'admin' | 'manager' | string;
 
 interface UserProfile {
   id: string;
@@ -13,6 +13,10 @@ interface UserProfile {
   budget_warning_enabled?: boolean;
   budget_warning_days?: number;
   advanced_features_enabled?: boolean;
+  budget_limit?: number;
+  username?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface AuthReturn {
@@ -21,8 +25,10 @@ interface AuthReturn {
   loading: boolean;
   signOut: () => Promise<{ error: any }>;
   signIn: (email: string, password: string, redirectTo?: string) => Promise<any>;
-  signUp: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, options?: any) => Promise<any>;
   requestPasswordReset: (email: string) => Promise<any>;
+  updateEmail?: (email: string) => Promise<any>;
+  updatePassword?: (password: string) => Promise<any>;
   hasRole: (role: UserRole) => boolean;
   hasPermission: (permission: string) => boolean;
 }
@@ -89,7 +95,7 @@ export const useAuth = (): AuthReturn => {
       case 'manage_users':
         return profile.role === 'admin';
       case 'manage_settings':
-        return ['admin', 'manager'].includes(profile.role);
+        return profile.role === 'admin' || profile.role === 'manager';
       default:
         return true;
     }
@@ -99,8 +105,8 @@ export const useAuth = (): AuthReturn => {
     return supabase.auth.signInWithPassword({ email, password });
   };
 
-  const signUp = async (email: string, password: string) => {
-    return supabase.auth.signUp({ email, password });
+  const signUp = async (email: string, password: string, options?: any) => {
+    return supabase.auth.signUp({ email, password, options });
   };
 
   const requestPasswordReset = async (email: string) => {
@@ -111,6 +117,14 @@ export const useAuth = (): AuthReturn => {
     return supabase.auth.signOut();
   };
 
+  const updateEmail = async (email: string) => {
+    return supabase.auth.updateUser({ email });
+  };
+
+  const updatePassword = async (password: string) => {
+    return supabase.auth.updateUser({ password });
+  };
+
   return {
     user,
     profile,
@@ -119,6 +133,8 @@ export const useAuth = (): AuthReturn => {
     signIn,
     signUp,
     requestPasswordReset,
+    updateEmail,
+    updatePassword,
     hasRole,
     hasPermission
   };

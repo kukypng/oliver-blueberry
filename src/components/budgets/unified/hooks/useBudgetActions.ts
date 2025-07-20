@@ -49,8 +49,9 @@ export const useBudgetActions = (options: UseBudgetActionsOptions = {}) => {
         }
       }
 
-      const message = generateWhatsAppMessage(fullBudget, shopProfile);
-      shareViaWhatsApp(message);
+      const message = generateWhatsAppMessage(fullBudget);
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
 
       toast({
         title: 'Compartilhado!',
@@ -97,7 +98,7 @@ export const useBudgetActions = (options: UseBudgetActionsOptions = {}) => {
         shop_phone: shopProfile?.contact_phone || ''
       };
 
-      const pdfBlob = await generateBudgetPDF(budgetData, shopProfile);
+      const pdfBlob = await generateBudgetPDF(budgetData);
       const pdfUrl = URL.createObjectURL(pdfBlob);
       
       // Abrir PDF em nova aba
@@ -210,7 +211,7 @@ export const useBudgetActions = (options: UseBudgetActionsOptions = {}) => {
         shop_address: shopProfile?.address || '',
         shop_phone: shopProfile?.contact_phone || ''
       };
-      const pdfBlob = await generateBudgetPDF(budgetData, shopProfile);
+      const pdfBlob = await generateBudgetPDF(budgetData);
       
       // Usar Web Share API se disponível
       if ('share' in navigator) {
