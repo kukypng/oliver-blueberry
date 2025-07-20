@@ -130,6 +130,7 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
           onSearchChange={setSearchTerm}
           onClearSearch={handleClearSearch}
           onQuickSearch={handleQuickSearch}
+          onSearch={setSearchTerm}
           resultCount={searchStats.totalResults}
           totalValue={searchStats.totalValue}
           isSearching={isSearching}

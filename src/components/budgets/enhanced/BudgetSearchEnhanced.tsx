@@ -6,6 +6,7 @@ interface BudgetSearchEnhancedProps {
   onSearchChange: (term: string) => void;
   onClearSearch: () => void;
   onQuickSearch: (term: string) => void;
+  onSearch: (term: string) => void;
   resultCount: number;
   totalValue: number;
   isSearching: boolean;
@@ -18,6 +19,7 @@ export const BudgetSearchEnhanced: React.FC<BudgetSearchEnhancedProps> = ({
   onSearchChange,
   onClearSearch,
   onQuickSearch,
+  onSearch,
   resultCount,
   totalValue,
   isSearching,
@@ -25,6 +27,7 @@ export const BudgetSearchEnhanced: React.FC<BudgetSearchEnhancedProps> = ({
   searchSuggestions
 }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [inputValue, setInputValue] = useState(searchTerm);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -34,7 +37,20 @@ export const BudgetSearchEnhanced: React.FC<BudgetSearchEnhancedProps> = ({
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    onQuickSearch(suggestion);
+    setInputValue(suggestion);
+    onSearch(suggestion);
+    setShowSuggestions(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      onSearch(inputValue);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSearchClick = () => {
+    onSearch(inputValue);
     setShowSuggestions(false);
   };
 
@@ -42,33 +58,47 @@ export const BudgetSearchEnhanced: React.FC<BudgetSearchEnhancedProps> = ({
     <div className="space-y-3">
       {/* Campo de busca principal */}
       <div className="relative">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <input
-            type="search"
-            inputMode="search"
-            placeholder="Buscar por cliente, dispositivo, serviço..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            className="w-full pl-10 pr-10 py-3 bg-muted/50 border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            style={{ touchAction: 'manipulation' }}
-          />
-          {isSearching && (
-            <div className="absolute right-10 top-1/2 transform -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-          {searchTerm && (
-            <button
-              onClick={onClearSearch}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+        <div className="relative flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <input
+              type="search"
+              inputMode="search"
+              placeholder="Buscar por cliente, dispositivo, serviço..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+              className="w-full pl-10 pr-10 py-3 bg-muted/50 border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
               style={{ touchAction: 'manipulation' }}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+            />
+            {isSearching && (
+              <div className="absolute right-10 top-1/2 transform -translate-y-1/2">
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+            {inputValue && (
+              <button
+                onClick={() => {
+                  setInputValue('');
+                  onClearSearch();
+                }}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                style={{ touchAction: 'manipulation' }}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <button
+            onClick={handleSearchClick}
+            className="px-4 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors flex items-center gap-2"
+            style={{ touchAction: 'manipulation' }}
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Buscar</span>
+          </button>
         </div>
 
         {/* Sugestões e histórico */}
