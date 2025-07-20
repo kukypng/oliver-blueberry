@@ -48,7 +48,7 @@ export const useUserManagement = () => {
         name: user.name || 'Nome não disponível',
         email: user.email || 'Email não disponível',
         role: user.role || 'user',
-        is_active: Boolean(user.is_active),
+        license_active: Boolean(user.license_active),
         expiration_date: user.expiration_date || new Date().toISOString(),
         created_at: user.created_at || new Date().toISOString(),
         last_sign_in_at: user.last_sign_in_at || null,

@@ -4,7 +4,7 @@ export interface User {
   name: string;
   email: string;
   role: string;
-  is_active: boolean;
+  license_active: boolean;
   expiration_date: string;
   created_at: string;
   last_sign_in_at: string | null;

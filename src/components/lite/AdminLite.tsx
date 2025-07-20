@@ -57,8 +57,8 @@ const AdminLiteComponent = ({
   // Stats calculation based on users data
   const stats = {
     totalUsers: users?.length || 0,
-    activeUsers: users?.filter((user: any) => user.is_active && new Date(user.expiration_date) > new Date()).length || 0,
-    expiredUsers: users?.filter((user: any) => !user.is_active || new Date(user.expiration_date) <= new Date()).length || 0
+    activeUsers: users?.filter((user: any) => user.license_active && new Date(user.expiration_date) > new Date()).length || 0,
+    expiredUsers: users?.filter((user: any) => !user.license_active || new Date(user.expiration_date) <= new Date()).length || 0
   };
   const getLicenseStatus = (user: any) => {
     if (!user.expiration_date) return 'Sem licença';
@@ -75,7 +75,7 @@ const AdminLiteComponent = ({
     if (!user.expiration_date) return 'bg-gray-500/20 text-gray-900 dark:text-gray-200';
     const now = new Date();
     const expiresAt = new Date(user.expiration_date);
-    if (expiresAt > now && user.is_active) {
+    if (expiresAt > now && user.license_active) {
       return 'bg-green-500/20 text-green-900 dark:text-green-200';
     } else {
       return 'bg-red-500/20 text-red-900 dark:text-red-200';
@@ -285,18 +285,25 @@ const AdminLiteComponent = ({
                       
                       <Button 
                         size="sm" 
-                        variant={user.is_active ? "outline" : "default"}
-                        onClick={() => {
-                          // Toggle user active status
-                          const action = user.is_active ? 'desativar' : 'ativar';
-                          if (confirm(`Tem certeza que deseja ${action} este usuário?`)) {
-                            // This would need implementation in useUserManagement
-                            console.log(`${action} user:`, user.id);
+                        variant={user.license_active ? "outline" : "default"}
+                        onClick={async () => {
+                          const action = user.license_active ? 'desativar' : 'ativar';
+                          if (confirm(`Tem certeza que deseja ${action} a licença deste usuário?`)) {
+                            try {
+                              const { error } = await supabase.rpc(
+                                user.license_active ? 'admin_deactivate_user_license' : 'admin_activate_user_license',
+                                { p_user_id: user.id }
+                              );
+                              if (error) throw error;
+                              window.location.reload();
+                            } catch (error) {
+                              console.error('Erro ao alterar licença:', error);
+                            }
                           }
                         }}
                         className="text-xs"
                       >
-                        {user.is_active ? 'Desativar' : 'Ativar'}
+                        {user.license_active ? 'Desativar' : 'Ativar'}
                       </Button>
                       
                       <Button 

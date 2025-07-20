@@ -618,7 +618,6 @@ export type Database = {
           created_at: string
           expiration_date: string
           id: string
-          is_active: boolean
           name: string
           role: string | null
           updated_at: string
@@ -632,7 +631,6 @@ export type Database = {
           created_at?: string
           expiration_date?: string
           id: string
-          is_active?: boolean
           name: string
           role?: string | null
           updated_at?: string
@@ -646,7 +644,6 @@ export type Database = {
           created_at?: string
           expiration_date?: string
           id?: string
-          is_active?: boolean
           name?: string
           role?: string | null
           updated_at?: string
@@ -688,12 +685,20 @@ export type Database = {
         Args: { license_code: string; p_user_id: string }
         Returns: Json
       }
+      admin_activate_user_license: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       admin_create_bulk_licenses: {
         Args: { p_quantity: number; p_expires_in_days?: number }
         Returns: Json
       }
       admin_create_license: {
         Args: { p_expires_at?: string }
+        Returns: Json
+      }
+      admin_deactivate_user_license: {
+        Args: { p_user_id: string }
         Returns: Json
       }
       admin_delete_user: {
@@ -707,7 +712,7 @@ export type Database = {
           name: string
           email: string
           role: string
-          is_active: boolean
+          license_active: boolean
           expiration_date: string
           created_at: string
           last_sign_in_at: string
@@ -927,6 +932,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_user_license_active: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       log_admin_access: {
         Args: {
           p_action: string
@@ -980,10 +989,6 @@ export type Database = {
           result: boolean
           description: string
         }[]
-      }
-      update_expired_users: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       update_shop_profile: {
         Args: {

@@ -67,10 +67,6 @@ export const ProtectedRoute = ({
     return <LicenseExpiredPage />;
   }
 
-  if (!profile.is_active) {
-    return <LicenseExpiredPage />;
-  }
-
   // Explicit role checking for admin routes
   if (requiredRole && !hasRole(requiredRole)) {
     return (

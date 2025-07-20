@@ -19,7 +19,6 @@ interface UserProfile {
   id: string;
   name: string;
   role: string;
-  is_active: boolean;
   expiration_date: string;
   budget_limit: number | null;
   email?: string;
@@ -132,7 +131,7 @@ export const UserManagementLite = ({ onBack }: UserManagementLiteProps) => {
           id: authUser.user.id,
           name: newUser.name,
           role: newUser.role,
-          is_active: true,
+          
           budget_limit: newUser.budget_limit ? parseInt(newUser.budget_limit) : null,
           expiration_date: expirationDate
         });
@@ -194,8 +193,7 @@ export const UserManagementLite = ({ onBack }: UserManagementLiteProps) => {
       const newExpirationDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
 
       await handleUpdateUser(userId, {
-        expiration_date: newExpirationDate,
-        is_active: true
+        expiration_date: newExpirationDate
       });
 
       showSuccess({
@@ -406,8 +404,8 @@ export const UserManagementLite = ({ onBack }: UserManagementLiteProps) => {
                     <Badge className={getRoleBadgeColor(user.role)}>
                       {user.role}
                     </Badge>
-                    <Badge variant={user.is_active ? "default" : "secondary"}>
-                      {user.is_active ? "Ativo" : "Inativo"}
+                    <Badge variant="default">
+                      Usuário
                     </Badge>
                   </div>
                 </div>
@@ -477,13 +475,6 @@ export const UserManagementLite = ({ onBack }: UserManagementLiteProps) => {
                 </Select>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={editingUser.is_active}
-                  onCheckedChange={(checked) => setEditingUser({...editingUser, is_active: checked})}
-                />
-                <Label>Usuário ativo</Label>
-              </div>
 
               <div className="flex gap-3">
                 <Button 
