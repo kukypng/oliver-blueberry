@@ -41,7 +41,7 @@ export const LicensePage = () => {
     if (!licenseCode.startsWith('344333') || licenseCode.length !== 13) {
       showError({
         title: 'Formato Inválido',
-        description: 'O código deve começar com 344333 e ter 13 dígitos.'
+        description: 'O código deve ter 13 dígitos.'
       });
       return;
     }
