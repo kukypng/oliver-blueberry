@@ -55,26 +55,13 @@ O **Oliver System** implementa um conjunto abrangente de medidas de segurança p
 - ✅ **Right to be forgotten** implementado
 - ✅ **Privacy by design** em toda a arquitetura
 
----
-
-## 🚨 **Versões Suportadas**
-
-| Versão | Suporte de Segurança |
-| ------- | ------------------- |
-| 2.x.x   | ✅ **Suporte Total** |
-| 1.x.x   | ⚠️ **Apenas Patches Críticos** |
-| < 1.0   | ❌ **Sem Suporte** |
-
----
-
 ## 🔍 **Como Reportar Vulnerabilidades**
 
 Levamos a segurança muito a sério. Se você descobrir uma vulnerabilidade, pedimos que siga nosso processo de **Divulgação Responsável**:
 
 ### **📧 Contato Seguro**
-- **E-mail Principal**: security@oliver.com.br
-- **E-mail Alternativo**: bugs@kuky.cloud
-- **PGP Key**: [Download da chave pública](#)
+- **E-mail Principal**: kuky.png@gmail.com
+- **E-mail Alternativo**: suporte@kuky.cloud
 
 ### **📋 Processo de Reporte**
 
@@ -95,47 +82,10 @@ Levamos a segurança muito a sério. Se você descobrir uma vulnerabilidade, ped
 - **Correção de Vulnerabilidades Médias**: 30 dias
 - **Correção de Vulnerabilidades Baixas**: 90 dias
 
----
-
-## 🏆 **Programa de Recompensas**
-
-Reconhecemos e valorizamos pesquisadores de segurança que nos ajudam a manter o Oliver seguro:
-
-| **Severidade** | **Recompensa** | **Critérios** |
-|:-------------:|:-------------:|:-------------:|
-| 🔴 **Crítica** | R$ 1.000 - R$ 5.000 | RCE, SQL Injection, Auth Bypass |
-| 🟠 **Alta** | R$ 500 - R$ 1.000 | Privilege Escalation, XSS Stored |
-| 🟡 **Média** | R$ 100 - R$ 500 | Information Disclosure, CSRF |
-| 🔵 **Baixa** | R$ 50 - R$ 100 | XSS Reflected, Minor Info Leak |
-
-### **Regras do Programa**
-- ✅ Teste apenas em contas próprias ou autorizadas
-- ✅ Não acesse dados de outros usuários
-- ✅ Relate a vulnerabilidade responsavelmente
-- ❌ Não faça ataques DoS ou spam
-- ❌ Não use engenharia social
-
----
-
-## 📊 **Transparência e Histórico**
-
-### **Vulnerabilidades Corrigidas**
-- **2024-Q4**: Nenhuma vulnerabilidade crítica reportada
-- **2024-Q3**: 2 vulnerabilidades baixas corrigidas
-- **2024-Q2**: 1 vulnerabilidade média corrigida
-
-### **Melhorias de Segurança Recentes**
-- **Janeiro 2025**: Implementação de MFA obrigatório para admins
-- **Dezembro 2024**: Upgrade para TLS 1.3
-- **Novembro 2024**: Implementação de Content Security Policy (CSP)
-
----
-
 ## 📞 **Contato de Emergência**
 
 Para **vulnerabilidades críticas** que representem risco imediato:
 
-- **📧 E-mail**: emergency-security@oliver.com.br
 - **📱 WhatsApp**: +55 (64) 9602-8022 (apenas emergências)
 - **⏰ Disponibilidade**: 24/7 para vulnerabilidades críticas
 
@@ -157,6 +107,6 @@ Para **vulnerabilidades críticas** que representem risco imediato:
 
 *"A segurança não é um produto, mas um processo"*
 
-[![Report Vulnerability](https://img.shields.io/badge/🚨_REPORTAR_VULNERABILIDADE-red?style=for-the-badge)](mailto:security@oliver.com.br)
+[![Report Vulnerability](https://img.shields.io/badge/🚨_REPORTAR_VULNERABILIDADE-red?style=for-the-badge)](mailto:kuky.png@gmail.com)
 
 </div>
