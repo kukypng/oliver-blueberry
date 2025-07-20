@@ -70,9 +70,14 @@ export const BudgetCardMobileSimplified: React.FC<BudgetCardMobileSimplifiedProp
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Smartphone className="h-3 w-3 shrink-0" />
             <span className="truncate">
-              {budget.device_type || 'Dispositivo'}
+              {budget.device_model ? `${budget.device_type || 'Dispositivo'} ${budget.device_model}` : (budget.device_type || 'Dispositivo')}
             </span>
           </div>
+          {budget.part_type && (
+            <div className="text-xs text-primary font-medium mt-1">
+              {budget.part_type}
+            </div>
+          )}
         </div>
 
         {/* Status compacto */}

@@ -138,18 +138,24 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
           isUpdating={isUpdating}
         />
 
-        {/* Botão de expansão */}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-background/90 backdrop-blur-sm border border-border rounded-full p-1.5 hover:bg-muted transition-colors"
-          style={{ touchAction: 'manipulation' }}
-        >
-          {isExpanded ? (
-            <ChevronUp className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          )}
-        </button>
+        {/* Botão de expansão melhorado para móvel */}
+        <div className="flex justify-center mt-3">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center gap-2 px-4 py-2 bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground rounded-full text-sm font-medium transition-all duration-200 active:scale-95"
+            style={{ 
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent'
+            }}
+          >
+            <span>{isExpanded ? 'Menos detalhes' : 'Mais detalhes'}</span>
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Painel expandido */}
