@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 interface SwipeGestureOptions {
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
   threshold?: number;
-  preventScrollOnSwipe?: boolean;
+  resistance?: number;
 }
 
 export const useSwipeGesture = (options: SwipeGestureOptions) => {
@@ -12,67 +12,72 @@ export const useSwipeGesture = (options: SwipeGestureOptions) => {
     onSwipeLeft,
     onSwipeRight,
     threshold = 50,
-    preventScrollOnSwipe = true
+    resistance = 0.3
   } = options;
 
-  const touchStartX = useRef<number | null>(null);
-  const touchStartY = useRef<number | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+  const startX = useRef(0);
+  const currentX = useRef(0);
+  const isDragging = useRef(false);
 
-  useEffect(() => {
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartX.current = e.touches[0].clientX;
-      touchStartY.current = e.touches[0].clientY;
-    };
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX;
+    currentX.current = e.touches[0].clientX;
+    isDragging.current = true;
+    setIsActive(true);
+  }, []);
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!touchStartX.current || !touchStartY.current) return;
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging.current) return;
 
-      const currentX = e.touches[0].clientX;
-      const currentY = e.touches[0].clientY;
-      
-      const diffX = touchStartX.current - currentX;
-      const diffY = touchStartY.current - currentY;
+    currentX.current = e.touches[0].clientX;
+    const deltaX = currentX.current - startX.current;
+    
+    // Aplicar resistência para limitar o swipe
+    const resistantDelta = deltaX * resistance;
+    setSwipeOffset(resistantDelta);
 
-      // Prevent scroll if horizontal swipe is detected and option is enabled
-      if (preventScrollOnSwipe && Math.abs(diffX) > Math.abs(diffY)) {
-        e.preventDefault();
+    // Prevenir scroll vertical durante swipe horizontal
+    if (Math.abs(deltaX) > 10) {
+      e.preventDefault();
+    }
+  }, [resistance]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging.current) return;
+
+    const deltaX = currentX.current - startX.current;
+    const absDistance = Math.abs(deltaX);
+
+    if (absDistance > threshold) {
+      if (deltaX > 0 && onSwipeRight) {
+        onSwipeRight();
+      } else if (deltaX < 0 && onSwipeLeft) {
+        onSwipeLeft();
       }
-    };
+    }
 
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (!touchStartX.current || !touchStartY.current) return;
+    // Reset
+    isDragging.current = false;
+    setIsActive(false);
+    setSwipeOffset(0);
+  }, [threshold, onSwipeLeft, onSwipeRight]);
 
-      const touchEndX = e.changedTouches[0].clientX;
-      const touchEndY = e.changedTouches[0].clientY;
-      
-      const diffX = touchStartX.current - touchEndX;
-      const diffY = touchStartY.current - touchEndY;
+  const resetSwipe = useCallback(() => {
+    setSwipeOffset(0);
+    setIsActive(false);
+    isDragging.current = false;
+  }, []);
 
-      // Only trigger swipe if horizontal movement is greater than vertical
-      if (Math.abs(diffX) > Math.abs(diffY)) {
-        if (Math.abs(diffX) > threshold) {
-          if (diffX > 0) {
-            // Swipe Left
-            onSwipeLeft?.();
-          } else {
-            // Swipe Right
-            onSwipeRight?.();
-          }
-        }
-      }
-
-      touchStartX.current = null;
-      touchStartY.current = null;
-    };
-
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [onSwipeLeft, onSwipeRight, threshold, preventScrollOnSwipe]);
+  return {
+    swipeOffset,
+    isActive,
+    handlers: {
+      onTouchStart: handleTouchStart,
+      onTouchMove: handleTouchMove,
+      onTouchEnd: handleTouchEnd,
+    },
+    resetSwipe
+  };
 };
