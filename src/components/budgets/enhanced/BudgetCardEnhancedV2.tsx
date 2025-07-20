@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Share, FileText, Trash2, Eye, Clock, DollarSign } from 'lucide-react';
 import { BudgetCardRedesigned } from './BudgetCardRedesigned';
+import { useMobileDetection } from '../../../hooks/useMobileDetection';
 import type { Budget } from '../../../types/budget';
 
 interface BudgetCardEnhancedV2Props {
@@ -26,6 +27,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const { isMobile } = useMobileDetection();
 
   const handleAction = async (action: string, callback: () => void) => {
     setActionLoading(action);
@@ -33,6 +35,58 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
       await callback();
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  const handlePDFAction = async () => {
+    if (isMobile && navigator.share) {
+      // Para dispositivos móveis, usar compartilhamento nativo
+      try {
+        setActionLoading('pdf');
+        
+        // Gerar PDF
+        const budgetData = {
+          id: budget.id,
+          device_model: budget.device_model || 'Dispositivo',
+          device_type: budget.device_type || 'Celular',
+          part_quality: budget.part_type || 'Reparo',
+          cash_price: budget.cash_price || budget.total_price || 0,
+          installment_price: budget.installment_price || 0,
+          installments: budget.installments || 1,
+          warranty_months: budget.warranty_months || 3,
+          created_at: budget.created_at,
+          valid_until: budget.valid_until || budget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+          client_name: budget.client_name || '',
+          client_phone: budget.client_phone || '',
+          shop_name: 'Minha Loja',
+          shop_address: 'Endereço da Loja',
+          shop_phone: '(11) 99999-9999'
+        };
+
+        const { generateBudgetPDF } = await import('@/utils/pdfGenerator');
+        const pdfBlob = await generateBudgetPDF(budgetData);
+        
+        const file = new File([pdfBlob], `orcamento-${budget.id}.pdf`, { type: 'application/pdf' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: `Orçamento - ${budget.device_model}`,
+            text: `Orçamento para ${budget.device_model}`,
+            files: [file]
+          });
+        } else {
+          // Fallback para download
+          onViewPDF(budget);
+        }
+      } catch (error) {
+        console.error('Erro ao compartilhar PDF:', error);
+        onViewPDF(budget);
+      } finally {
+        setActionLoading(null);
+      }
+    } else {
+      // Para desktop, usar método padrão
+      handleAction('pdf', () => onViewPDF(budget));
     }
   };
 
@@ -166,11 +220,11 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
               <button
                 onClick={() => handleAction('share', () => onShareWhatsApp(budget))}
                 disabled={actionLoading === 'share'}
-                className="flex flex-col items-center gap-2 p-3 bg-green-50 hover:bg-green-100 text-green-600 rounded-xl transition-colors disabled:opacity-50"
+                className="flex flex-col items-center gap-2 p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:hover:bg-emerald-900 dark:text-emerald-400 rounded-xl transition-colors disabled:opacity-50"
                 style={{ touchAction: 'manipulation' }}
               >
                 {actionLoading === 'share' ? (
-                  <div className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Share className="h-5 w-5" />
                 )}
@@ -178,27 +232,27 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
               </button>
 
               <button
-                onClick={() => handleAction('pdf', () => onViewPDF(budget))}
+                onClick={handlePDFAction}
                 disabled={actionLoading === 'pdf'}
-                className="flex flex-col items-center gap-2 p-3 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl transition-colors disabled:opacity-50"
+                className="flex flex-col items-center gap-2 p-3 bg-sky-50 hover:bg-sky-100 text-sky-600 dark:bg-sky-950 dark:hover:bg-sky-900 dark:text-sky-400 rounded-xl transition-colors disabled:opacity-50"
                 style={{ touchAction: 'manipulation' }}
               >
                 {actionLoading === 'pdf' ? (
-                  <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-sky-600 dark:border-sky-400 border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <FileText className="h-5 w-5" />
                 )}
-                <span className="text-xs font-medium">PDF</span>
+                <span className="text-xs font-medium">{isMobile ? 'Compartilhar PDF' : 'PDF'}</span>
               </button>
 
               <button
                 onClick={() => handleAction('delete', () => onDelete(budget.id))}
                 disabled={actionLoading === 'delete'}
-                className="flex flex-col items-center gap-2 p-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors disabled:opacity-50"
+                className="flex flex-col items-center gap-2 p-3 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950 dark:hover:bg-rose-900 dark:text-rose-400 rounded-xl transition-colors disabled:opacity-50"
                 style={{ touchAction: 'manipulation' }}
               >
                 {actionLoading === 'delete' ? (
-                  <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-rose-600 dark:border-rose-400 border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Trash2 className="h-5 w-5" />
                 )}
