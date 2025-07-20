@@ -1,10 +1,10 @@
 import React from 'react';
 import { BudgetHeader } from './BudgetHeader';
-import { BudgetSearchAdvanced } from './BudgetSearchAdvanced';
-import { BudgetFilters } from './BudgetFilters';
+import { BudgetSearchEnhanced } from './BudgetSearchEnhanced';
+import { BudgetFiltersEnhanced } from './BudgetFiltersEnhanced';
 import { BudgetListEnhanced } from './BudgetListEnhanced';
 import { useBudgetData } from '../../../hooks/useBudgetData';
-import { useBudgetSearch } from '../../../hooks/useBudgetSearch';
+import { useBudgetSearchEnhanced } from '../../../hooks/useBudgetSearchEnhanced';
 import { useBudgetActions } from '../../../hooks/useBudgetActions';
 
 interface BudgetListRefactoredProps {
@@ -27,17 +27,24 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
     removeBudgetFromList
   } = useBudgetData(userId);
 
-  // Hooks para busca e filtros
+  // Hooks para busca e filtros aprimorados
   const {
     searchTerm,
     setSearchTerm,
-    filterStatus,
-    setFilterStatus,
+    filters,
+    setFilters,
     filteredBudgets,
     handleClearSearch,
     handleClearFilters,
-    hasActiveFilters
-  } = useBudgetSearch({ budgets, profile });
+    handleQuickSearch,
+    hasActiveFilters,
+    isSearching,
+    searchHistory,
+    searchSuggestions,
+    uniqueClients,
+    suggestedPriceRanges,
+    searchStats
+  } = useBudgetSearchEnhanced({ budgets, profile });
 
   // Hooks para ações
   const {
@@ -124,21 +131,28 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
         onRefresh={handleRefresh}
       />
 
-      {/* Search e Filters */}
+      {/* Search e Filters Aprimorados */}
       <div className="px-4 pb-3 space-y-3">
-        <BudgetSearchAdvanced
+        <BudgetSearchEnhanced
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           onClearSearch={handleClearSearch}
-          resultCount={filteredBudgets.length}
+          onQuickSearch={handleQuickSearch}
+          resultCount={searchStats.totalResults}
+          totalValue={searchStats.totalValue}
+          isSearching={isSearching}
+          searchHistory={searchHistory}
+          searchSuggestions={searchSuggestions}
         />
         
-        <BudgetFilters
-          filterStatus={filterStatus}
-          onFilterChange={setFilterStatus}
+        <BudgetFiltersEnhanced
+          filters={filters}
+          onFilterChange={setFilters}
           onClearFilters={handleClearFilters}
           isAdvancedEnabled={profile?.advanced_features_enabled}
           hasActiveFilters={hasActiveFilters}
+          uniqueClients={uniqueClients}
+          suggestedPriceRanges={suggestedPriceRanges}
         />
       </div>
 
@@ -172,7 +186,7 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
             onBudgetUpdate={handleBudgetUpdate}
             hasFilters={hasActiveFilters}
             searchTerm={searchTerm}
-            filterStatus={filterStatus}
+            filterStatus={filters.status}
             onClearSearch={handleClearSearch}
             onClearFilters={handleClearFilters}
           />
