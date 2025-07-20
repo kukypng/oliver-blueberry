@@ -26,7 +26,7 @@ export const useEnhancedLicenseValidation = () => {
     
     setIsLoading(true);
     try {
-      const { data: licenseData, error } = await supabase.rpc('validate_user_license', {
+      const { data: licenseData, error } = await supabase.rpc('is_license_valid', {
         p_user_id: user.id
       });
       
@@ -34,7 +34,11 @@ export const useEnhancedLicenseValidation = () => {
         console.error('Error validating license:', error);
         setData({ has_license: false, is_valid: false, message: 'Erro ao validar licença' });
       } else {
-        setData(licenseData as unknown as LicenseData);
+        setData({ 
+          has_license: licenseData, 
+          is_valid: licenseData,
+          message: licenseData ? 'Licença válida' : 'Licença inválida'
+        });
       }
     } catch (error) {
       console.error('License validation error:', error);
