@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { generateExportCsv, generateTemplateCsv } from '@/utils/csv';
-import { UnifiedCsvParser } from '@/utils/csv/unifiedParser';
+import { EnhancedCsvParser } from '@/utils/csv/enhancedParser';
 import { ImportSummary } from '@/utils/csv/validationTypes';
 
 export const useEnhancedCsvData = () => {
@@ -108,7 +108,7 @@ export const useEnhancedCsvData = () => {
 
     try {
       const text = await file.text();
-      const parser = new UnifiedCsvParser();
+      const parser = new EnhancedCsvParser();
       const summary = parser.parseAndValidate(text, user.id);
       
       toast.dismiss(toastId);
@@ -142,7 +142,7 @@ export const useEnhancedCsvData = () => {
     try {
       const { data: insertedData, error } = await supabase
         .from('budgets')
-        .insert(importPreview.data)
+        .insert(importPreview.processedData)
         .select();
 
       if (error) {

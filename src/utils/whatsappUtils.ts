@@ -89,51 +89,29 @@ ${valuesSection}
   return message;
 };
 
-export const shareViaWhatsApp = async (message: string): Promise<boolean> => {
-  try {
-    // Detectar se é mobile
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+export const shareViaWhatsApp = (message: string) => {
+  const encodedMessage = encodeURIComponent(message);
+  
+  // Detectar se é mobile para usar o app nativo ou web
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  let whatsappUrl: string;
+  
+  if (isMobile) {
+    // Para mobile, usar scheme do app nativo que permite seleção de contato
+    whatsappUrl = `whatsapp://send?text=${encodedMessage}`;
     
-    // Tentar usar Web Share API primeiro (mais nativo)
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Orçamento',
-          text: message
-        });
-        return true;
-      } catch (shareError) {
-        // Usuário cancelou ou não suportado, continuar com métodos alternativos
-        console.log('Share API cancelada ou não suportada');
-      }
-    }
+    // Tentar abrir o app nativo primeiro
+    window.location.href = whatsappUrl;
     
-    // Copiar para área de transferência automaticamente
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(message);
-    } else {
-      // Fallback para dispositivos antigos
-      const textArea = document.createElement('textarea');
-      textArea.value = message;
-      textArea.style.position = 'fixed';
-      textArea.style.opacity = '0';
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-    }
-    
-    // Para mobile, tentar abrir WhatsApp diretamente sem nova aba
-    if (isMobile) {
-      const encodedMessage = encodeURIComponent(message);
-      // Usar window.location.replace para não abrir nova aba
-      window.location.href = `whatsapp://send?text=${encodedMessage}`;
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('Erro ao compartilhar:', error);
-    return false;
+    // Fallback para WhatsApp Web após um delay se o app não abrir
+    setTimeout(() => {
+      window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+    }, 1500);
+  } else {
+    // Para desktop, usar WhatsApp Web que permite seleção de contato
+    whatsappUrl = `https://web.whatsapp.com/send?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
   }
 };
 

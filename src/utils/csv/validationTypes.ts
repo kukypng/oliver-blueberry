@@ -14,14 +14,12 @@ export interface ParsedRow {
 }
 
 export interface ImportSummary {
-  isValid: boolean;
   totalRows: number;
   validRows: number;
   invalidRows: number;
-  warnings: string[];
+  warnings: number;
   errors: string[];
-  data: any[];
-  preview: ParsedRow[];
+  processedData: any[];
 }
 
 export interface FieldMapping {

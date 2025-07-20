@@ -47,7 +47,8 @@ export const MobileHamburgerMenu = ({
         onClose();
       }
     },
-    threshold: 50
+    threshold: 50,
+    preventScrollOnSwipe: true
   });
 
   // Handle body scroll lock when menu is open
