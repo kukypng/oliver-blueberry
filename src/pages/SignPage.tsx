@@ -1,0 +1,316 @@
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Eye, EyeOff, UserPlus, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+
+interface SignUpFormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface ToastState {
+  show: boolean;
+  type: 'success' | 'error';
+  title: string;
+  description: string;
+}
+
+export const SignPage = () => {
+  const navigate = useNavigate();
+  
+  const [formData, setFormData] = useState<SignUpFormData>({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<ToastState>({
+    show: false,
+    type: 'success',
+    title: '',
+    description: ''
+  });
+
+  const showToast = (type: 'success' | 'error', title: string, description: string) => {
+    setToast({ show: true, type, title, description });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 5000);
+  };
+
+  const isFormValid = 
+    formData.name.trim() && 
+    formData.email.trim() && 
+    formData.password.length >= 6 && 
+    formData.password === formData.confirmPassword;
+
+  const getPasswordStrength = (password: string) => {
+    if (password.length < 6) return { strength: 'weak', color: 'red', text: 'Fraca' };
+    if (password.length < 8) return { strength: 'medium', color: 'orange', text: 'Média' };
+    if (password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)) {
+      return { strength: 'strong', color: 'green', text: 'Forte' };
+    }
+    return { strength: 'medium', color: 'orange', text: 'Média' };
+  };
+
+  const passwordStrength = getPasswordStrength(formData.password);
+
+  const handleSignUp = async () => {
+    if (!isFormValid) return;
+
+    setIsLoading(true);
+
+    try {
+      const redirectUrl = `${window.location.origin}/`;
+
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            name: formData.name
+          }
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      showToast(
+        'success',
+        'Conta criada com sucesso!',
+        'Verifique seu email para confirmar a conta e fazer login.'
+      );
+
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+      });
+
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate('/auth');
+      }, 3000);
+
+    } catch (error: any) {
+      console.error('Error creating account:', error);
+      let errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
+      
+      if (error.message?.includes('User already registered')) {
+        errorMessage = 'Este email já está cadastrado. Tente fazer login.';
+      } else if (error.message?.includes('Password should be at least')) {
+        errorMessage = 'A senha deve ter pelo menos 6 caracteres.';
+      }
+
+      showToast(
+        'error',
+        'Erro ao criar conta',
+        errorMessage
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10 relative">
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
+          <div className={`p-4 rounded-lg shadow-lg border ${
+            toast.type === 'success' 
+              ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200' 
+              : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200'
+          }`}>
+            <div className="flex items-start gap-3">
+              {toast.type === 'success' ? (
+                <CheckCircle2 className="h-5 w-5 mt-0.5 text-green-600 dark:text-green-400" />
+              ) : (
+                <AlertCircle className="h-5 w-5 mt-0.5 text-red-600 dark:text-red-400" />
+              )}
+              <div className="flex-1">
+                <h4 className="font-medium text-sm">{toast.title}</h4>
+                <p className="text-xs mt-1 opacity-90">{toast.description}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Background Elements */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-60"></div>
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl opacity-60"></div>
+
+      {/* Header */}
+      <div className="relative z-10 p-4 border-b bg-background/80 backdrop-blur-sm">
+        <div className="flex items-center gap-4">
+          <Link to="/">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-lg font-bold text-foreground">Criar Conta</h1>
+            <p className="text-xs text-muted-foreground">Cadastre-se gratuitamente</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 p-4 flex items-center justify-center min-h-[calc(100vh-80px)]">
+        <div className="w-full max-w-md">
+          {/* Header Icon */}
+          <div className="text-center mb-6">
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+              <UserPlus className="w-6 h-6 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-1">Bem-vindo!</h2>
+            <p className="text-sm text-muted-foreground">Crie sua conta para começar</p>
+          </div>
+
+          <Card className="border-0 shadow-lg backdrop-blur-sm bg-background/95">
+            <CardHeader className="space-y-1 pb-4">
+              <CardTitle className="text-xl text-center">Criar nova conta</CardTitle>
+              <CardDescription className="text-center">
+                Preencha os dados abaixo para se cadastrar
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-4">
+              {/* Nome Completo */}
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium">Nome Completo</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Seu nome completo"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="h-11 text-base"
+                />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  inputMode="email"
+                  placeholder="seu@email.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="h-11 text-base"
+                />
+              </div>
+
+              {/* Senha */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">Senha</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Crie uma senha"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="h-11 text-base pr-11"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1 h-9 w-9"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+                {formData.password && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className={`w-2 h-2 rounded-full ${
+                      passwordStrength.color === 'red' ? 'bg-red-500' :
+                      passwordStrength.color === 'orange' ? 'bg-orange-500' : 'bg-green-500'
+                    }`}></div>
+                    <span>Força da senha: {passwordStrength.text}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Confirmar Senha */}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirmar Senha</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirme sua senha"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    className="h-11 text-base pr-11"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1 h-9 w-9"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+                {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="text-xs text-red-500">As senhas não coincidem</p>
+                )}
+              </div>
+
+              {/* Botão de Criar Conta */}
+              <Button
+                onClick={handleSignUp}
+                disabled={!isFormValid || isLoading}
+                className="w-full h-11 text-base mt-6"
+                size="lg"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Criando conta...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Criar Conta
+                  </>
+                )}
+              </Button>
+
+              {/* Link para login */}
+              <div className="text-center text-sm text-muted-foreground">
+                Já tem uma conta?{' '}
+                <Link to="/auth" className="font-medium text-primary hover:underline">
+                  Fazer login
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
