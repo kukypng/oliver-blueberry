@@ -10,14 +10,17 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
-
 export const LicensePage = () => {
   const [licenseCode, setLicenseCode] = useState('');
   const [isActivating, setIsActivating] = useState(false);
-  const { user } = useAuth();
-  const { showSuccess, showError } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    showSuccess,
+    showError
+  } = useToast();
   const navigate = useNavigate();
-
   const handleActivateLicense = async () => {
     if (!licenseCode.trim()) {
       showError({
@@ -26,7 +29,6 @@ export const LicensePage = () => {
       });
       return;
     }
-
     if (!user?.id) {
       showError({
         title: 'Erro de Autenticação',
@@ -43,26 +45,25 @@ export const LicensePage = () => {
       });
       return;
     }
-
     setIsActivating(true);
-
     try {
-      const { data, error } = await supabase.rpc('activate_license_enhanced', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('activate_license_enhanced', {
         license_code: licenseCode.trim(),
         p_user_id: user.id
       });
-
       if (error) {
         throw error;
       }
-
       const result = data as any;
       if (result?.success) {
         showSuccess({
           title: 'Licença Ativada!',
           description: result.message || 'Sua licença foi ativada com sucesso.'
         });
-        
+
         // Navegar para o dashboard após ativação
         setTimeout(() => {
           navigate('/painel');
@@ -73,7 +74,6 @@ export const LicensePage = () => {
           'already_used': 'Esta licença já está sendo utilizada por outro usuário.',
           'expired': 'Esta licença está expirada. Entre em contato com o suporte.'
         };
-
         showError({
           title: 'Erro na Ativação',
           description: errorMessages[result?.error_type as keyof typeof errorMessages] || result?.error || 'Erro desconhecido.'
@@ -89,25 +89,17 @@ export const LicensePage = () => {
       setIsActivating(false);
     }
   };
-
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent(
-      `Olá! Preciso de ajuda com minha licença do Oliver Blueberry.\n\nMeu email: ${user?.email || 'Não informado'}`
-    );
+    const message = encodeURIComponent(`Olá! Preciso de ajuda com minha licença do Oliver Blueberry.\n\nMeu email: ${user?.email || 'Não informado'}`);
     const whatsappUrl = `https://wa.me/556496028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
-
   const handleEmailContact = () => {
     const subject = encodeURIComponent('Suporte - Licença Oliver Blueberry');
-    const body = encodeURIComponent(
-      `Olá,\n\nPreciso de ajuda com minha licença do Oliver Blueberry.\n\nMeu email: ${user?.email || 'Não informado'}\nData: ${new Date().toLocaleDateString('pt-BR')}`
-    );
+    const body = encodeURIComponent(`Olá,\n\nPreciso de ajuda com minha licença do Oliver Blueberry.\n\nMeu email: ${user?.email || 'Não informado'}\nData: ${new Date().toLocaleDateString('pt-BR')}`);
     window.open(`mailto:suporte@oliverblueberry.com?subject=${subject}&body=${body}`, '_blank');
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Header */}
         <div className="lg:col-span-2 text-center space-y-2">
@@ -136,25 +128,13 @@ export const LicensePage = () => {
               <label htmlFor="license-code" className="text-sm font-medium text-foreground">
                 Código da Licença
               </label>
-              <Input
-                id="license-code"
-                type="text"
-                placeholder="XXXXXXXXXXXXX"
-                value={licenseCode}
-                onChange={(e) => setLicenseCode(e.target.value.replace(/\D/g, '').slice(0, 13))}
-                className="font-mono text-center tracking-wider"
-                maxLength={13}
-              />
+              <Input id="license-code" type="text" placeholder="XXXXXXXXXXXXX" value={licenseCode} onChange={e => setLicenseCode(e.target.value.replace(/\D/g, '').slice(0, 13))} className="font-mono text-center tracking-wider" maxLength={13} />
               <p className="text-xs text-muted-foreground text-center">
                 Formato: XXXXXXXXXXXXX (13 dígitos)
               </p>
             </div>
 
-            <Button 
-              onClick={handleActivateLicense}
-              disabled={isActivating || licenseCode.length !== 13}
-              className="w-full"
-            >
+            <Button onClick={handleActivateLicense} disabled={isActivating || licenseCode.length !== 13} className="w-full">
               {isActivating ? 'Ativando...' : 'Ativar Licença'}
             </Button>
 
@@ -187,16 +167,11 @@ export const LicensePage = () => {
           <CardContent className="space-y-4">
             {/* WhatsApp */}
             <div className="space-y-3">
-              <Button 
-                onClick={handleWhatsAppContact}
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-              >
+              <Button onClick={handleWhatsAppContact} className="w-full bg-green-600 hover:bg-green-700 text-white">
                 <MessageCircle className="mr-2 h-4 w-4" />
                 Suporte via WhatsApp
               </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                Resposta em até 2 horas (horário comercial)
-              </p>
+              <p className="text-xs text-center text-muted-foreground">Resposta em até 1 hora (horário comercial)</p>
             </div>
 
             <Separator />
@@ -205,11 +180,7 @@ export const LicensePage = () => {
             <div className="space-y-3">
               <h4 className="font-medium text-sm">Outros Contatos:</h4>
               
-              <Button 
-                onClick={handleEmailContact}
-                variant="outline" 
-                className="w-full justify-start"
-              >
+              <Button onClick={handleEmailContact} variant="outline" className="w-full justify-start">
                 <Mail className="mr-2 h-4 w-4" />
                 suporte@oliverblueberry.com
               </Button>
@@ -248,6 +219,5 @@ export const LicensePage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
