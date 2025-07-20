@@ -44,13 +44,18 @@ export const AdminLicenseManagerEnhanced = () => {
   const { showSuccess, showError } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: licenses, isLoading } = useQuery({
+  const { data: licenses, isLoading, error: queryError } = useQuery({
     queryKey: ['admin-licenses'],
     queryFn: async (): Promise<License[]> => {
       const { data, error } = await supabase.rpc('admin_get_licenses_with_users');
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching licenses:', error);
+        throw error;
+      }
+      console.log('Licenses data:', data);
       return data || [];
-    }
+    },
+    retry: 3
   });
 
   const createLicenseMutation = useMutation({
@@ -254,9 +259,17 @@ export const AdminLicenseManagerEnhanced = () => {
         <CardContent>
           {isLoading ? (
             <div className="text-center py-8">Carregando licenças...</div>
+          ) : queryError ? (
+            <div className="text-center py-8 text-destructive">
+              Erro ao carregar licenças: {queryError.message}
+            </div>
+          ) : !licenses?.length ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Nenhuma licença cadastrada no sistema
+            </div>
           ) : !filteredLicenses?.length ? (
             <div className="text-center py-8 text-muted-foreground">
-              Nenhuma licença encontrada
+              Nenhuma licença encontrada com os filtros aplicados
             </div>
           ) : (
             <div className="space-y-4">
