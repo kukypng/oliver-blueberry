@@ -92,9 +92,7 @@ export const LicenseExpiredPage = () => {
               <Key className="h-6 w-6 text-primary" />
             </div>
             <CardTitle className="text-xl">Ativar Licença</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Digite seu código de licença para reativar o acesso
-            </p>
+            
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
