@@ -17,16 +17,26 @@ interface AdminLiteProps {
   userId: string;
   onBack: () => void;
 }
-
-const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { profile: any }) => {
+const AdminLiteComponent = ({
+  userId,
+  onBack,
+  profile
+}: AdminLiteProps & {
+  profile: any;
+}) => {
   const [activeTab, setActiveTab] = useState<'users' | 'licenses' | 'beta' | 'game'>('users');
   const navigate = useNavigate();
   const {
-    searchTerm, setSearchTerm,
-    selectedUser, setSelectedUser,
-    isEditModalOpen, setIsEditModalOpen,
-    userToDelete, setUserToDelete,
-    userToRenew, setUserToRenew,
+    searchTerm,
+    setSearchTerm,
+    selectedUser,
+    setSelectedUser,
+    isEditModalOpen,
+    setIsEditModalOpen,
+    userToDelete,
+    setUserToDelete,
+    userToRenew,
+    setUserToRenew,
     debugInfo,
     users,
     isLoading,
@@ -40,7 +50,6 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
     confirmDelete,
     confirmRenewal
   } = useUserManagement();
-
   const handleCreateUser = () => {
     navigate('/signup');
   };
@@ -51,7 +60,6 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
     activeUsers: users?.filter((user: any) => user.is_active && new Date(user.expiration_date) > new Date()).length || 0,
     expiredUsers: users?.filter((user: any) => !user.is_active || new Date(user.expiration_date) <= new Date()).length || 0
   };
-
   const getLicenseStatus = (user: any) => {
     if (!user.expiration_date) return 'Sem licença';
     const now = new Date();
@@ -63,7 +71,6 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
       return 'Expirada';
     }
   };
-
   const getStatusColor = (user: any) => {
     if (!user.expiration_date) return 'bg-gray-500/20 text-gray-900 dark:text-gray-200';
     const now = new Date();
@@ -74,7 +81,6 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
       return 'bg-red-500/20 text-red-900 dark:text-red-200';
     }
   };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -82,10 +88,8 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
       year: 'numeric'
     });
   };
-
   if (!debugInfo?.is_admin) {
-    return (
-      <div className="h-[100dvh] bg-background flex flex-col">
+    return <div className="h-[100dvh] bg-background flex flex-col">
         <div className="flex items-center p-4 border-b">
           <Button variant="ghost" onClick={onBack} className="mr-2">
             <ArrowLeft className="h-4 w-4" />
@@ -103,13 +107,10 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
             </CardContent>
           </Card>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (error) {
-    return (
-      <div className="h-[100dvh] bg-background flex flex-col">
+    return <div className="h-[100dvh] bg-background flex flex-col">
         <div className="flex items-center p-4 border-b">
           <Button variant="ghost" onClick={onBack} className="mr-2">
             <ArrowLeft className="h-4 w-4" />
@@ -130,12 +131,9 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
             </CardContent>
           </Card>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="h-[100dvh] bg-background flex flex-col">
+  return <div className="h-[100dvh] bg-background flex flex-col">
       <div className="flex items-center p-4 border-b">
         <Button variant="ghost" onClick={onBack} className="mr-2">
           <ArrowLeft className="h-4 w-4" />
@@ -143,61 +141,38 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
         <h1 className="text-xl font-bold">Painel Admin</h1>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="flex-1 overflow-auto p-4 space-y-4" style={{
+      WebkitOverflowScrolling: 'touch'
+    }}>
         {/* Tabs */}
-        <div className="flex gap-2 mb-4 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <Button 
-            variant={activeTab === 'users' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('users')}
-            className="flex items-center gap-2 whitespace-nowrap"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-          >
+        <div className="flex gap-2 mb-4 overflow-x-auto" style={{
+        WebkitOverflowScrolling: 'touch'
+      }}>
+          <Button variant={activeTab === 'users' ? 'default' : 'outline'} onClick={() => setActiveTab('users')} className="flex items-center gap-2 whitespace-nowrap" style={{
+          WebkitTapHighlightColor: 'transparent'
+        }}>
             <Users className="h-4 w-4" />
             Usuários
           </Button>
-          <Button 
-            variant={activeTab === 'licenses' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('licenses')}
-            className="flex items-center gap-2 whitespace-nowrap"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-          >
+          <Button variant={activeTab === 'licenses' ? 'default' : 'outline'} onClick={() => setActiveTab('licenses')} className="flex items-center gap-2 whitespace-nowrap" style={{
+          WebkitTapHighlightColor: 'transparent'
+        }}>
             <Key className="h-4 w-4" />
             Licenças
           </Button>
-          <Button 
-            variant={activeTab === 'beta' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('beta')}
-            className="flex items-center gap-2 whitespace-nowrap"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-          >
-            <Settings className="h-4 w-4" />
-            Beta
-          </Button>
-          <Button 
-            variant={activeTab === 'game' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('game')}
-            className="flex items-center gap-2 whitespace-nowrap"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-          >
+          
+          <Button variant={activeTab === 'game' ? 'default' : 'outline'} onClick={() => setActiveTab('game')} className="flex items-center gap-2 whitespace-nowrap" style={{
+          WebkitTapHighlightColor: 'transparent'
+        }}>
             <Gamepad2 className="h-4 w-4" />
            Jogo
           </Button>
         </div>
 
-        {activeTab === 'licenses' ? (
-          <AdminLicenseManagerEnhanced />
-        ) : activeTab === 'beta' ? (
-          <BetaFeaturesSettingsLite userId={userId} profile={profile} />
-        ) : activeTab === 'game' ? (
-          <GameSettingsPanel />
-        ) : (
-          <>
+        {activeTab === 'licenses' ? <AdminLicenseManagerEnhanced /> : activeTab === 'beta' ? <BetaFeaturesSettingsLite userId={userId} profile={profile} /> : activeTab === 'game' ? <GameSettingsPanel /> : <>
             {/* Create User Button */}
             <div className="flex justify-end">
-              <Button 
-                onClick={handleCreateUser}
-                className="flex items-center gap-2"
-              >
+              <Button onClick={handleCreateUser} className="flex items-center gap-2">
                 <UserPlus className="h-4 w-4" />
                 Criar Usuário
               </Button>
@@ -245,13 +220,7 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Buscar usuários..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+          <Input type="search" placeholder="Buscar usuários..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
         </div>
 
         {/* Users List */}
@@ -263,24 +232,16 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="animate-pulse border rounded-lg p-3">
+            {isLoading ? <div className="space-y-3">
+                {[1, 2, 3].map(i => <div key={i} className="animate-pulse border rounded-lg p-3">
                     <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
                     <div className="h-3 bg-muted rounded w-1/2"></div>
-                  </div>
-                ))}
-              </div>
-            ) : filteredUsers?.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+                  </div>)}
+              </div> : filteredUsers?.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                 <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>Nenhum usuário encontrado</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[400px] overflow-auto">
-                {filteredUsers?.slice(0, 20).map((user) => (
-                  <div key={user.id} className="border rounded-lg p-3 space-y-2">
+              </div> : <div className="space-y-3 max-h-[400px] overflow-auto">
+                {filteredUsers?.slice(0, 20).map(user => <div key={user.id} className="border rounded-lg p-3 space-y-2">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <h4 className="font-medium text-sm">{user.name}</h4>
@@ -296,106 +257,61 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
                         <p className="text-xs text-muted-foreground mt-1">
                           {user.budget_count || 0} orçamentos
                         </p>
-                        {user.last_sign_in_at && (
-                          <p className="text-xs text-muted-foreground">
+                        {user.last_sign_in_at && <p className="text-xs text-muted-foreground">
                             Último acesso: {formatDate(user.last_sign_in_at)}
-                          </p>
-                        )}
+                          </p>}
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleEdit(user)}
-                        className="flex-1 text-xs"
-                      >
+                      <Button size="sm" variant="outline" onClick={() => handleEdit(user)} className="flex-1 text-xs">
                         <Settings className="mr-1 h-3 w-3" />
                         Editar
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleRenew(user)}
-                        className="flex-1 text-xs"
-                        disabled={renewUserLicenseMutation.isPending}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => handleRenew(user)} className="flex-1 text-xs" disabled={renewUserLicenseMutation.isPending}>
                         <Calendar className="mr-1 h-3 w-3" />
                         Renovar
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="destructive"
-                        onClick={() => handleDelete(user)}
-                        className="flex-1 text-xs"
-                        disabled={deleteUserMutation.isPending}
-                      >
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(user)} className="flex-1 text-xs" disabled={deleteUserMutation.isPending}>
                         <Trash2 className="mr-1 h-3 w-3" />
                         Excluir
                       </Button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  </div>)}
+              </div>}
           </CardContent>
         </Card>
-          </>
-        )}
+          </>}
       </div>
 
       {/* Modals */}
-      {selectedUser && (
-        <UserEditModal
-          user={selectedUser}
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedUser(null);
-          }}
-          onSuccess={() => {
-            setIsEditModalOpen(false);
-            setSelectedUser(null);
-          }}
-        />
-      )}
+      {selectedUser && <UserEditModal user={selectedUser} isOpen={isEditModalOpen} onClose={() => {
+      setIsEditModalOpen(false);
+      setSelectedUser(null);
+    }} onSuccess={() => {
+      setIsEditModalOpen(false);
+      setSelectedUser(null);
+    }} />}
 
-      {userToDelete && (
-        <UserDeletionDialog
-          userToDelete={userToDelete}
-          setUserToDelete={setUserToDelete}
-          confirmDelete={confirmDelete}
-          isPending={deleteUserMutation.isPending}
-        />
-      )}
+      {userToDelete && <UserDeletionDialog userToDelete={userToDelete} setUserToDelete={setUserToDelete} confirmDelete={confirmDelete} isPending={deleteUserMutation.isPending} />}
 
-      {userToRenew && (
-        <UserRenewalDialog
-          user={userToRenew}
-          isOpen={!!userToRenew}
-          onClose={() => setUserToRenew(null)}
-          onConfirm={confirmRenewal}
-          isPending={renewUserLicenseMutation.isPending}
-        />
-      )}
-    </div>
-  );
+      {userToRenew && <UserRenewalDialog user={userToRenew} isOpen={!!userToRenew} onClose={() => setUserToRenew(null)} onConfirm={confirmRenewal} isPending={renewUserLicenseMutation.isPending} />}
+    </div>;
 };
-
 export const AdminLite = (props: AdminLiteProps) => {
   // Get profile data using the same hook pattern as other components
   const [profile, setProfile] = useState<any>(null);
-  
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: {
+            user
+          }
+        } = await supabase.auth.getUser();
         if (user) {
-          const { data: profileData } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
+          const {
+            data: profileData
+          } = await supabase.from('user_profiles').select('*').eq('id', user.id).single();
           setProfile(profileData);
         }
       } catch (error) {
@@ -404,6 +320,5 @@ export const AdminLite = (props: AdminLiteProps) => {
     };
     loadProfile();
   }, []);
-
   return <AdminLiteComponent {...props} profile={profile} />;
 };
