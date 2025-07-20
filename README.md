@@ -189,7 +189,7 @@ src/
 ## 📄 **Licença & Suporte**
 
 ### **Licenciamento**
-📋 Este projeto é licenciado sob a **MIT License** - veja [LICENSE](LICENSE) para detalhes.
+📋 Este projeto é licenciado sob a **Licença de Uso Restrito Oliver System** - veja [LICENSE](LICENSE) para detalhes.
 
 ### **Suporte Técnico**
 - 📞 **WhatsApp**: (64) 9602-8022
