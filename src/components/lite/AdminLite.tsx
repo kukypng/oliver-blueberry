@@ -263,18 +263,9 @@ const AdminLiteComponent = ({
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(user)} className="flex-1 text-xs">
-                        <Settings className="mr-1 h-3 w-3" />
-                        Editar
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleRenew(user)} className="flex-1 text-xs" disabled={renewUserLicenseMutation.isPending}>
-                        <Calendar className="mr-1 h-3 w-3" />
-                        Renovar
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(user)} className="flex-1 text-xs" disabled={deleteUserMutation.isPending}>
-                        <Trash2 className="mr-1 h-3 w-3" />
-                        Excluir
-                      </Button>
+                      
+                      
+                      
                     </div>
                   </div>)}
               </div>}
