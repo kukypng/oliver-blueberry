@@ -1,5 +1,6 @@
 import React from 'react';
-import { BudgetLiteList } from './BudgetLiteList';
+import { DashboardCore } from '@/components/dashboard/DashboardCore';
+import { UnifiedDashboardContent } from '@/components/dashboard/UnifiedDashboardContent';
 import { BudgetLiteListiOS } from './BudgetLiteListiOS';
 import { BudgetViewLite } from './BudgetViewLite';
 import { NewBudgetLite } from './NewBudgetLite';
@@ -38,87 +39,113 @@ export const DashboardLiteContent = ({
   isiOSDevice = false
 }: DashboardLiteContentProps) => {
   
+  const handleRefresh = async () => {
+    onRefresh();
+    return Promise.resolve();
+  };
+
   // Renderizar diferentes views baseado no activeView
   switch (activeView) {
+    case 'dashboard':
+    case 'list':
+    default:
+      // Use the unified dashboard for main view
+      return (
+        <DashboardCore
+          enablePullToRefresh={true}
+          onRefresh={handleRefresh}
+          className="dashboard-lite"
+        >
+          <UnifiedDashboardContent 
+            onNavigateTo={onNavigateTo}
+            activeView={activeView}
+            profile={profile}
+            isLiteVersion={true}
+          />
+        </DashboardCore>
+      );
+      
     case 'budget-detail':
       if (!selectedBudgetId) return null;
       return (
-        <BudgetViewLite
-          budgetId={selectedBudgetId}
-          onBack={onNavigateBack || (() => {})}
-          onEdit={(budget) => {
-            // Navegar para edição ou mostrar modal
-            console.log('Edit budget:', budget);
-          }}
-          onCopy={(budget) => {
-            // Copiar orçamento
-            console.log('Copy budget:', budget);
-          }}
-        />
+        <DashboardCore>
+          <BudgetViewLite
+            budgetId={selectedBudgetId}
+            onBack={onNavigateBack || (() => {})}
+            onEdit={(budget) => {
+              console.log('Edit budget:', budget);
+            }}
+            onCopy={(budget) => {
+              console.log('Copy budget:', budget);
+            }}
+          />
+        </DashboardCore>
       );
       
     case 'new-budget':
       return (
-        <NewBudgetLite
-          userId={userId || ''}
-          onBack={onNavigateBack || (() => {})}
-        />
+        <DashboardCore>
+          <NewBudgetLite
+            userId={userId || ''}
+            onBack={onNavigateBack || (() => {})}
+          />
+        </DashboardCore>
       );
+      
     case 'clients':
       return (
-        <ClientsLite
-          userId={userId || ''}
-          onBack={onNavigateBack || (() => {})}
-        />
+        <DashboardCore>
+          <ClientsLite
+            userId={userId || ''}
+            onBack={onNavigateBack || (() => {})}
+          />
+        </DashboardCore>
       );
       
     case 'data-management':
       return (
-        <DataManagementLite
-          userId={userId || ''}
-          onBack={onNavigateBack || (() => {})}
-        />
+        <DashboardCore>
+          <DataManagementLite
+            userId={userId || ''}
+            onBack={onNavigateBack || (() => {})}
+          />
+        </DashboardCore>
       );
       
     case 'settings':
       return (
-        <SettingsLite
-          userId={userId || ''}
-          profile={profile}
-          onBack={onNavigateBack || (() => {})}
-        />
+        <DashboardCore>
+          <SettingsLite
+            userId={userId || ''}
+            profile={profile}
+            onBack={onNavigateBack || (() => {})}
+          />
+        </DashboardCore>
       );
       
     case 'admin':
       if (!hasPermission?.('manage_users')) return null;
       return (
-        <AdminLite
-          userId={userId || ''}
-          onBack={onNavigateBack || (() => {})}
-        />
+        <DashboardCore>
+          <AdminLite
+            userId={userId || ''}
+            onBack={onNavigateBack || (() => {})}
+          />
+        </DashboardCore>
       );
       
     case 'budgets':
-    case 'list':
-    default:
-      // Sempre usar versão iOS otimizada (agora é a principal)
-      if (activeView === 'budgets' || activeView === 'list' || !activeView) {
-        return (
+      // Legacy budget list view - keep using iOS optimized version
+      return (
+        <DashboardCore
+          enablePullToRefresh={true}
+          onRefresh={handleRefresh}
+        >
           <BudgetLiteListiOS
             userId={userId || ''}
             profile={profile}
           />
-        );
-      }
-      
-      return (
-        <BudgetLiteList
-          budgets={budgets}
-          profile={profile}
-          loading={loading}
-          error={error}
-          onRefresh={onRefresh}
-        />
+        </DashboardCore>
       );
   }
 };
