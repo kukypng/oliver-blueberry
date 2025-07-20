@@ -2,7 +2,7 @@ import React from 'react';
 import { BudgetHeader } from './BudgetHeader';
 import { BudgetSearchEnhanced } from './BudgetSearchEnhanced';
 import { BudgetFiltersEnhanced } from './BudgetFiltersEnhanced';
-import { BudgetListEnhanced } from './BudgetListEnhanced';
+import { BudgetListMobileOptimized } from './BudgetListMobileOptimized';
 import { useBudgetData } from '../../../hooks/useBudgetData';
 import { useBudgetSearchEnhanced } from '../../../hooks/useBudgetSearchEnhanced';
 import { useBudgetActions } from '../../../hooks/useBudgetActions';
@@ -54,23 +54,10 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
     handleDelete
   } = useBudgetActions();
 
-  // Pull to refresh handler
-  const handlePullRefresh = (e: React.TouchEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    
-    // Detect pull to refresh gesture
-    if (e.type === 'touchstart' && target.scrollTop === 0) {
-      target.dataset.pullStart = e.touches[0].clientY.toString();
-    }
-    
-    if (e.type === 'touchmove') {
-      const pullStart = target.dataset.pullStart;
-      if (pullStart && target.scrollTop === 0) {
-        const pullDistance = e.touches[0].clientY - parseInt(pullStart);
-        if (pullDistance > 120 && !refreshing) {
-          handleRefresh();
-        }
-      }
+  // Pull to refresh otimizado para mobile
+  const handlePullRefresh = async () => {
+    if (!refreshing) {
+      await handleRefresh();
     }
   };
 
@@ -156,27 +143,16 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
         />
       </div>
 
-      {/* Pull to refresh indicator */}
-      {refreshing && (
-        <div className="bg-primary/20 text-primary text-center py-2 text-sm">
-          Atualizando...
-        </div>
-      )}
-
-      {/* Content com scroll otimizado */}
+      {/* Content Mobile Otimizado */}
       <div 
-        className="overflow-auto" 
+        className="flex-1"
         style={{
-          WebkitOverflowScrolling: 'touch',
           height: 'calc(100dvh - 200px)',
-          overscrollBehavior: 'none',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)'
-        }} 
-        onTouchStart={handlePullRefresh}
-        onTouchMove={handlePullRefresh}
+        }}
       >
-        <div className="px-4 py-3">
-          <BudgetListEnhanced
+        <div className="px-4 h-full">
+          <BudgetListMobileOptimized
             budgets={filteredBudgets}
             profile={profile}
             updating={updating}
@@ -184,6 +160,7 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
             onViewPDF={handleViewPDF}
             onDelete={handleEnhancedDelete}
             onBudgetUpdate={handleBudgetUpdate}
+            onRefresh={handlePullRefresh}
             hasFilters={hasActiveFilters}
             searchTerm={searchTerm}
             filterStatus={filters.status}
