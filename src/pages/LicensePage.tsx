@@ -139,14 +139,14 @@ export const LicensePage = () => {
               <Input
                 id="license-code"
                 type="text"
-                placeholder="344333XXXXXXX"
+                placeholder="XXXXXXXXXXXXX"
                 value={licenseCode}
                 onChange={(e) => setLicenseCode(e.target.value.replace(/\D/g, '').slice(0, 13))}
                 className="font-mono text-center tracking-wider"
                 maxLength={13}
               />
               <p className="text-xs text-muted-foreground text-center">
-                Formato: 344333XXXXXXX (13 dígitos)
+                Formato: XXXXXXXXXXXXX (13 dígitos)
               </p>
             </div>
 
