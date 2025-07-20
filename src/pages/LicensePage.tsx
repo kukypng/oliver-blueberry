@@ -95,7 +95,7 @@ export const LicensePage = () => {
     window.open(whatsappUrl, '_blank');
   };
   const handleEmailContact = () => {
-    const subject = encodeURIComponent('Suporte - Licença Oliver Blueberry');
+    const subject = encodeURIComponent('Suporte - Licença Oliver');
     const body = encodeURIComponent(`Olá,\n\nPreciso de ajuda com minha licença do Oliver.\n\nMeu email: ${user?.email || 'Não informado'}\nData: ${new Date().toLocaleDateString('pt-BR')}`);
     window.open(`mailto:suporte@oliverblueberry.com?subject=${subject}&body=${body}`, '_blank');
   };
