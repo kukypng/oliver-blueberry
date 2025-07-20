@@ -118,7 +118,7 @@ export const BudgetListMobileOptimized: React.FC<BudgetListMobileOptimizedProps>
               onShareWhatsApp={onShareWhatsApp}
               onViewPDF={onViewPDF}
               onDelete={handleDelete}
-              onBudgetUpdate={(updates) => onBudgetUpdate(budget.id, updates)}
+              onBudgetUpdate={onBudgetUpdate}
               index={index}
             />
           </div>

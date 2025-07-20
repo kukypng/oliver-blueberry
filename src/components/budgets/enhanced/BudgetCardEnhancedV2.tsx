@@ -20,7 +20,7 @@ interface BudgetCardEnhancedV2Props {
   onShareWhatsApp: (budget: Budget) => void;
   onViewPDF: (budget: Budget) => void;
   onDelete: (budgetId: string) => void;
-  onBudgetUpdate: (updates: Partial<Budget>) => void;
+  onBudgetUpdate: (budgetId: string, updates: Partial<Budget>) => void;
   index?: number;
 }
 
@@ -238,7 +238,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                       onChange={async (e) => {
                         setActionLoading('approved');
                         try {
-                          await onBudgetUpdate({
+                          await onBudgetUpdate(budget.id, {
                             approved_at: e.target.checked ? new Date().toISOString() : null
                           });
                           toast({
@@ -280,7 +280,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                               if (date) {
                                 setActionLoading('approved');
                                 try {
-                                  await onBudgetUpdate({
+                                  await onBudgetUpdate(budget.id, {
                                     approved_at: date.toISOString()
                                   });
                                   toast({
@@ -313,7 +313,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                       onChange={async (e) => {
                         setActionLoading('payment');
                         try {
-                          await onBudgetUpdate({
+                          await onBudgetUpdate(budget.id, {
                             payment_confirmed_at: e.target.checked ? new Date().toISOString() : null,
                             is_paid: e.target.checked
                           });
@@ -356,7 +356,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                               if (date) {
                                 setActionLoading('payment');
                                 try {
-                                  await onBudgetUpdate({
+                                  await onBudgetUpdate(budget.id, {
                                     payment_confirmed_at: date.toISOString()
                                   });
                                   toast({
@@ -389,7 +389,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                       onChange={async (e) => {
                         setActionLoading('delivery');
                         try {
-                          await onBudgetUpdate({
+                          await onBudgetUpdate(budget.id, {
                             delivery_confirmed_at: e.target.checked ? new Date().toISOString() : null,
                             is_delivered: e.target.checked
                           });
@@ -432,7 +432,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                               if (date) {
                                 setActionLoading('delivery');
                                 try {
-                                  await onBudgetUpdate({
+                                  await onBudgetUpdate(budget.id, {
                                     delivery_confirmed_at: date.toISOString()
                                   });
                                   toast({
@@ -464,7 +464,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                   onClick={async () => {
                     setActionLoading('complete');
                     try {
-                      await onBudgetUpdate({ 
+                      await onBudgetUpdate(budget.id, { 
                         status: 'completed',
                         workflow_status: 'completed'
                       });
@@ -566,7 +566,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
         budget={budget}
         isOpen={showEditDialog}
         onClose={() => setShowEditDialog(false)}
-        onBudgetUpdate={onBudgetUpdate}
+        onBudgetUpdate={(updates) => onBudgetUpdate(budget.id, updates)}
       />
     </div>
   );

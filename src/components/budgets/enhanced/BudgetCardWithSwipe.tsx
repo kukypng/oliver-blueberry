@@ -10,7 +10,7 @@ interface BudgetCardWithSwipeProps {
   onShareWhatsApp: (budget: Budget) => void;
   onViewPDF: (budget: Budget) => void;
   onDelete: (budgetId: string) => void;
-  onBudgetUpdate: (updates: Partial<Budget>) => void;
+  onBudgetUpdate: (budgetId: string, updates: Partial<Budget>) => void;
   index?: number;
   children: React.ReactNode;
 }

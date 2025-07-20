@@ -96,16 +96,69 @@ export const useBudgetData = (userId: string) => {
     await fetchBudgets(true);
   }, [fetchBudgets, refreshing]);
 
-  const handleBudgetUpdate = useCallback((budgetId: string, updates: Partial<Budget>) => {
-    setBudgets(prev => prev.map(budget => 
-      budget.id === budgetId ? { ...budget, ...updates } : budget
-    ));
+  const handleBudgetUpdate = useCallback(async (budgetId: string, updates: Partial<Budget>) => {
+    try {
+      // Primeiro atualiza o estado local para resposta imediata
+      setBudgets(prev => prev.map(budget => 
+        budget.id === budgetId ? { ...budget, ...updates } : budget
+      ));
 
-    // Refresh após update
-    setTimeout(() => {
-      fetchBudgets(true);
-    }, 500);
-  }, [fetchBudgets]);
+      // Preparar dados para o banco (convertendo valores para centavos se necessário)
+      const updateData: any = { ...updates };
+      
+      // Converter preços para centavos se presente
+      if (updateData.cash_price !== undefined && typeof updateData.cash_price === 'number') {
+        updateData.cash_price = Math.round(updateData.cash_price * 100);
+      }
+      if (updateData.installment_price !== undefined && typeof updateData.installment_price === 'number') {
+        updateData.installment_price = Math.round(updateData.installment_price * 100);
+      }
+      if (updateData.total_price !== undefined && typeof updateData.total_price === 'number') {
+        updateData.total_price = Math.round(updateData.total_price * 100);
+      }
+
+      // Persistir no banco de dados
+      const { error } = await supabase
+        .from('budgets')
+        .update({
+          ...updateData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', budgetId);
+
+      if (error) {
+        console.error('Error updating budget:', error);
+        
+        // Reverter mudança local em caso de erro
+        await fetchBudgets(true);
+        
+        toast({
+          title: 'Erro ao atualizar',
+          description: 'Não foi possível salvar as alterações.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      console.log('Budget updated successfully:', budgetId, updates);
+      
+      toast({
+        description: 'Alteração salva com sucesso!',
+      });
+
+    } catch (err: any) {
+      console.error('Error in handleBudgetUpdate:', err);
+      
+      // Reverter mudança local em caso de erro
+      await fetchBudgets(true);
+      
+      toast({
+        title: 'Erro inesperado',
+        description: 'Ocorreu um erro ao salvar.',
+        variant: 'destructive'
+      });
+    }
+  }, [fetchBudgets, toast]);
 
   const removeBudgetFromList = useCallback((budgetId: string) => {
     setBudgets(prev => prev.filter(b => b.id !== budgetId));
