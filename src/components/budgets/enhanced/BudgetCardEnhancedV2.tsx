@@ -202,35 +202,84 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
               </div>
             </div>
 
-            {/* Timeline */}
-            <div className="space-y-2">
+            {/* Status do Orçamento */}
+            <div className="space-y-3">
               <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Timeline
+                Status do Orçamento
               </h4>
-              <div className="bg-muted/30 p-3 rounded-lg space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Criado:</span>
-                  <span className="font-medium">{formatDate(budget.created_at)}</span>
+              
+              {/* Checkboxes de Status */}
+              <div className="bg-muted/30 p-3 rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!budget.approved_at}
+                      onChange={(e) => onBudgetUpdate({
+                        approved_at: e.target.checked ? new Date().toISOString() : null
+                      })}
+                      className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+                    />
+                    <span className="text-foreground">Aprovado</span>
+                  </label>
+                  {budget.approved_at && (
+                    <span className="text-xs text-muted-foreground">{formatDate(budget.approved_at)}</span>
+                  )}
                 </div>
-                {budget.approved_at && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Aprovado:</span>
-                    <span className="font-medium">{formatDate(budget.approved_at)}</span>
-                  </div>
-                )}
-                {budget.payment_confirmed_at && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Pagamento:</span>
-                    <span className="font-medium">{formatDate(budget.payment_confirmed_at)}</span>
-                  </div>
-                )}
-                {budget.delivery_confirmed_at && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Entrega:</span>
-                    <span className="font-medium">{formatDate(budget.delivery_confirmed_at)}</span>
-                  </div>
-                )}
+
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!budget.payment_confirmed_at}
+                      onChange={(e) => onBudgetUpdate({
+                        payment_confirmed_at: e.target.checked ? new Date().toISOString() : null
+                      })}
+                      className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+                    />
+                    <span className="text-foreground">Pago</span>
+                  </label>
+                  {budget.payment_confirmed_at && (
+                    <span className="text-xs text-muted-foreground">{formatDate(budget.payment_confirmed_at)}</span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!budget.delivery_confirmed_at}
+                      onChange={(e) => onBudgetUpdate({
+                        delivery_confirmed_at: e.target.checked ? new Date().toISOString() : null
+                      })}
+                      className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+                    />
+                    <span className="text-foreground">Entregue</span>
+                  </label>
+                  {budget.delivery_confirmed_at && (
+                    <span className="text-xs text-muted-foreground">{formatDate(budget.delivery_confirmed_at)}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Botões de Ação */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => onBudgetUpdate({ status: 'completed' })}
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-600 dark:bg-green-950 dark:hover:bg-green-900 dark:text-green-400 rounded-lg text-sm font-medium transition-colors"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  <span>Concluir</span>
+                </button>
+                
+                <button
+                  onClick={() => {/* TODO: Implementar edição */}}
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-950 dark:hover:bg-blue-900 dark:text-blue-400 rounded-lg text-sm font-medium transition-colors"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  <span>Editar</span>
+                </button>
               </div>
             </div>
           </div>
