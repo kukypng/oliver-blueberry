@@ -1,6 +1,6 @@
 import React from 'react';
 import { BudgetCardWithSwipe } from './BudgetCardWithSwipe';
-import { BudgetLiteCardiOS } from '../../lite/BudgetLiteCardiOS';
+import { BudgetCardEnhancedV2 } from './BudgetCardEnhancedV2';
 import type { Budget } from '../../../hooks/useBudgetSearch';
 
 interface BudgetCardMobileOptimizedProps {
@@ -35,32 +35,17 @@ export const BudgetCardMobileOptimized: React.FC<BudgetCardMobileOptimizedProps>
       onBudgetUpdate={onBudgetUpdate}
       index={index}
     >
-      {/* Card Content Otimizado para Touch */}
-      <div 
-        className="p-4 touch-manipulation"
-        style={{
-          // Otimizações iOS específicas
-          WebkitTapHighlightColor: 'transparent',
-          WebkitTouchCallout: 'none',
-          WebkitUserSelect: 'none',
-          touchAction: 'manipulation'
-        }}
-      >
-        <BudgetLiteCardiOS 
-          budget={budget} 
-          profile={profile} 
-          onShareWhatsApp={onShareWhatsApp} 
-          onDelete={onDelete} 
-          onBudgetUpdate={onBudgetUpdate} 
-        />
-      </div>
-      
-      {/* Touch Target Indicators */}
-      <div className="absolute top-1 right-1 flex gap-1 opacity-30">
-        <div className="w-1 h-1 bg-muted-foreground rounded-full" />
-        <div className="w-1 h-1 bg-muted-foreground rounded-full" />
-        <div className="w-1 h-1 bg-muted-foreground rounded-full" />
-      </div>
+      {/* Card Redesigned V2 */}
+      <BudgetCardEnhancedV2
+        budget={budget}
+        profile={profile}
+        isUpdating={isUpdating}
+        onShareWhatsApp={onShareWhatsApp}
+        onViewPDF={onViewPDF}
+        onDelete={onDelete}
+        onBudgetUpdate={onBudgetUpdate}
+        index={index}
+      />
     </BudgetCardWithSwipe>
   );
 };

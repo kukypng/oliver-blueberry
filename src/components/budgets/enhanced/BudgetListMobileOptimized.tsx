@@ -1,6 +1,8 @@
 import React from 'react';
 import { BudgetCardMobileOptimized } from './BudgetCardMobileOptimized';
 import { BudgetEmptyState } from './BudgetEmptyState';
+import { BudgetCardSkeleton } from './BudgetCardSkeleton';
+import { BudgetCardError } from './BudgetCardError';
 import { PullToRefreshContainer } from './PullToRefreshContainer';
 import type { Budget } from '../../../hooks/useBudgetSearch';
 
@@ -13,6 +15,10 @@ interface BudgetListMobileOptimizedProps {
   onDelete: (budgetId: string) => Promise<boolean>;
   onBudgetUpdate: (budgetId: string, updates: Partial<Budget>) => void;
   onRefresh: () => Promise<void>;
+  // Loading and error states
+  isLoading?: boolean;
+  error?: string | null;
+  onRetryError?: () => void;
   // Empty state props
   hasFilters: boolean;
   searchTerm: string;
@@ -30,17 +36,37 @@ export const BudgetListMobileOptimized: React.FC<BudgetListMobileOptimizedProps>
   onDelete,
   onBudgetUpdate,
   onRefresh,
+  isLoading = false,
+  error = null,
+  onRetryError,
   hasFilters,
   searchTerm,
   filterStatus,
   onClearSearch,
   onClearFilters
 }) => {
-  const handleDelete = async (budgetId: string) => {
-    const success = await onDelete(budgetId);
-    return success;
-  };
+  // Loading state
+  if (isLoading) {
+    return (
+      <PullToRefreshContainer onRefresh={onRefresh}>
+        <BudgetCardSkeleton count={3} />
+      </PullToRefreshContainer>
+    );
+  }
 
+  // Error state
+  if (error) {
+    return (
+      <PullToRefreshContainer onRefresh={onRefresh}>
+        <BudgetCardError
+          error={error}
+          onRetry={onRetryError}
+        />
+      </PullToRefreshContainer>
+    );
+  }
+
+  // Empty state
   if (budgets.length === 0) {
     return (
       <PullToRefreshContainer onRefresh={onRefresh}>
@@ -54,6 +80,11 @@ export const BudgetListMobileOptimized: React.FC<BudgetListMobileOptimizedProps>
       </PullToRefreshContainer>
     );
   }
+
+  const handleDelete = async (budgetId: string) => {
+    const success = await onDelete(budgetId);
+    return success;
+  };
 
   return (
     <PullToRefreshContainer 
