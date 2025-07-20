@@ -35,6 +35,7 @@ export interface Budget {
   deleted_by?: string | null;
   delivery_date?: string;
   notes?: string;
+  payment_condition?: string;
 }
 
 export interface BudgetStats {

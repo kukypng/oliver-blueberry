@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Share, FileText, Trash2, Eye, Clock, DollarSign, Edit } from 'lucide-react';
+import { ChevronDown, ChevronUp, Share, FileText, Trash2, Eye, Clock, DollarSign, Edit, Calendar } from 'lucide-react';
 import { BudgetCardMobileSimplified } from './BudgetCardMobileSimplified';
 import { useMobileDetection } from '../../../hooks/useMobileDetection';
 import { DeleteConfirmDialog } from '../../ui/DeleteConfirmDialog';
 import { useToast } from '../../../hooks/use-toast';
+import { BudgetEditDialog } from './BudgetEditDialog';
+import { StatusProgressBar } from './StatusProgressBar';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import type { Budget } from '../../../types/budget';
 
 interface BudgetCardEnhancedV2Props {
@@ -30,6 +37,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const { isMobile } = useMobileDetection();
   const { toast } = useToast();
 
@@ -204,11 +212,20 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
               </div>
             </div>
 
-            {/* Status do Orçamento */}
+            {/* Progress Bar do Status */}
             <div className="space-y-3">
               <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Status do Orçamento
+                Progresso do Orçamento
+              </h4>
+              <StatusProgressBar budget={budget} />
+            </div>
+
+            {/* Status do Orçamento */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                Controles de Status
               </h4>
               
               {/* Checkboxes de Status */}
@@ -244,9 +261,48 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                       <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin ml-1" />
                     )}
                   </label>
-                  {budget.approved_at && (
-                    <span className="text-xs text-muted-foreground">{formatDate(budget.approved_at)}</span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {budget.approved_at && (
+                      <span className="text-xs text-muted-foreground">{formatDate(budget.approved_at)}</span>
+                    )}
+                    {budget.approved_at && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <Calendar className="h-3 w-3" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                          <CalendarComponent
+                            mode="single"
+                            selected={budget.approved_at ? new Date(budget.approved_at) : undefined}
+                            onSelect={async (date) => {
+                              if (date) {
+                                setActionLoading('approved');
+                                try {
+                                  await onBudgetUpdate({
+                                    approved_at: date.toISOString()
+                                  });
+                                  toast({
+                                    description: "Data de aprovação atualizada!",
+                                  });
+                                } catch (error) {
+                                  toast({
+                                    variant: "destructive",
+                                    description: "Erro ao atualizar data",
+                                  });
+                                } finally {
+                                  setActionLoading(null);
+                                }
+                              }
+                            }}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -281,9 +337,48 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                       <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin ml-1" />
                     )}
                   </label>
-                  {budget.payment_confirmed_at && (
-                    <span className="text-xs text-muted-foreground">{formatDate(budget.payment_confirmed_at)}</span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {budget.payment_confirmed_at && (
+                      <span className="text-xs text-muted-foreground">{formatDate(budget.payment_confirmed_at)}</span>
+                    )}
+                    {budget.payment_confirmed_at && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <Calendar className="h-3 w-3" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                          <CalendarComponent
+                            mode="single"
+                            selected={budget.payment_confirmed_at ? new Date(budget.payment_confirmed_at) : undefined}
+                            onSelect={async (date) => {
+                              if (date) {
+                                setActionLoading('payment');
+                                try {
+                                  await onBudgetUpdate({
+                                    payment_confirmed_at: date.toISOString()
+                                  });
+                                  toast({
+                                    description: "Data de pagamento atualizada!",
+                                  });
+                                } catch (error) {
+                                  toast({
+                                    variant: "destructive",
+                                    description: "Erro ao atualizar data",
+                                  });
+                                } finally {
+                                  setActionLoading(null);
+                                }
+                              }
+                            }}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -318,9 +413,48 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                       <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin ml-1" />
                     )}
                   </label>
-                  {budget.delivery_confirmed_at && (
-                    <span className="text-xs text-muted-foreground">{formatDate(budget.delivery_confirmed_at)}</span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {budget.delivery_confirmed_at && (
+                      <span className="text-xs text-muted-foreground">{formatDate(budget.delivery_confirmed_at)}</span>
+                    )}
+                    {budget.delivery_confirmed_at && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <Calendar className="h-3 w-3" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                          <CalendarComponent
+                            mode="single"
+                            selected={budget.delivery_confirmed_at ? new Date(budget.delivery_confirmed_at) : undefined}
+                            onSelect={async (date) => {
+                              if (date) {
+                                setActionLoading('delivery');
+                                try {
+                                  await onBudgetUpdate({
+                                    delivery_confirmed_at: date.toISOString()
+                                  });
+                                  toast({
+                                    description: "Data de entrega atualizada!",
+                                  });
+                                } catch (error) {
+                                  toast({
+                                    variant: "destructive",
+                                    description: "Erro ao atualizar data",
+                                  });
+                                } finally {
+                                  setActionLoading(null);
+                                }
+                              }
+                            }}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -358,11 +492,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                 </button>
                 
                 <button
-                  onClick={() => {
-                    toast({
-                      description: "Funcionalidade de edição em desenvolvimento",
-                    });
-                  }}
+                  onClick={() => setShowEditDialog(true)}
                   className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-950 dark:hover:bg-blue-900 dark:text-blue-400 rounded-lg text-sm font-medium transition-colors"
                   style={{ touchAction: 'manipulation' }}
                 >
@@ -429,6 +559,14 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
         onConfirm={handleDeleteConfirm}
         itemName={`o orçamento de ${budget.client_name || 'cliente'}`}
         isLoading={actionLoading === 'delete'}
+      />
+
+      {/* Dialog de edição */}
+      <BudgetEditDialog
+        budget={budget}
+        isOpen={showEditDialog}
+        onClose={() => setShowEditDialog(false)}
+        onBudgetUpdate={onBudgetUpdate}
       />
     </div>
   );
