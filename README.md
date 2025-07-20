@@ -38,23 +38,18 @@ O **Oliver** é uma plataforma SaaS desenvolvida especificamente para assistênc
 - 📱 **Integração WhatsApp**: Envio direto de orçamentos
 - 📊 **Histórico Detalhado**: Todos os orçamentos por cliente
 - 🏷️ **Tags e Categorias**: Organização avançada da base de clientes
-- ⭐ **Favoritos**: Marque clientes importantes
 
 ### 📊 **Dashboard Analytics Avançado**
 - 📈 **Métricas em Tempo Real**: Vendas, conversões e performance
 - 📅 **Relatórios Semanais**: Crescimento e estatísticas
-- 💰 **Controle Financeiro**: Receitas, pendências e projeções
-- 🎯 **Insights Inteligentes**: Dados para tomada de decisão
 
 ### 🗂️ **Gestão de Dados e Backup**
 - 💾 **Exportação/Importação**: CSV, Excel, PDF
 - 🗑️ **Lixeira Inteligente**: Recuperação de dados excluídos (90 dias)
 - 🔄 **Backup Automático**: Seus dados sempre seguros
-- 📤 **Relatórios Personalizados**: Extraia dados específicos
 
 ### 🏢 **Gestão Empresarial Multi-usuário**
-- 👥 **Controle de Acesso**: Admin, usuário, visualizador
-- 🎨 **Personalização Total**: Logo, cores, informações da empresa
+- 🎨 **Personalização Total**: Logo, informações da empresa
 - 🔒 **Segurança Avançada**: Criptografia e auditoria
 - 📱 **100% Responsivo**: Otimizado para iOS, Android e Desktop
 
@@ -62,7 +57,6 @@ O **Oliver** é uma plataforma SaaS desenvolvida especificamente para assistênc
 - 🔧 **Gestão de Usuários**: Criar, editar, renovar licenças
 - 📊 **Logs do Sistema**: Auditoria completa de ações
 - 🌐 **Configurações do Site**: Personalização da página de planos
-- 🎯 **Ferramentas de Debug**: Diagnóstico e testes
 
 ---
 
@@ -152,24 +146,22 @@ src/
 - [x] Dashboard analytics avançado
 - [x] Geração de PDF profissional
 - [x] Gestão completa de clientes
-- [x] Sistema multi-usuário com permissões
 - [x] Lixeira inteligente com recuperação
 - [x] Exportação/Importação de dados
 - [x] Painel administrativo completo
 - [x] Otimizações para iOS/Android
 
-### 🔄 **Versão 4.0 - Ice Cream** - *Em Desenvolvimento*
+### 🔄 **Versão 3.0 - Ice Cream** - *Em Desenvolvimento*
 - [ ] **API WhatsApp Integrada**: Envio automático de orçamentos
 - [ ] **Alertas Inteligentes**: Notificações de vencimento
 - [ ] **Relatórios Avançados**: Business Intelligence
 - [ ] **Integração com Sistemas Externos**: ERP, E-commerce
 - [ ] **Métricas Avançadas**: Conversion tracking
 
-### 🎯 **Versão 5.0 - Pão de Queijo** - *Planejado*
+### 🎯 **Versão 4.0 - Pão de Queijo** - *Planejado*
 - [ ] **IA Assistant**: Diagnósticos automáticos com machine learning
 - [ ] **Marketplace**: Peças e fornecedores integrados
 - [ ] **Agenda Online**: Agendamento para clientes
-- [ ] **App Mobile Nativo**: iOS e Android
 - [ ] **Sistema de Notas Fiscais**: Integração com SEFAZ
 
 ### **Conecte-se Conosco**
@@ -178,9 +170,8 @@ src/
 
 <div align="center">
 
-[![WhatsApp](https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/556496028022)
-[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](#)
-[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:contato@oliver.com)
+[![WhatsApp](https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/GPwLAJHurVnA0fJa9aWlEL?mode=r_t)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:suporte@kuky.pro)
 
 </div>
 
@@ -193,7 +184,7 @@ src/
 
 ### **Suporte Técnico**
 - 📞 **WhatsApp**: (64) 9602-8022
-- 📧 **E-mail**: suporte@oliver.com
+- 📧 **E-mail**: suporte@kuky.pro
 - 🕐 **Horário**: Segunda à Sexta, 8h às 18h
 
 ---
