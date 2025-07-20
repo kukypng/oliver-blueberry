@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Users, Shield, UserPlus, Settings, Search, Calendar, Trash2, Loader2, Gamepad2 } from 'lucide-react';
+import { ArrowLeft, Users, Shield, UserPlus, Settings, Search, Calendar, Trash2, Loader2, Gamepad2, Key } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
@@ -12,13 +12,14 @@ import { UserDeletionDialog } from '@/components/UserManagement/UserDeletionDial
 import { UserRenewalDialog } from '@/components/UserManagement/UserRenewalDialog';
 import { BetaFeaturesSettingsLite } from '@/components/lite/BetaFeaturesSettingsLite';
 import { GameSettingsPanel } from '@/components/admin/GameSettingsPanel';
+import { AdminLicenseManagerEnhanced } from '@/components/admin/AdminLicenseManagerEnhanced';
 interface AdminLiteProps {
   userId: string;
   onBack: () => void;
 }
 
 const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { profile: any }) => {
-  const [activeTab, setActiveTab] = useState<'users' | 'beta' | 'game'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'licenses' | 'beta' | 'game'>('users');
   const navigate = useNavigate();
   const {
     searchTerm, setSearchTerm,
@@ -155,6 +156,15 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
             Usuários
           </Button>
           <Button 
+            variant={activeTab === 'licenses' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('licenses')}
+            className="flex items-center gap-2 whitespace-nowrap"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
+            <Key className="h-4 w-4" />
+            Licenças
+          </Button>
+          <Button 
             variant={activeTab === 'beta' ? 'default' : 'outline'}
             onClick={() => setActiveTab('beta')}
             className="flex items-center gap-2 whitespace-nowrap"
@@ -174,7 +184,9 @@ const AdminLiteComponent = ({ userId, onBack, profile }: AdminLiteProps & { prof
           </Button>
         </div>
 
-        {activeTab === 'beta' ? (
+        {activeTab === 'licenses' ? (
+          <AdminLicenseManagerEnhanced />
+        ) : activeTab === 'beta' ? (
           <BetaFeaturesSettingsLite userId={userId} profile={profile} />
         ) : activeTab === 'game' ? (
           <GameSettingsPanel />
