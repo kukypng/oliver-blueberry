@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
@@ -15,7 +15,7 @@ interface UserProfile {
   advanced_features_enabled?: boolean;
 }
 
-interface AuthContextType {
+interface AuthReturn {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
@@ -27,9 +27,7 @@ interface AuthContextType {
   hasPermission: (permission: string) => boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const useAuth = (): AuthReturn => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .single();
 
       if (error) throw error;
-      setProfile(data);
+      setProfile(data as UserProfile);
     } catch (error) {
       console.error('Error fetching profile:', error);
       setProfile(null);
@@ -77,11 +75,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const hasRole = (role: UserRole) => {
+  const hasRole = (role: UserRole): boolean => {
     return profile?.role === role;
   };
 
-  const hasPermission = (permission: string) => {
+  const hasPermission = (permission: string): boolean => {
     if (!profile) return false;
     if (profile.role === 'admin') return true;
     
@@ -91,7 +89,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       case 'manage_users':
         return profile.role === 'admin';
       case 'manage_settings':
-        return profile.role === 'admin' || profile.role === 'manager';
+        return ['admin', 'manager'].includes(profile.role);
       default:
         return true;
     }
@@ -113,27 +111,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return supabase.auth.signOut();
   };
 
-  return (
-    <AuthContext.Provider value={{
-      user,
-      profile,
-      loading,
-      signOut,
-      signIn,
-      signUp,
-      requestPasswordReset,
-      hasRole,
-      hasPermission
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return {
+    user,
+    profile,
+    loading,
+    signOut,
+    signIn,
+    signUp,
+    requestPasswordReset,
+    hasRole,
+    hasPermission
+  };
 };
