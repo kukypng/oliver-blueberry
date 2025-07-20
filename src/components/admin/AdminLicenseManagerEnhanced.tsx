@@ -47,15 +47,31 @@ export const AdminLicenseManagerEnhanced = () => {
   const { data: licenses, isLoading, error: queryError } = useQuery({
     queryKey: ['admin-licenses'],
     queryFn: async (): Promise<License[]> => {
+      console.log('Fetching licenses...');
       const { data, error } = await supabase.rpc('admin_get_licenses_with_users');
       if (error) {
         console.error('Error fetching licenses:', error);
         throw error;
       }
-      console.log('Licenses data:', data);
-      return data || [];
+      console.log('Raw licenses data:', data);
+      
+      // Transformar os dados para garantir compatibilidade com a interface
+      const transformedData = (data || []).map((item: any) => ({
+        id: item.id || '',
+        code: item.code || '',
+        user_id: item.user_id || null,
+        user_email: item.user_email || null,
+        user_name: item.user_name || null,
+        expires_at: item.expires_at || null,
+        created_at: item.created_at || new Date().toISOString(),
+        is_active: Boolean(item.is_active)
+      }));
+      
+      console.log('Transformed licenses data:', transformedData);
+      return transformedData;
     },
-    retry: 3
+    retry: 3,
+    retryDelay: 1000
   });
 
   const createLicenseMutation = useMutation({
@@ -129,8 +145,8 @@ export const AdminLicenseManagerEnhanced = () => {
   const filteredLicenses = licenses?.filter(license => {
     const matchesSearch = 
       license.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      license.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      license.user_email?.toLowerCase().includes(searchTerm.toLowerCase());
+      (license.user_name && license.user_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (license.user_email && license.user_email.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const now = new Date();
     const isExpired = license.expires_at && new Date(license.expires_at) < now;
@@ -258,78 +274,96 @@ export const AdminLicenseManagerEnhanced = () => {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8">Carregando licenças...</div>
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-2 text-muted-foreground">Carregando licenças...</p>
+            </div>
           ) : queryError ? (
-            <div className="text-center py-8 text-destructive">
-              Erro ao carregar licenças: {queryError.message}
+            <div className="text-center py-8">
+              <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+              <p className="text-destructive font-medium">Erro ao carregar licenças</p>
+              <p className="text-sm text-muted-foreground mt-1">{queryError.message}</p>
+              <Button 
+                variant="outline" 
+                onClick={() => queryClient.invalidateQueries({ queryKey: ['admin-licenses'] })}
+                className="mt-4"
+              >
+                Tentar Novamente
+              </Button>
             </div>
           ) : !licenses?.length ? (
             <div className="text-center py-8 text-muted-foreground">
-              Nenhuma licença cadastrada no sistema
+              <Key className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhuma licença cadastrada no sistema</p>
             </div>
           ) : !filteredLicenses?.length ? (
             <div className="text-center py-8 text-muted-foreground">
-              Nenhuma licença encontrada com os filtros aplicados
+              <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhuma licença encontrada com os filtros aplicados</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredLicenses.map((license) => (
-                <div
-                  key={license.id}
-                  className="border rounded-lg p-4 space-y-3"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <Key className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-mono text-sm font-medium">{license.code}</span>
-                        {getStatusBadge(license)}
+              {filteredLicenses.map((license) => {
+                const hasUser = license.user_id && license.user_name;
+                
+                return (
+                  <div
+                    key={license.id}
+                    className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <Key className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-mono text-sm font-medium">{license.code}</span>
+                          {getStatusBadge(license)}
+                        </div>
+                        
+                        {hasUser && (
+                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                            <User className="h-3 w-3" />
+                            <span>{license.user_name} ({license.user_email})</span>
+                          </div>
+                        )}
+                        
+                        {license.expires_at && (
+                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
+                            <span>Expira em: {format(new Date(license.expires_at), 'dd/MM/yyyy')}</span>
+                          </div>
+                        )}
                       </div>
-                      
-                      {license.user_name && (
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <User className="h-3 w-3" />
-                          <span>{license.user_name} ({license.user_email})</span>
-                        </div>
-                      )}
-                      
-                      {license.expires_at && (
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
-                          <span>Expira em: {format(new Date(license.expires_at), 'dd/MM/yyyy')}</span>
-                        </div>
-                      )}
-                    </div>
 
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => renewLicenseMutation.mutate({ 
-                          licenseId: license.id, 
-                          days: renewDays 
-                        })}
-                        disabled={renewLicenseMutation.isPending}
-                      >
-                        <RefreshCw className="h-3 w-3 mr-1" />
-                        Renovar
-                      </Button>
-
-                      {license.user_id && (
+                      <div className="flex items-center space-x-2">
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => unlinkLicenseMutation.mutate(license.id)}
-                          disabled={unlinkLicenseMutation.isPending}
+                          onClick={() => renewLicenseMutation.mutate({ 
+                            licenseId: license.id, 
+                            days: renewDays 
+                          })}
+                          disabled={renewLicenseMutation.isPending}
                         >
-                          <Unlink className="h-3 w-3 mr-1" />
-                          Desvincular
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          Renovar
                         </Button>
-                      )}
+
+                        {license.user_id && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => unlinkLicenseMutation.mutate(license.id)}
+                            disabled={unlinkLicenseMutation.isPending}
+                          >
+                            <Unlink className="h-3 w-3 mr-1" />
+                            Desvincular
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>
