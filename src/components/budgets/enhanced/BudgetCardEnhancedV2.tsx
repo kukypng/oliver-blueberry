@@ -103,8 +103,9 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
   };
 
   const formatCurrency = (value: number) => {
-    // Converter de centavos para reais
-    const valueInReais = value / 100;
+    // Verificar se o valor já está em reais ou centavos
+    // Se o valor for muito alto (> 10000), provavelmente está em centavos
+    const valueInReais = value > 10000 ? value / 100 : value;
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
