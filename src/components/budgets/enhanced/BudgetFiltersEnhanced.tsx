@@ -43,11 +43,13 @@ export const BudgetFiltersEnhanced: React.FC<BudgetFiltersEnhancedProps> = ({
 
   const formatCurrency = (value: number) => {
     if (value === Infinity) return '+';
+    // Converter de centavos para reais
+    const valueInReais = value / 100;
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
       minimumFractionDigits: 0
-    }).format(value);
+    }).format(valueInReais);
   };
 
   const activeFilterCount = [
