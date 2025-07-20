@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Share, FileText, Trash2, Eye, Clock, DollarSign } from 'lucide-react';
+import { ChevronDown, ChevronUp, Share, FileText, Trash2, Eye, Clock, DollarSign, Edit } from 'lucide-react';
 import { BudgetCardMobileSimplified } from './BudgetCardMobileSimplified';
 import { useMobileDetection } from '../../../hooks/useMobileDetection';
 import { DeleteConfirmDialog } from '../../ui/DeleteConfirmDialog';
+import { useToast } from '../../../hooks/use-toast';
 import type { Budget } from '../../../types/budget';
 
 interface BudgetCardEnhancedV2Props {
@@ -30,6 +31,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { isMobile } = useMobileDetection();
+  const { toast } = useToast();
 
   const handleAction = async (action: string, callback: () => void) => {
     setActionLoading(action);
@@ -212,16 +214,35 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
               {/* Checkboxes de Status */}
               <div className="bg-muted/30 p-3 rounded-lg space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer" onClick={(e) => e.preventDefault()}>
                     <input
                       type="checkbox"
                       checked={!!budget.approved_at}
-                      onChange={(e) => onBudgetUpdate({
-                        approved_at: e.target.checked ? new Date().toISOString() : null
-                      })}
-                      className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+                      onChange={async (e) => {
+                        setActionLoading('approved');
+                        try {
+                          await onBudgetUpdate({
+                            approved_at: e.target.checked ? new Date().toISOString() : null
+                          });
+                          toast({
+                            description: e.target.checked ? "Orçamento aprovado!" : "Aprovação removida",
+                          });
+                        } catch (error) {
+                          toast({
+                            variant: "destructive",
+                            description: "Erro ao atualizar status",
+                          });
+                        } finally {
+                          setActionLoading(null);
+                        }
+                      }}
+                      disabled={actionLoading === 'approved'}
+                      className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2 disabled:opacity-50"
                     />
                     <span className="text-foreground">Aprovado</span>
+                    {actionLoading === 'approved' && (
+                      <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin ml-1" />
+                    )}
                   </label>
                   {budget.approved_at && (
                     <span className="text-xs text-muted-foreground">{formatDate(budget.approved_at)}</span>
@@ -229,16 +250,36 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer" onClick={(e) => e.preventDefault()}>
                     <input
                       type="checkbox"
                       checked={!!budget.payment_confirmed_at}
-                      onChange={(e) => onBudgetUpdate({
-                        payment_confirmed_at: e.target.checked ? new Date().toISOString() : null
-                      })}
-                      className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+                      onChange={async (e) => {
+                        setActionLoading('payment');
+                        try {
+                          await onBudgetUpdate({
+                            payment_confirmed_at: e.target.checked ? new Date().toISOString() : null,
+                            is_paid: e.target.checked
+                          });
+                          toast({
+                            description: e.target.checked ? "Pagamento confirmado!" : "Confirmação de pagamento removida",
+                          });
+                        } catch (error) {
+                          toast({
+                            variant: "destructive",
+                            description: "Erro ao atualizar status",
+                          });
+                        } finally {
+                          setActionLoading(null);
+                        }
+                      }}
+                      disabled={actionLoading === 'payment'}
+                      className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2 disabled:opacity-50"
                     />
                     <span className="text-foreground">Pago</span>
+                    {actionLoading === 'payment' && (
+                      <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin ml-1" />
+                    )}
                   </label>
                   {budget.payment_confirmed_at && (
                     <span className="text-xs text-muted-foreground">{formatDate(budget.payment_confirmed_at)}</span>
@@ -246,16 +287,36 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer" onClick={(e) => e.preventDefault()}>
                     <input
                       type="checkbox"
                       checked={!!budget.delivery_confirmed_at}
-                      onChange={(e) => onBudgetUpdate({
-                        delivery_confirmed_at: e.target.checked ? new Date().toISOString() : null
-                      })}
-                      className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
+                      onChange={async (e) => {
+                        setActionLoading('delivery');
+                        try {
+                          await onBudgetUpdate({
+                            delivery_confirmed_at: e.target.checked ? new Date().toISOString() : null,
+                            is_delivered: e.target.checked
+                          });
+                          toast({
+                            description: e.target.checked ? "Entrega confirmada!" : "Confirmação de entrega removida",
+                          });
+                        } catch (error) {
+                          toast({
+                            variant: "destructive",
+                            description: "Erro ao atualizar status",
+                          });
+                        } finally {
+                          setActionLoading(null);
+                        }
+                      }}
+                      disabled={actionLoading === 'delivery'}
+                      className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2 disabled:opacity-50"
                     />
                     <span className="text-foreground">Entregue</span>
+                    {actionLoading === 'delivery' && (
+                      <div className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin ml-1" />
+                    )}
                   </label>
                   {budget.delivery_confirmed_at && (
                     <span className="text-xs text-muted-foreground">{formatDate(budget.delivery_confirmed_at)}</span>
@@ -266,18 +327,46 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
               {/* Botões de Ação */}
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => onBudgetUpdate({ status: 'completed' })}
-                  className="flex items-center justify-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-600 dark:bg-green-950 dark:hover:bg-green-900 dark:text-green-400 rounded-lg text-sm font-medium transition-colors"
+                  onClick={async () => {
+                    setActionLoading('complete');
+                    try {
+                      await onBudgetUpdate({ 
+                        status: 'completed',
+                        workflow_status: 'completed'
+                      });
+                      toast({
+                        description: "Orçamento concluído!",
+                      });
+                    } catch (error) {
+                      toast({
+                        variant: "destructive",
+                        description: "Erro ao concluir orçamento",
+                      });
+                    } finally {
+                      setActionLoading(null);
+                    }
+                  }}
+                  disabled={actionLoading === 'complete'}
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-600 dark:bg-green-950 dark:hover:bg-green-900 dark:text-green-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                   style={{ touchAction: 'manipulation' }}
                 >
-                  <span>Concluir</span>
+                  {actionLoading === 'complete' ? (
+                    <div className="w-4 h-4 border-2 border-green-600 dark:border-green-400 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <span>Concluir</span>
+                  )}
                 </button>
                 
                 <button
-                  onClick={() => {/* TODO: Implementar edição */}}
+                  onClick={() => {
+                    toast({
+                      description: "Funcionalidade de edição em desenvolvimento",
+                    });
+                  }}
                   className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-950 dark:hover:bg-blue-900 dark:text-blue-400 rounded-lg text-sm font-medium transition-colors"
                   style={{ touchAction: 'manipulation' }}
                 >
+                  <Edit className="h-4 w-4" />
                   <span>Editar</span>
                 </button>
               </div>
