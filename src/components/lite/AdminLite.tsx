@@ -262,10 +262,51 @@ const AdminLiteComponent = ({
                           </p>}
                       </div>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 flex-wrap">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleEdit(user)}
+                        className="text-xs"
+                      >
+                        Editar
+                      </Button>
                       
+                      {user.expiration_date && new Date(user.expiration_date) <= new Date() && (
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => handleRenew(user)}
+                          className="text-xs border-orange-500 text-orange-700 hover:bg-orange-50"
+                        >
+                          Renovar
+                        </Button>
+                      )}
                       
+                      <Button 
+                        size="sm" 
+                        variant={user.is_active ? "outline" : "default"}
+                        onClick={() => {
+                          // Toggle user active status
+                          const action = user.is_active ? 'desativar' : 'ativar';
+                          if (confirm(`Tem certeza que deseja ${action} este usuário?`)) {
+                            // This would need implementation in useUserManagement
+                            console.log(`${action} user:`, user.id);
+                          }
+                        }}
+                        className="text-xs"
+                      >
+                        {user.is_active ? 'Desativar' : 'Ativar'}
+                      </Button>
                       
+                      <Button 
+                        size="sm" 
+                        variant="destructive" 
+                        onClick={() => handleDelete(user)}
+                        className="text-xs"
+                      >
+                        Excluir
+                      </Button>
                     </div>
                   </div>)}
               </div>}
