@@ -519,7 +519,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                 ) : (
                   <Share className="h-5 w-5" />
                 )}
-                <span className="text-xs font-medium">Compartilhar</span>
+                <span className="text-xs font-medium">Copiar & Enviar</span>
               </button>
 
               <button

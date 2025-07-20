@@ -19,6 +19,8 @@ export const useBudgetActions = () => {
         .eq('id', budget.id)
         .single();
 
+      let message: string;
+
       if (error) {
         console.error('Erro ao buscar orçamento:', error);
         // Fallback com dados básicos
@@ -45,21 +47,30 @@ export const useBudgetActions = () => {
           expires_at: budget.expires_at
         };
         
-        const message = generateWhatsAppMessage(budgetData);
-        shareViaWhatsApp(message);
+        message = generateWhatsAppMessage(budgetData);
       } else {
         // Usar dados completos do banco
-        const message = generateWhatsAppMessage({
+        message = generateWhatsAppMessage({
           ...fullBudget,
           part_quality: fullBudget.part_quality || fullBudget.part_type || 'Reparo'
         });
-        shareViaWhatsApp(message);
       }
 
-      toast({
-        title: "Redirecionando...",
-        description: "Você será redirecionado para o WhatsApp."
-      });
+      // Tentar compartilhar usando a nova função
+      const shared = await shareViaWhatsApp(message);
+      
+      if (shared) {
+        toast({
+          title: "Orçamento copiado!",
+          description: "A mensagem foi copiada. Cole no WhatsApp do cliente.",
+        });
+      } else {
+        toast({
+          title: "Erro ao compartilhar",
+          description: "Não foi possível preparar o compartilhamento.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error('Error sharing via WhatsApp:', error);
       toast({
