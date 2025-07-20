@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Share, FileText, Trash2, Eye, Clock, DollarSign } from 'lucide-react';
-import { BudgetCardRedesigned } from './BudgetCardRedesigned';
+import { BudgetCardMobileSimplified } from './BudgetCardMobileSimplified';
 import { useMobileDetection } from '../../../hooks/useMobileDetection';
+import { DeleteConfirmDialog } from '../../ui/DeleteConfirmDialog';
 import type { Budget } from '../../../types/budget';
 
 interface BudgetCardEnhancedV2Props {
@@ -27,6 +28,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { isMobile } = useMobileDetection();
 
   const handleAction = async (action: string, callback: () => void) => {
@@ -106,6 +108,20 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
     }).format(new Date(dateString));
   };
 
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setActionLoading('delete');
+    try {
+      await onDelete(budget.id);
+      setShowDeleteDialog(false);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   return (
     <div 
       className="transition-all duration-300"
@@ -115,11 +131,10 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
         willChange: 'transform'
       }}
     >
-      {/* Card principal */}
+      {/* Card principal - versão simplificada para móvel */}
       <div className="relative">
-        <BudgetCardRedesigned
+        <BudgetCardMobileSimplified
           budget={budget}
-          profile={profile}
           isUpdating={isUpdating}
         />
 
@@ -246,7 +261,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
               </button>
 
               <button
-                onClick={() => handleAction('delete', () => onDelete(budget.id))}
+                onClick={handleDeleteClick}
                 disabled={actionLoading === 'delete'}
                 className="flex flex-col items-center gap-2 p-3 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950 dark:hover:bg-rose-900 dark:text-rose-400 rounded-xl transition-colors disabled:opacity-50"
                 style={{ touchAction: 'manipulation' }}
@@ -262,6 +277,15 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
           </div>
         </div>
       )}
+
+      {/* Dialog de confirmação de exclusão */}
+      <DeleteConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDeleteConfirm}
+        itemName={`o orçamento de ${budget.client_name || 'cliente'}`}
+        isLoading={actionLoading === 'delete'}
+      />
     </div>
   );
 };
