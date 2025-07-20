@@ -107,9 +107,7 @@ export const LicensePage = () => {
             <Shield className="h-8 w-8 text-blue-600" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">Ativação de Licença</h1>
-          <p className="text-muted-foreground">
-            Ative sua licença para ter acesso completo ao Oliver Blueberry
-          </p>
+          <p className="text-muted-foreground">Ative sua licença para ter acesso completo ao Oliver</p>
         </div>
 
         {/* License Activation Card */}
