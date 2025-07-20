@@ -1,7 +1,6 @@
 import React from 'react';
 import { Check, Clock, DollarSign, Truck, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
 interface StatusProgressBarProps {
   budget: {
     approved_at?: string | null;
@@ -11,106 +10,57 @@ interface StatusProgressBarProps {
     workflow_status?: string;
   };
 }
-
-export const StatusProgressBar: React.FC<StatusProgressBarProps> = ({ budget }) => {
-  const steps = [
-    {
-      id: 'approved',
-      label: 'Aprovado',
-      icon: Check,
-      completed: !!budget.approved_at,
-      date: budget.approved_at
-    },
-    {
-      id: 'paid',
-      label: 'Pago',
-      icon: DollarSign,
-      completed: !!budget.payment_confirmed_at,
-      date: budget.payment_confirmed_at
-    },
-    {
-      id: 'delivered',
-      label: 'Entregue',
-      icon: Truck,
-      completed: !!budget.delivery_confirmed_at,
-      date: budget.delivery_confirmed_at
-    }
-  ];
-
+export const StatusProgressBar: React.FC<StatusProgressBarProps> = ({
+  budget
+}) => {
+  const steps = [{
+    id: 'approved',
+    label: 'Aprovado',
+    icon: Check,
+    completed: !!budget.approved_at,
+    date: budget.approved_at
+  }, {
+    id: 'paid',
+    label: 'Pago',
+    icon: DollarSign,
+    completed: !!budget.payment_confirmed_at,
+    date: budget.payment_confirmed_at
+  }, {
+    id: 'delivered',
+    label: 'Entregue',
+    icon: Truck,
+    completed: !!budget.delivery_confirmed_at,
+    date: budget.delivery_confirmed_at
+  }];
   const isCompleted = budget.status === 'completed' || budget.workflow_status === 'completed';
   const completedSteps = steps.filter(step => step.completed).length;
-  const progressPercentage = (completedSteps / steps.length) * 100;
-
-  return (
-    <div className="space-y-4">
+  const progressPercentage = completedSteps / steps.length * 100;
+  return <div className="space-y-4">
       {/* Progress Bar */}
       <div className="relative">
         <div className="flex items-center justify-between">
           {steps.map((step, index) => {
-            const Icon = step.icon;
-            const isLast = index === steps.length - 1;
-            
-            return (
-              <div key={step.id} className="flex items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={cn(
-                      "relative flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all duration-300",
-                      step.completed
-                        ? "bg-primary border-primary text-primary-foreground"
-                        : "bg-background border-muted-foreground text-muted-foreground"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {step.completed && (
-                      <div className="absolute inset-0 rounded-full bg-primary animate-pulse opacity-20" />
-                    )}
-                  </div>
-                  <span
-                    className={cn(
-                      "text-xs mt-1 font-medium transition-colors duration-300",
-                      step.completed ? "text-primary" : "text-muted-foreground"
-                    )}
-                  >
-                    {step.label}
-                  </span>
-                </div>
-                
-                {/* Progress Line */}
-                {!isLast && (
-                  <div className="flex-1 h-0.5 mx-2 bg-muted relative">
-                    <div
-                      className={cn(
-                        "h-full bg-primary transition-all duration-500 ease-out",
-                        steps[index + 1]?.completed ? "w-full" : "w-0"
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          const Icon = step.icon;
+          const isLast = index === steps.length - 1;
+          return;
+        })}
         </div>
       </div>
 
       {/* Status Badge */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          {isCompleted ? (
-            <>
+          {isCompleted ? <>
               <CheckCircle className="h-4 w-4 text-green-600" />
               <span className="text-sm font-medium text-green-600">Orçamento Concluído</span>
-            </>
-          ) : (
-            <>
+            </> : <>
               <Clock className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium text-primary">
                 {completedSteps === 0 && "Aguardando aprovação"}
                 {completedSteps === 1 && "Aguardando pagamento"}
                 {completedSteps === 2 && "Aguardando entrega"}
               </span>
-            </>
-          )}
+            </>}
         </div>
         
         {/* Progress Percentage */}
@@ -121,11 +71,9 @@ export const StatusProgressBar: React.FC<StatusProgressBarProps> = ({ budget }) 
 
       {/* Progress Fill Bar */}
       <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-        <div
-          className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-out"
-          style={{ width: `${progressPercentage}%` }}
-        />
+        <div className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-out" style={{
+        width: `${progressPercentage}%`
+      }} />
       </div>
-    </div>
-  );
+    </div>;
 };
