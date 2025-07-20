@@ -111,19 +111,6 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
     }).format(valueInReais);
   };
 
-  const formatInstallmentPrice = (value: number) => {
-    // Para valores de parcela que podem estar em formato inconsistente
-    // Se o valor for muito alto (acima de 10000), dividir por 1000 adicional
-    let adjustedValue = value / 100;
-    if (adjustedValue > 10000) {
-      adjustedValue = adjustedValue / 100; // Dividir mais uma vez se estiver muito alto
-    }
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(adjustedValue);
-  };
-
   const formatDate = (dateString: string) => {
     return new Intl.DateTimeFormat('pt-BR', {
       day: '2-digit',
@@ -221,7 +208,7 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
                 {budget.installments && budget.installments > 1 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Parcelado:</span>
-                    <span className="font-medium">{budget.installments}x {formatInstallmentPrice(budget.installment_price || 0)}</span>
+                    <span className="font-medium">{budget.installments}x {formatCurrency(budget.installment_price || 0)}</span>
                   </div>
                 )}
               </div>
