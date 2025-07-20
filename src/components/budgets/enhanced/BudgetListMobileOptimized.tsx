@@ -4,7 +4,7 @@ import { BudgetEmptyState } from './BudgetEmptyState';
 import { BudgetCardSkeleton } from './BudgetCardSkeleton';
 import { BudgetCardError } from './BudgetCardError';
 import { PullToRefreshContainer } from './PullToRefreshContainer';
-import type { Budget } from '../../../hooks/useBudgetSearch';
+import type { Budget } from '../../../types/budget';
 
 interface BudgetListMobileOptimizedProps {
   budgets: Budget[];

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Share, FileText, Trash2, Eye, Clock, DollarSign } from 'lucide-react';
 import { BudgetCardRedesigned } from './BudgetCardRedesigned';
-import type { Budget } from '../../../hooks/useBudgetSearch';
+import type { Budget } from '../../../types/budget';
 
 interface BudgetCardEnhancedV2Props {
   budget: Budget;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Share, Trash2, FileText } from 'lucide-react';
 import { useSwipeGesture } from '../../../hooks/useSwipeGesture';
-import type { Budget } from '../../../hooks/useBudgetSearch';
+import type { Budget } from '../../../types/budget';
 
 interface BudgetCardWithSwipeProps {
   budget: Budget;

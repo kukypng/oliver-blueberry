@@ -1,34 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-
-export interface Budget {
-  id: string;
-  client_name?: string;
-  device_model?: string;
-  device_type?: string;
-  total_price?: number;
-  workflow_status?: string;
-  is_paid?: boolean;
-  is_delivered?: boolean;
-  expires_at?: string;
-  approved_at?: string;
-  payment_confirmed_at?: string;
-  delivery_confirmed_at?: string;
-  created_at: string;
-  installments?: number;
-  cash_price?: number;
-  installment_price?: number;
-  warranty_months?: number;
-  includes_delivery?: boolean;
-  includes_screen_protector?: boolean;
-  valid_until?: string;
-  part_type?: string;
-  part_quality?: string;
-  brand?: string;
-  owner_id?: string;
-  deleted_at?: string | null;
-  delivery_date?: string;
-  notes?: string;
-}
+import type { Budget, SearchFilters } from '../types/budget';
 
 interface UseBudgetSearchProps {
   budgets: Budget[];

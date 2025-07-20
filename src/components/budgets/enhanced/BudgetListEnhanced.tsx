@@ -1,7 +1,7 @@
 import React from 'react';
 import { BudgetCardEnhanced } from './BudgetCardEnhanced';
 import { BudgetEmptyState } from './BudgetEmptyState';
-import type { Budget } from '../../../hooks/useBudgetSearch';
+import type { Budget } from '../../../types/budget';
 
 interface BudgetListEnhancedProps {
   budgets: Budget[];

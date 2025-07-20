@@ -1,7 +1,7 @@
 import React from 'react';
 import { BudgetCardWithSwipe } from './BudgetCardWithSwipe';
 import { BudgetCardEnhancedV2 } from './BudgetCardEnhancedV2';
-import type { Budget } from '../../../hooks/useBudgetSearch';
+import type { Budget } from '../../../types/budget';
 
 interface BudgetCardMobileOptimizedProps {
   budget: Budget;

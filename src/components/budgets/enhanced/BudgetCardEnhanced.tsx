@@ -1,6 +1,6 @@
 import React from 'react';
-import { BudgetLiteCardiOS } from '../../lite/BudgetLiteCardiOS';
-import type { Budget } from '../../../hooks/useBudgetSearch';
+import { BudgetCardRedesigned } from './BudgetCardRedesigned';
+import type { Budget } from '../../../types/budget';
 
 interface BudgetCardEnhancedProps {
   budget: Budget;
@@ -31,12 +31,10 @@ export const BudgetCardEnhanced: React.FC<BudgetCardEnhancedProps> = ({
         willChange: 'transform'
       }}
     >
-      <BudgetLiteCardiOS 
-        budget={budget} 
-        profile={profile} 
-        onShareWhatsApp={onShareWhatsApp} 
-        onDelete={onDelete} 
-        onBudgetUpdate={onBudgetUpdate} 
+      <BudgetCardRedesigned
+        budget={budget}
+        profile={profile}
+        isUpdating={isUpdating}
       />
     </div>
   );

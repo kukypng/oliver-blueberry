@@ -1,7 +1,8 @@
 import React from 'react';
 import { BudgetHeader } from './BudgetHeader';
 import { BudgetSearchEnhanced } from './BudgetSearchEnhanced';
-import { BudgetFiltersEnhanced } from './BudgetFiltersEnhanced';
+import { BudgetAdvancedFilters } from './BudgetAdvancedFilters';
+import { SavedFiltersManager } from './SavedFiltersManager';
 import { BudgetListMobileOptimized } from './BudgetListMobileOptimized';
 import { useBudgetData } from '../../../hooks/useBudgetData';
 import { useBudgetSearchEnhanced } from '../../../hooks/useBudgetSearchEnhanced';
@@ -42,8 +43,12 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
     searchHistory,
     searchSuggestions,
     uniqueClients,
+    uniqueDeviceTypes,
+    uniquePartTypes,
     suggestedPriceRanges,
-    searchStats
+    searchStats,
+    savedFiltersHook,
+    handleApplySavedFilter
   } = useBudgetSearchEnhanced({ budgets, profile });
 
   // Hooks para ações
@@ -118,7 +123,7 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
         onRefresh={handleRefresh}
       />
 
-      {/* Search e Filters Aprimorados */}
+      {/* Search, Filters e Saved Filters */}
       <div className="px-4 pb-3 space-y-3">
         <BudgetSearchEnhanced
           searchTerm={searchTerm}
@@ -132,13 +137,21 @@ export const BudgetListRefactored: React.FC<BudgetListRefactoredProps> = ({
           searchSuggestions={searchSuggestions}
         />
         
-        <BudgetFiltersEnhanced
+        <SavedFiltersManager
+          currentFilters={filters}
+          currentSearchTerm={searchTerm}
+          onApplyFilter={handleApplySavedFilter}
+        />
+        
+        <BudgetAdvancedFilters
           filters={filters}
           onFilterChange={setFilters}
           onClearFilters={handleClearFilters}
           isAdvancedEnabled={profile?.advanced_features_enabled}
           hasActiveFilters={hasActiveFilters}
           uniqueClients={uniqueClients}
+          uniqueDeviceTypes={uniqueDeviceTypes}
+          uniquePartTypes={uniquePartTypes}
           suggestedPriceRanges={suggestedPriceRanges}
         />
       </div>

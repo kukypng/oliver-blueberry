@@ -1,46 +1,11 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useDebounce } from './useDebounce';
-
-export interface Budget {
-  id: string;
-  client_name?: string;
-  device_model?: string;
-  device_type?: string;
-  total_price?: number;
-  workflow_status?: string;
-  is_paid?: boolean;
-  is_delivered?: boolean;
-  expires_at?: string;
-  approved_at?: string;
-  payment_confirmed_at?: string;
-  delivery_confirmed_at?: string;
-  created_at: string;
-  installments?: number;
-  cash_price?: number;
-  installment_price?: number;
-  warranty_months?: number;
-  includes_delivery?: boolean;
-  includes_screen_protector?: boolean;
-  valid_until?: string;
-  part_type?: string;
-  part_quality?: string;
-  brand?: string;
-  owner_id?: string;
-  deleted_at?: string | null;
-  delivery_date?: string;
-  notes?: string;
-}
+import { useSavedFilters } from './useSavedFilters';
+import type { Budget, SearchFilters } from '../types/budget';
 
 interface UseBudgetSearchProps {
   budgets: Budget[];
   profile?: any;
-}
-
-interface SearchFilters {
-  status: string;
-  priceRange: { min: number; max: number } | null;
-  client: string;
-  dateRange: { start: string; end: string } | null;
 }
 
 export const useBudgetSearchEnhanced = ({ budgets, profile }: UseBudgetSearchProps) => {
@@ -49,10 +14,17 @@ export const useBudgetSearchEnhanced = ({ budgets, profile }: UseBudgetSearchPro
     status: 'all',
     priceRange: null,
     client: 'all',
-    dateRange: null
+    dateRange: null,
+    deviceType: 'all',
+    partType: 'all',
+    paymentStatus: 'all',
+    deliveryStatus: 'all'
   });
   const [isSearching, setIsSearching] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  
+  // Hook para filtros salvos
+  const savedFiltersHook = useSavedFilters();
   
   // Debounce da busca para performance
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -65,6 +37,23 @@ export const useBudgetSearchEnhanced = ({ budgets, profile }: UseBudgetSearchPro
       setIsSearching(false);
     }
   }, [searchTerm, debouncedSearchTerm]);
+
+  // Tipos únicos para filtros
+  const uniqueDeviceTypes = useMemo(() => {
+    const types = budgets
+      .map(b => b.device_type)
+      .filter(Boolean)
+      .filter((type, index, arr) => arr.indexOf(type) === index);
+    return types.sort();
+  }, [budgets]);
+
+  const uniquePartTypes = useMemo(() => {
+    const types = budgets
+      .map(b => b.part_type)
+      .filter(Boolean)
+      .filter((type, index, arr) => arr.indexOf(type) === index);
+    return types.sort();
+  }, [budgets]);
 
   // Clientes únicos para filtro
   const uniqueClients = useMemo(() => {
@@ -117,12 +106,32 @@ export const useBudgetSearchEnhanced = ({ budgets, profile }: UseBudgetSearchPro
       status: 'all',
       priceRange: null,
       client: 'all',
-      dateRange: null
+      dateRange: null,
+      deviceType: 'all',
+      partType: 'all',
+      paymentStatus: 'all',
+      deliveryStatus: 'all'
     });
   }, []);
 
   const handleQuickSearch = useCallback((term: string) => {
     setSearchTerm(term);
+  }, []);
+
+  // Aplicar filtro salvo
+  const handleApplySavedFilter = useCallback((savedFilter: any) => {
+    setSearchTerm(savedFilter.filters.searchTerm);
+    // Garantir que o filtro salvo tenha todas as propriedades necessárias
+    setFilters({
+      status: savedFilter.filters.status || 'all',
+      priceRange: savedFilter.filters.priceRange || null,
+      client: savedFilter.filters.client || 'all',
+      dateRange: savedFilter.filters.dateRange || null,
+      deviceType: 'all',
+      partType: 'all', 
+      paymentStatus: 'all',
+      deliveryStatus: 'all'
+    });
   }, []);
 
   const filteredBudgets = useMemo(() => {
@@ -190,6 +199,34 @@ export const useBudgetSearchEnhanced = ({ budgets, profile }: UseBudgetSearchPro
       });
     }
 
+    // Filtro por tipo de dispositivo
+    if (filters.deviceType !== 'all') {
+      filtered = filtered.filter(b => b.device_type === filters.deviceType);
+    }
+
+    // Filtro por tipo de serviço
+    if (filters.partType !== 'all') {
+      filtered = filtered.filter(b => b.part_type === filters.partType);
+    }
+
+    // Filtro por status de pagamento
+    if (filters.paymentStatus !== 'all') {
+      if (filters.paymentStatus === 'paid') {
+        filtered = filtered.filter(b => b.is_paid === true);
+      } else if (filters.paymentStatus === 'pending') {
+        filtered = filtered.filter(b => b.is_paid === false);
+      }
+    }
+
+    // Filtro por status de entrega
+    if (filters.deliveryStatus !== 'all') {
+      if (filters.deliveryStatus === 'delivered') {
+        filtered = filtered.filter(b => b.is_delivered === true);
+      } else if (filters.deliveryStatus === 'pending') {
+        filtered = filtered.filter(b => b.is_delivered === false);
+      }
+    }
+
     return filtered;
   }, [budgets, debouncedSearchTerm, filters, profile?.advanced_features_enabled]);
 
@@ -198,7 +235,11 @@ export const useBudgetSearchEnhanced = ({ budgets, profile }: UseBudgetSearchPro
            filters.status !== 'all' || 
            filters.priceRange !== null || 
            filters.client !== 'all' || 
-           filters.dateRange !== null;
+           filters.dateRange !== null ||
+           filters.deviceType !== 'all' ||
+           filters.partType !== 'all' ||
+           filters.paymentStatus !== 'all' ||
+           filters.deliveryStatus !== 'all';
   }, [debouncedSearchTerm, filters]);
 
   const searchSuggestions = useMemo(() => {
@@ -236,10 +277,15 @@ export const useBudgetSearchEnhanced = ({ budgets, profile }: UseBudgetSearchPro
     searchHistory,
     searchSuggestions,
     uniqueClients,
+    uniqueDeviceTypes,
+    uniquePartTypes,
     suggestedPriceRanges,
     searchStats: {
       totalResults: filteredBudgets.length,
       totalValue: filteredBudgets.reduce((sum, b) => sum + (b.total_price || 0), 0)
-    }
+    },
+    // Filtros salvos
+    savedFiltersHook,
+    handleApplySavedFilter
   };
 };

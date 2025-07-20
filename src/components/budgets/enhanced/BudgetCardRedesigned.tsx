@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar, Clock, DollarSign, User, Smartphone, Check, AlertCircle, XCircle } from 'lucide-react';
-import type { Budget } from '../../../hooks/useBudgetSearch';
+import type { Budget } from '../../../types/budget';
 
 interface BudgetCardRedesignedProps {
   budget: Budget;

@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { generateWhatsAppMessage, shareViaWhatsApp } from '@/utils/whatsappUtils';
 import { SecureRedirect } from '@/utils/secureRedirect';
-import type { Budget } from './useBudgetSearch';
+import type { Budget } from '../types/budget';
 
 export const useBudgetActions = () => {
   const [updating, setUpdating] = useState<string | null>(null);
