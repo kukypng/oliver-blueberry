@@ -161,7 +161,7 @@ export const BudgetEditDialog: React.FC<BudgetEditDialogProps> = ({
       return false;
     }
 
-    if (formData.cash_price <= 0) {
+    if (!formData.cash_price || formData.cash_price <= 0) {
       toast({
         variant: "destructive",
         description: "Valor à vista deve ser maior que zero",
@@ -185,9 +185,9 @@ export const BudgetEditDialog: React.FC<BudgetEditDialogProps> = ({
         part_quality: formData.part_type,
         part_type: formData.part_type,
         warranty_months: formData.warranty_months,
-        cash_price: Math.round(formData.cash_price * 100),
-        installment_price: formData.enableInstallmentPrice ? Math.round(formData.installment_price * 100) : null,
-        total_price: Math.round(formData.cash_price * 100),
+        cash_price: Math.round((formData.cash_price || 0) * 100),
+        installment_price: formData.enableInstallmentPrice && formData.installment_price > 0 ? Math.round(formData.installment_price * 100) : null,
+        total_price: Math.round((formData.cash_price || 0) * 100),
         installments: formData.installments,
         payment_condition: formData.payment_condition,
         includes_delivery: formData.includes_delivery,

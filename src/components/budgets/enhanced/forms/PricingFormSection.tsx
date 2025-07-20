@@ -30,12 +30,11 @@ export const PricingFormSection: React.FC<PricingFormSectionProps> = ({
   ];
 
   const formatCurrency = (value: number) => {
-    // Converter de centavos para reais
-    const valueInReais = value / 100;
+    // O valor já está em reais no formulário
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(valueInReais);
+    }).format(value);
   };
 
   return (
@@ -54,9 +53,19 @@ export const PricingFormSection: React.FC<PricingFormSectionProps> = ({
             id="cash_price"
             type="number"
             step="0.01"
-            min="0"
+            min="0.01"
             value={formData.cash_price || ''}
-            onChange={(e) => onInputChange('cash_price', parseFloat(e.target.value) || 0)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === '' || value === '0') {
+                onInputChange('cash_price', 0);
+              } else {
+                const numValue = parseFloat(value);
+                if (!isNaN(numValue) && numValue > 0) {
+                  onInputChange('cash_price', numValue);
+                }
+              }
+            }}
             placeholder="0,00"
             className="bg-background border-border"
           />
@@ -88,9 +97,19 @@ export const PricingFormSection: React.FC<PricingFormSectionProps> = ({
                 id="installment_price"
                 type="number"
                 step="0.01"
-                min="0"
+                min="0.01"
                 value={formData.installment_price || ''}
-                onChange={(e) => onInputChange('installment_price', parseFloat(e.target.value) || 0)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '' || value === '0') {
+                    onInputChange('installment_price', 0);
+                  } else {
+                    const numValue = parseFloat(value);
+                    if (!isNaN(numValue) && numValue > 0) {
+                      onInputChange('installment_price', numValue);
+                    }
+                  }
+                }}
                 placeholder="0,00"
                 className="bg-background border-border"
               />
