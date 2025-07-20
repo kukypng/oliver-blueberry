@@ -189,7 +189,7 @@ export const AuthPage = () => {
               ) : (
                 <>
                   Não tem uma conta?{' '}
-                  <Link to="/signup" className="text-primary underline" onClick={() => setIsSignUp(true)}>
+                  <Link to="/sign" className="text-primary underline" onClick={() => setIsSignUp(true)}>
                     Criar Conta
                   </Link>
                 </>
