@@ -1,8 +1,8 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { AuthPage } from '@/pages/AuthPage';
-import { LicenseExpiredPage } from '@/pages/LicenseExpiredPage';
-import { useLicenseValidation } from '@/hooks/useLicenseValidation';
+import { LicensePage } from '@/pages/LicensePage';
+import { useEnhancedLicenseValidation } from '@/hooks/useEnhancedLicenseValidation';
 import { MobileLoading } from '@/components/ui/mobile-loading';
 import { SecurityValidation } from '@/utils/securityValidation';
 
@@ -12,7 +12,7 @@ interface AuthGuardProps {
 
 export const AuthGuard = ({ children }: AuthGuardProps) => {
   const { user, loading, profile } = useAuth();
-  const { data: isLicenseValid, isLoading: licenseLoading } = useLicenseValidation();
+  const { data: licenseData, isLoading: licenseLoading } = useEnhancedLicenseValidation();
 
   if (loading || licenseLoading) {
     return <MobileLoading message="Verificando autenticação..." />;
@@ -51,8 +51,8 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
   }
 
   // Check license validity after user is authenticated
-  if (isLicenseValid === false) {
-    return <LicenseExpiredPage />;
+  if (!licenseData?.is_valid) {
+    return <LicensePage />;
   }
 
   return <>{children}</>;

@@ -19,9 +19,12 @@ import {
   RefreshCw,
   Unlink,
   AlertCircle,
-  CheckCircle 
+  CheckCircle,
+  BarChart3
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LicenseReportsPanel } from './LicenseReportsPanel';
 
 interface License {
   id: string;
@@ -162,8 +165,8 @@ export const AdminLicenseManagerEnhanced = () => {
       {/* Header Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h2 className="text-2xl font-bold">Gerenciar Licenças</h2>
-          <p className="text-muted-foreground">Crie, edite e gerencie todas as licenças do sistema</p>
+          <h2 className="text-2xl font-bold">Gerenciamento de Licenças</h2>
+          <p className="text-muted-foreground">Gerencie licenças, usuários e visualize relatórios</p>
         </div>
         
         <Button
@@ -175,6 +178,21 @@ export const AdminLicenseManagerEnhanced = () => {
           <span>Nova Licença</span>
         </Button>
       </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="licenses" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="licenses">
+            <Key className="mr-2 h-4 w-4" />
+            Licenças
+          </TabsTrigger>
+          <TabsTrigger value="reports">
+            <BarChart3 className="mr-2 h-4 w-4" />
+            Relatórios
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="licenses" className="space-y-4">
 
       {/* Filters and Search */}
       <Card>
@@ -303,6 +321,12 @@ export const AdminLicenseManagerEnhanced = () => {
           )}
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <LicenseReportsPanel />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

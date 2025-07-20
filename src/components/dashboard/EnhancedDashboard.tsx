@@ -6,6 +6,7 @@ import { UserLicenseCard } from '@/components/dashboard/UserLicenseCard';
 import { UserLicenseCardIOS } from '@/components/dashboard/UserLicenseCardIOS';
 import { useIOSDetection } from '@/hooks/useIOSDetection';
 import { LicenseStatus } from '@/components/dashboard/LicenseStatus';
+import { LicenseStatusCard } from '@/components/license/LicenseStatusCard';
 import { Sparkles, ShoppingBag, CreditCard, MessageCircle, HeartCrack, AlertTriangle, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -70,7 +71,11 @@ export const EnhancedDashboard = ({ onNavigateTo, activeView }: ModernDashboardP
 
       {/* License Status Card - New Addition */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {isIOS ? <UserLicenseCardIOS /> : <UserLicenseCard />}
+        {/* New Enhanced License Card */}
+        <LicenseStatusCard />
+        
+        {/* Legacy License Cards - Only show on non-iOS devices */}
+        {!isIOS && <UserLicenseCard />}
         
         <Card className="glass-card shadow-strong animate-slide-up">
           <CardHeader className="space-y-1">

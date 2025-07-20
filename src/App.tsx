@@ -22,6 +22,7 @@ import { ResetEmailPage } from "./pages/ResetEmailPage";
 import { VerifyPage } from "./pages/VerifyPage";
 import { BudgetsPage } from "./pages/BudgetsPage";
 import { UnauthorizedPage } from "./pages/UnauthorizedPage";
+import { LicensePage } from "./pages/LicensePage";
 import { PWAProvider } from "./components/PWAProvider";
 
 const queryClient = new QueryClient({
@@ -69,6 +70,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/licenca" element={<LicensePage />} />
                 <Route path="/plans" element={<PlansPage />} />
                 <Route path="/purchase-success" element={<PurchaseSuccessPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />

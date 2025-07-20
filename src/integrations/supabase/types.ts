@@ -402,27 +402,33 @@ export type Database = {
       }
       licenses: {
         Row: {
+          activated_at: string | null
           code: string
           created_at: string
           expires_at: string | null
           id: string
           is_active: boolean
+          last_validation: string | null
           user_id: string | null
         }
         Insert: {
+          activated_at?: string | null
           code: string
           created_at?: string
           expires_at?: string | null
           id?: string
           is_active?: boolean
+          last_validation?: string | null
           user_id?: string | null
         }
         Update: {
+          activated_at?: string | null
           code?: string
           created_at?: string
           expires_at?: string | null
           id?: string
           is_active?: boolean
+          last_validation?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -678,6 +684,14 @@ export type Database = {
         Args: { license_code: string; p_user_id: string }
         Returns: Json
       }
+      activate_license_enhanced: {
+        Args: { license_code: string; p_user_id: string }
+        Returns: Json
+      }
+      admin_create_bulk_licenses: {
+        Args: { p_quantity: number; p_expires_in_days?: number }
+        Returns: Json
+      }
       admin_create_license: {
         Args: { p_expires_at?: string }
         Returns: Json
@@ -701,6 +715,10 @@ export type Database = {
         }[]
       }
       admin_get_dashboard_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      admin_get_license_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
@@ -1005,6 +1023,10 @@ export type Database = {
           policy_count: number
           security_status: string
         }[]
+      }
+      validate_user_license: {
+        Args: { p_user_id: string }
+        Returns: Json
       }
     }
     Enums: {
