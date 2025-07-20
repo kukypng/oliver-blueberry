@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,13 +7,16 @@ import { useToast } from '@/hooks/useToast';
 import { supabase } from '@/integrations/supabase/client';
 import { Shield, Key, MessageCircle, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
 export const LicenseExpiredPage = () => {
   const [licenseCode, setLicenseCode] = useState('');
   const [isActivating, setIsActivating] = useState(false);
-  const { user } = useAuth();
-  const { showSuccess, showError } = useToast();
-
+  const {
+    user
+  } = useAuth();
+  const {
+    showSuccess,
+    showError
+  } = useToast();
   const handleActivateLicense = async () => {
     if (!licenseCode.trim()) {
       showError({
@@ -23,7 +25,6 @@ export const LicenseExpiredPage = () => {
       });
       return;
     }
-
     if (!user?.id) {
       showError({
         title: 'Erro de Autenticação',
@@ -31,19 +32,18 @@ export const LicenseExpiredPage = () => {
       });
       return;
     }
-
     setIsActivating(true);
-
     try {
-      const { data, error } = await supabase.rpc('activate_license', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('activate_license', {
         license_code: licenseCode.trim(),
         p_user_id: user.id
       });
-
       if (error) {
         throw error;
       }
-
       if ((data as any)?.success) {
         showSuccess({
           title: 'Licença Ativada!',
@@ -67,15 +67,12 @@ export const LicenseExpiredPage = () => {
       setIsActivating(false);
     }
   };
-
   const handleWhatsAppContact = () => {
     const message = encodeURIComponent('Olá! Preciso de ajuda com minha licença do Oliver Blueberry.');
     const whatsappUrl = `https://wa.me/5511999999999?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -104,25 +101,11 @@ export const LicenseExpiredPage = () => {
               <label htmlFor="license-code" className="text-sm font-medium text-foreground">
                 Código da Licença
               </label>
-              <Input
-                id="license-code"
-                type="text"
-                placeholder="Ex: 3443331234567"
-                value={licenseCode}
-                onChange={(e) => setLicenseCode(e.target.value)}
-                className="font-mono text-center tracking-wider"
-                maxLength={13}
-              />
-              <p className="text-xs text-muted-foreground text-center">
-                Formato: 344333XXXXXXX (13 dígitos)
-              </p>
+              <Input id="license-code" type="text" placeholder="Ex: 3443331234567" value={licenseCode} onChange={e => setLicenseCode(e.target.value)} className="font-mono text-center tracking-wider" maxLength={13} />
+              <p className="text-xs text-muted-foreground text-center">Formato: XXXXXXXXXXXXX (13 dígitos)</p>
             </div>
 
-            <Button 
-              onClick={handleActivateLicense}
-              disabled={isActivating || !licenseCode.trim()}
-              className="w-full"
-            >
+            <Button onClick={handleActivateLicense} disabled={isActivating || !licenseCode.trim()} className="w-full">
               {isActivating ? 'Ativando...' : 'Ativar Licença'}
             </Button>
 
@@ -148,11 +131,7 @@ export const LicenseExpiredPage = () => {
                   Entre em contato conosco pelo WhatsApp para obter suporte ou adquirir uma nova licença.
                 </p>
               </div>
-              <Button 
-                onClick={handleWhatsAppContact}
-                variant="outline"
-                className="w-full"
-              >
+              <Button onClick={handleWhatsAppContact} variant="outline" className="w-full">
                 <MessageCircle className="mr-2 h-4 w-4" />
                 Falar no WhatsApp
               </Button>
@@ -160,6 +139,5 @@ export const LicenseExpiredPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
