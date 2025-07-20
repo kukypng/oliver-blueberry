@@ -10,7 +10,7 @@ import { DashboardLiteLicenseStatus } from '@/components/lite/DashboardLiteLicen
 import { DashboardLiteHelpSupport } from '@/components/lite/DashboardLiteHelpSupport';
 import { BudgetErrorBoundary, AuthErrorBoundary } from '@/components/ErrorBoundaries';
 import { LayoutProvider } from '@/contexts/LayoutContext';
-import { useOptimizedBudgets } from '@/hooks/useOptimizedBudgets';
+import { useBudgetData } from '@/hooks/useBudgetData';
 export const DashboardLite = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { profile, user, hasPermission } = useAuth();
@@ -23,12 +23,8 @@ export const DashboardLite = () => {
   // Aguardar user e profile estarem disponíveis
   const isReady = useMemo(() => Boolean(user?.id && profile), [user?.id, profile]);
 
-  // Hook otimizado para gerenciar dados dos orçamentos
-  const { budgets, loading, error, refreshing, handleRefresh } = useOptimizedBudgets(user?.id || '', {
-    enabled: !!user?.id,
-    realtime: true,
-    cache: true
-  });
+  // Hook para gerenciar dados dos orçamentos
+  const { budgets, loading, error, refreshing, handleRefresh } = useBudgetData(user?.id || '');
 
   // Real-time subscription otimizada
   useEffect(() => {
