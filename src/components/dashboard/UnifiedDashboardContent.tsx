@@ -67,11 +67,7 @@ export const UnifiedDashboardContent: React.FC<UnifiedDashboardContentProps> = (
     initial: { opacity: 0, y: 20 },
     animate: { 
       opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
+      y: 0
     }
   };
 
@@ -83,7 +79,10 @@ export const UnifiedDashboardContent: React.FC<UnifiedDashboardContentProps> = (
       animate="animate"
     >
       {/* Header */}
-      <motion.div variants={itemAnimations}>
+      <motion.div 
+        variants={itemAnimations}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
         <UnifiedDashboardHeader
           title="Oliver"
           subtitle={`${isLiteVersion ? 'Painel' : 'Dashboard'} • ${profile?.name || 'Usuário'}`}
@@ -96,7 +95,10 @@ export const UnifiedDashboardContent: React.FC<UnifiedDashboardContentProps> = (
       <div className={`p-4 space-y-6 ${isMobile ? 'pb-safe-bottom' : ''}`}>
         
         {/* Welcome Section */}
-        <motion.div variants={itemAnimations}>
+        <motion.div 
+          variants={itemAnimations}
+          transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
+        >
           <UnifiedDashboardCard
             title={`Olá, ${profile?.name || 'Usuário'}! 👋`}
             subtitle="Bem-vindo ao seu painel de controle"
@@ -110,7 +112,10 @@ export const UnifiedDashboardContent: React.FC<UnifiedDashboardContentProps> = (
         </motion.div>
 
         {/* Stats Grid */}
-        <motion.div variants={itemAnimations}>
+        <motion.div 
+          variants={itemAnimations}
+          transition={{ duration: 0.3, ease: "easeOut", delay: 0.2 }}
+        >
           <UnifiedDashboardStats
             stats={stats}
             loading={loading}
@@ -119,12 +124,18 @@ export const UnifiedDashboardContent: React.FC<UnifiedDashboardContentProps> = (
         </motion.div>
 
         {/* License Status */}
-        <motion.div variants={itemAnimations}>
+        <motion.div 
+          variants={itemAnimations}
+          transition={{ duration: 0.3, ease: "easeOut", delay: 0.3 }}
+        >
           <LicenseStatusCard />
         </motion.div>
 
         {/* Recent Budgets */}
-        <motion.div variants={itemAnimations}>
+        <motion.div 
+          variants={itemAnimations}
+          transition={{ duration: 0.3, ease: "easeOut", delay: 0.4 }}
+        >
           <UnifiedDashboardCard
             title="Orçamentos Recentes"
             subtitle="Seus últimos orçamentos"
@@ -145,7 +156,10 @@ export const UnifiedDashboardContent: React.FC<UnifiedDashboardContentProps> = (
         </motion.div>
 
         {/* Additional Features Card */}
-        <motion.div variants={itemAnimations}>
+        <motion.div 
+          variants={itemAnimations}
+          transition={{ duration: 0.3, ease: "easeOut", delay: 0.5 }}
+        >
           <UnifiedDashboardCard
             title="Recursos Avançados"
             subtitle="Explore todas as funcionalidades"

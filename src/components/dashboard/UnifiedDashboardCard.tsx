@@ -35,20 +35,14 @@ export const UnifiedDashboardCard: React.FC<UnifiedDashboardCardProps> = ({
     animate: { 
       opacity: 1, 
       y: 0, 
-      scale: 1,
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
+      scale: 1
     },
     hover: isInteractive ? {
       y: -4,
-      scale: 1.02,
-      transition: { duration: 0.2 }
+      scale: 1.02
     } : {},
     tap: isInteractive ? {
-      scale: 0.98,
-      transition: { duration: 0.1 }
+      scale: 0.98
     } : {}
   };
 
@@ -79,6 +73,10 @@ export const UnifiedDashboardCard: React.FC<UnifiedDashboardCardProps> = ({
       animate="animate"
       whileHover="hover"
       whileTap="tap"
+      transition={{
+        duration: 0.3,
+        ease: "easeOut"
+      }}
       className="will-change-transform"
     >
       <Card

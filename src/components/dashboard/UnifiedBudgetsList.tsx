@@ -70,11 +70,7 @@ export const UnifiedBudgetsList: React.FC<UnifiedBudgetsListProps> = ({
     initial: { opacity: 0, y: 10 },
     animate: { 
       opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.2,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
+      y: 0
     }
   };
 
@@ -119,7 +115,11 @@ export const UnifiedBudgetsList: React.FC<UnifiedBudgetsListProps> = ({
           variants={itemAnimations}
           initial="initial"
           animate="animate"
-          transition={{ delay: index * 0.1 }}
+          transition={{ 
+            delay: index * 0.1,
+            duration: 0.2,
+            ease: "easeOut"
+          }}
           className={cn(
             'group flex items-center gap-4 p-4 rounded-xl',
             'bg-muted/30 hover:bg-muted/50 transition-all duration-200',

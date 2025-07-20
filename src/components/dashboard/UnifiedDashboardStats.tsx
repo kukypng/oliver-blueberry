@@ -82,11 +82,7 @@ export const UnifiedDashboardStats: React.FC<UnifiedDashboardStatsProps> = ({
     initial: { opacity: 0, y: 20 },
     animate: { 
       opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
+      y: 0
     }
   };
 
@@ -98,7 +94,9 @@ export const UnifiedDashboardStats: React.FC<UnifiedDashboardStatsProps> = ({
         className
       )}>
         {[1, 2, 3, 4].map((i) => (
-          <UnifiedDashboardCard key={i} loading={true} />
+          <UnifiedDashboardCard key={i} loading={true}>
+            <div></div>
+          </UnifiedDashboardCard>
         ))}
       </div>
     );
@@ -116,7 +114,11 @@ export const UnifiedDashboardStats: React.FC<UnifiedDashboardStatsProps> = ({
       animate="animate"
     >
       {statsData.map((stat, index) => (
-        <motion.div key={stat.title} variants={itemAnimations}>
+        <motion.div 
+          key={stat.title} 
+          variants={itemAnimations}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
           <UnifiedDashboardCard className="h-full">
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">

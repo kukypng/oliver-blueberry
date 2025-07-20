@@ -67,11 +67,7 @@ export const UnifiedQuickActions: React.FC<UnifiedQuickActionsProps> = ({
     initial: { opacity: 0, scale: 0.9 },
     animate: { 
       opacity: 1, 
-      scale: 1,
-      transition: {
-        duration: 0.2,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
+      scale: 1
     }
   };
 
@@ -90,6 +86,7 @@ export const UnifiedQuickActions: React.FC<UnifiedQuickActionsProps> = ({
         <motion.div
           key={action.title}
           variants={itemAnimations}
+          transition={{ duration: 0.2, ease: "easeOut" }}
         >
           <Button
             onClick={action.action}

@@ -18,23 +18,14 @@ const iosAnimations = {
     initial: { opacity: 0, y: 20 },
     animate: { 
       opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.4,
-        ease: [0.25, 0.46, 0.45, 0.94], // iOS smooth curve
-        staggerChildren: 0.1
-      }
+      y: 0
     }
   },
   item: {
     initial: { opacity: 0, y: 15 },
     animate: { 
       opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
+      y: 0
     }
   }
 };
@@ -131,6 +122,11 @@ export const DashboardCore: React.FC<DashboardCoreProps> = ({
       variants={iosAnimations.container}
       initial="initial"
       animate="animate"
+      transition={{
+        duration: 0.4,
+        ease: "easeOut",
+        staggerChildren: 0.1
+      }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -172,6 +168,7 @@ export const DashboardCore: React.FC<DashboardCoreProps> = ({
       <motion.div
         className="dashboard-content"
         variants={iosAnimations.item}
+        transition={{ duration: 0.3, ease: "easeOut" }}
       >
         {children}
       </motion.div>
