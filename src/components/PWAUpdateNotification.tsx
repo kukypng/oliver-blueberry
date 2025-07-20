@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshCw, X } from 'lucide-react';
+import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { toast } from '@/hooks/use-toast';
 
 export const PWAUpdateNotification: React.FC = () => {
+  const { isDesktop } = useDeviceDetection();
   const [showUpdate, setShowUpdate] = useState(false);
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
 
@@ -67,7 +69,8 @@ export const PWAUpdateNotification: React.FC = () => {
     return null;
   }
 
-  if (!showUpdate) {
+  // Não mostrar notificações de atualização em desktop
+  if (isDesktop || !showUpdate) {
     return null;
   }
 

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { WifiOff, Wifi } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useDeviceDetection } from '@/hooks/useDeviceDetection';
+import { useToast } from '@/hooks/use-toast';
 
 export const PWAOfflineIndicator: React.FC = () => {
+  const { isDesktop } = useDeviceDetection();
+  const { toast } = useToast();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [wasOffline, setWasOffline] = useState(false);
 
@@ -40,7 +43,8 @@ export const PWAOfflineIndicator: React.FC = () => {
     };
   }, [wasOffline]);
 
-  if (isOnline) {
+  // Não mostrar indicador offline em desktop
+  if (isDesktop || isOnline) {
     return null;
   }
 

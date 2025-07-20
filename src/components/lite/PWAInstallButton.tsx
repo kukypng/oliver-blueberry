@@ -6,6 +6,7 @@ import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useToast } from '@/hooks/use-toast';
 
 export const PWAInstallButton: React.FC = () => {
+  const { isDesktop } = useDeviceDetection();
   const { isInstalled, isInstallable, installApp } = usePWA();
   const device = useDeviceDetection();
   const { toast } = useToast();
@@ -40,8 +41,8 @@ export const PWAInstallButton: React.FC = () => {
     }
   };
 
-  // Não mostrar se já estiver instalado
-  if (isInstalled) {
+  // Não mostrar botão de instalação em desktop
+  if (isDesktop || isInstalled || !isInstallable) {
     return null;
   }
 

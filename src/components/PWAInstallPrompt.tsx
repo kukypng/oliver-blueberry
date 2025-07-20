@@ -20,6 +20,7 @@ declare global {
 }
 
 export const PWAInstallPrompt: React.FC = () => {
+  const { isDesktop } = useDeviceDetection();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -216,6 +217,11 @@ export const PWAInstallPrompt: React.FC = () => {
   // Renderizar baseado na plataforma
   if (device.isIOS) {
     return <IOSInstallInstructions />;
+  }
+
+  // Não mostrar em dispositivos desktop
+  if (isDesktop) {
+    return null;
   }
 
   return <AndroidInstallPrompt />;
