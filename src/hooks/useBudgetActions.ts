@@ -75,18 +75,37 @@ export const useBudgetActions = () => {
     try {
       setUpdating(budget.id);
 
-      const pdfData = encodeURIComponent(JSON.stringify({
+      // Usar a lógica de PDF existente diretamente
+      const budgetData = {
         id: budget.id,
         device_model: budget.device_model || 'Dispositivo',
         device_type: budget.device_type || 'Celular',
         part_quality: budget.part_type || 'Reparo',
         cash_price: budget.cash_price || budget.total_price || 0,
-        client_name: budget.client_name,
-        created_at: budget.created_at
-      }));
+        installment_price: budget.installment_price || 0,
+        installments: budget.installments || 1,
+        warranty_months: budget.warranty_months || 3,
+        created_at: budget.created_at,
+        valid_until: budget.valid_until || budget.expires_at || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+        client_name: budget.client_name || '',
+        client_phone: budget.client_phone || '',
+        // Propriedades da loja - valores padrão
+        shop_name: 'Minha Loja',
+        shop_address: 'Endereço da Loja',
+        shop_phone: '(11) 99999-9999'
+      };
 
-      const safeUrl = SecureRedirect.getSafeRedirectUrl(`/print-budget?data=${pdfData}`);
-      window.open(safeUrl, '_blank');
+      // Usar a função de geração de PDF diretamente
+      const { generateBudgetPDF } = await import('@/utils/pdfGenerator');
+      
+      const pdfBlob = await generateBudgetPDF(budgetData);
+      
+      // Criar URL do blob e abrir
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+      
+      // Limpar URL após um tempo
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
 
       toast({
         title: "PDF gerado!",
