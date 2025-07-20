@@ -68,8 +68,8 @@ export const LicenseExpiredPage = () => {
     }
   };
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent('Olá! Preciso de ajuda com minha licença do Oliver Blueberry.');
-    const whatsappUrl = `https://wa.me/5511999999999?text=${message}`;
+    const message = encodeURIComponent('Olá! Preciso de ajuda com minha licença do Oliver.');
+    const whatsappUrl = `https://wa.me/5564996028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">

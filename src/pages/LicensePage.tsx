@@ -90,13 +90,13 @@ export const LicensePage = () => {
     }
   };
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent(`Olá! Preciso de ajuda com minha licença do Oliver Blueberry.\n\nMeu email: ${user?.email || 'Não informado'}`);
+    const message = encodeURIComponent(`Olá! Preciso de ajuda com minha licença do Oliver.\n\nMeu email: ${user?.email || 'Não informado'}`);
     const whatsappUrl = `https://wa.me/556496028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
   const handleEmailContact = () => {
     const subject = encodeURIComponent('Suporte - Licença Oliver Blueberry');
-    const body = encodeURIComponent(`Olá,\n\nPreciso de ajuda com minha licença do Oliver Blueberry.\n\nMeu email: ${user?.email || 'Não informado'}\nData: ${new Date().toLocaleDateString('pt-BR')}`);
+    const body = encodeURIComponent(`Olá,\n\nPreciso de ajuda com minha licença do Oliver.\n\nMeu email: ${user?.email || 'Não informado'}\nData: ${new Date().toLocaleDateString('pt-BR')}`);
     window.open(`mailto:suporte@oliverblueberry.com?subject=${subject}&body=${body}`, '_blank');
   };
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">

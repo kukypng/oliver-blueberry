@@ -16,7 +16,7 @@ export const DashboardLiteLicenseStatus = ({ profile }: DashboardLiteLicenseStat
 
   const handleWhatsAppContact = () => {
     const message = encodeURIComponent('Olá! Gostaria de renovar minha licença do sistema.');
-    const whatsappUrl = `https://wa.me/5511999999999?text=${message}`;
+    const whatsappUrl = `https://wa.me/5564996028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
 
