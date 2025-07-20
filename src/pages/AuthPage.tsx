@@ -197,9 +197,12 @@ export const AuthPage = () => {
             </div>
             {!isSignUp && (
               <div className="text-center">
-                <button onClick={handleResetPassword} className="text-sm text-muted-foreground hover:text-primary">
+                <Link 
+                  to="/reset-password" 
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+                >
                   Esqueceu a senha?
-                </button>
+                </Link>
               </div>
             )}
           </CardContent>
