@@ -277,12 +277,14 @@ Arquivo analisado tem ${allLines.length} linhas. Verifique o console para mais d
     });
 
     return {
+      isValid: allErrors.length === 0,
       totalRows: dataRows.length,
       validRows: validData.length,
       invalidRows: processedRows.length - validData.length,
-      warnings: totalWarnings,
+      warnings: [], // Vazio por compatibilidade, warnings individuais estão nos processedRows
       errors: allErrors,
-      processedData: validData
+      data: validData,
+      preview: processedRows.slice(0, 5)
     };
   }
 }
@@ -298,5 +300,5 @@ export const parseAndPrepareBudgets = (csvText: string, userId: string): any[] =
     throw new Error(`Erros encontrados durante a importação:\n${result.errors.join('\n')}`);
   }
   
-  return result.processedData;
+  return result.data;
 };

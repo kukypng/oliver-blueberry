@@ -47,7 +47,7 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
             <div className="text-sm text-muted-foreground">Com erros</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-yellow-600">{summary.warnings}</div>
+            <div className="text-2xl font-bold text-yellow-600">{summary.warnings.length}</div>
             <div className="text-sm text-muted-foreground">Avisos</div>
           </div>
         </div>
@@ -68,10 +68,10 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
               {summary.invalidRows} com erro{summary.invalidRows !== 1 ? 's' : ''}
             </Badge>
           )}
-          {summary.warnings > 0 && (
+          {summary.warnings.length > 0 && (
             <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">
               <AlertTriangle className="h-3 w-3 mr-1" />
-              {summary.warnings} aviso{summary.warnings !== 1 ? 's' : ''}
+              {summary.warnings.length} aviso{summary.warnings.length !== 1 ? 's' : ''}
             </Badge>
           )}
         </div>
@@ -107,7 +107,7 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
           </Alert>
         )}
 
-        {summary.warnings > 0 && (
+        {summary.warnings.length > 0 && (
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
