@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { Key, LogIn } from 'lucide-react';
+import { Eye, EyeOff, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLicenseValidation } from '@/hooks/useLicenseValidation';
 import { Separator } from '@/components/ui/separator';
@@ -19,6 +19,7 @@ export const AuthPage = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, requestPasswordReset, loading, user } = useAuth();
   const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
@@ -93,9 +94,17 @@ export const AuthPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/50 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
-        <Card className="shadow-lg glass-card">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sparkles className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-foreground">Oliver</h1>
+          </div>
+          <p className="text-muted-foreground">Sistema de gestão inteligente</p>
+        </div>
+        
+        <Card className="shadow-xl border-0 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-2xl font-bold text-foreground">
               {isSignUp ? 'Criar Conta' : 'Entrar'}
             </CardTitle>
           </CardHeader>
@@ -166,43 +175,72 @@ export const AuthPage = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>
-                <Input
-                  type="password"
-                  id="password"
-                  placeholder="Senha"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    placeholder="Senha"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-colors" 
+                disabled={loading}
+              >
                 {loading ? 'Carregando...' : isSignUp ? 'Criar Conta' : 'Entrar'}
               </Button>
             </form>
-            <div className="text-center">
+            <div className="text-center text-sm">
               {isSignUp ? (
                 <>
-                  Já tem uma conta?{' '}
-                  <Link to="/auth" className="text-primary underline" onClick={() => setIsSignUp(false)}>
+                  <span className="text-muted-foreground">Já tem uma conta? </span>
+                  <button 
+                    type="button"
+                    className="text-primary hover:text-primary/80 underline-offset-4 hover:underline font-medium transition-colors" 
+                    onClick={() => setIsSignUp(false)}
+                  >
                     Entrar
-                  </Link>
+                  </button>
                 </>
               ) : (
                 <>
-                  Não tem uma conta?{' '}
-                  <Link to="/sign" className="text-primary underline" onClick={() => setIsSignUp(true)}>
+                  <span className="text-muted-foreground">Não tem uma conta? </span>
+                  <button 
+                    type="button"
+                    className="text-primary hover:text-primary/80 underline-offset-4 hover:underline font-medium transition-colors" 
+                    onClick={() => setIsSignUp(true)}
+                  >
                     Criar Conta
-                  </Link>
+                  </button>
                 </>
               )}
             </div>
             {!isSignUp && (
               <div className="text-center">
-                <Link 
-                  to="/reset-password" 
+                <button
+                  type="button"
+                  onClick={handleResetPassword}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
                 >
                   Esqueceu a senha?
-                </Link>
+                </button>
               </div>
             )}
           </CardContent>
