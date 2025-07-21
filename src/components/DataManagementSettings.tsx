@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { UploadCloud, Download, FileSpreadsheet, Loader2, Info } from 'lucide-react';
-import { useEnhancedCsvData } from '@/hooks/useEnhancedCsvData';
+import { useEnhancedCsvData } from '@/hooks/useCsvDataUnified';
 import { ImportPreview } from '@/components/ImportPreview';
 
 export const DataManagementSettings = () => {

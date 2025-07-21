@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Download, Upload, Trash2, Database, FileText, Search, RotateCcw, Loader2, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useCsvData } from '@/hooks/useCsvData';
+import { useCsvData } from '@/hooks/useCsvDataUnified';
 import { DevelopmentWarning } from '@/components/ui/DevelopmentWarning';
 import { useDevWarning } from '@/hooks/useDevWarning';
 

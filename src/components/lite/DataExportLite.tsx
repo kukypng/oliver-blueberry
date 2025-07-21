@@ -7,7 +7,7 @@ import { ArrowLeft, Download, Upload, FileText, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { useCsvData } from '@/hooks/useCsvData';
+import { useCsvData } from '@/hooks/useCsvDataUnified';
 
 interface DataExportLiteProps {
   onBack: () => void;

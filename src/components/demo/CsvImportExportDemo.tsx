@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { generateExportCsv, generateTemplateCsv, parseAndPrepareBudgets } from '@/utils/csv';
-import { EnhancedCsvParser } from '@/utils/csv/enhancedParser';
+import { UnifiedCsvParser } from '@/utils/csv/unifiedParser';
 import { Heading, Text } from '@/components/ui/typography';
 import { GlassCard } from '@/components/ui/modern-cards';
 import { FadeInUp } from '@/components/ui/animations';
@@ -156,8 +156,8 @@ export const CsvImportExportDemo: React.FC = () => {
       console.log('Conteúdo CSV a ser testado:');
       console.log(csvContent);
       
-      // Usar o parser aprimorado para teste
-      const parser = new EnhancedCsvParser();
+      // Usar o parser unificado para teste
+      const parser = new UnifiedCsvParser();
       const result = parser.parseAndValidate(csvContent, 'demo-user-id');
       
       setImportResult(result);

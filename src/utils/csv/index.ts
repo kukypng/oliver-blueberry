@@ -1,6 +1,10 @@
 
+/**
+ * ✅ EXPORTS UNIFICADOS - Sistema consolidado de CSV
+ */
+
 export { generateExportCsv } from './formatter';
 export { generateTemplateCsv } from './template';
-export { parseAndPrepareBudgets } from './parser';
-export { EnhancedCsvParser } from './enhancedParser';
+export { UnifiedCsvParser, parseAndPrepareBudgets, EnhancedCsvParser } from './unifiedParser';
+export { CsvErrorHandler, csvErrorHandler } from './errorHandler';
 export * from './validationTypes';

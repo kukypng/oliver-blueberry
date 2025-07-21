@@ -2,9 +2,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Info, TrendingUp } from 'lucide-react';
 import { ImportSummary } from '@/utils/csv/validationTypes';
 
 interface ImportPreviewProps {
@@ -20,120 +19,114 @@ export const ImportPreview: React.FC<ImportPreviewProps> = ({
   onCancel,
   isProcessing
 }) => {
+  const hasWarnings = summary.warnings > 0;
   const hasErrors = summary.errors.length > 0;
-  const hasValidData = summary.validRows > 0;
+  const canImport = summary.validRows > 0 && !isProcessing;
+
+  const totalValue = summary.processedData.reduce((sum, budget) => {
+    return sum + (budget.total_price || 0);
+  }, 0);
+
+  const formatCurrency = (valueInCents: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(valueInCents / 100);
+  };
 
   return (
-    <Card className="w-full max-w-2xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Info className="h-5 w-5" />
-          Prévia da Importação
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Resumo geral */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-foreground">{summary.totalRows}</div>
-            <div className="text-sm text-muted-foreground">Total de linhas</div>
+    <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5 text-blue-500" />
+            Resumo da Análise
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="text-center p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{summary.totalRows}</div>
+              <div className="text-sm text-muted-foreground">Total</div>
+            </div>
+            <div className="text-center p-3 bg-green-50 dark:bg-green-950 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">{summary.validRows}</div>
+              <div className="text-sm text-muted-foreground">Válidos</div>
+            </div>
+            <div className="text-center p-3 bg-red-50 dark:bg-red-950 rounded-lg">
+              <div className="text-2xl font-bold text-red-600">{summary.invalidRows}</div>
+              <div className="text-sm text-muted-foreground">Erros</div>
+            </div>
+            <div className="text-center p-3 bg-orange-50 dark:bg-orange-950 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">{summary.warnings}</div>
+              <div className="text-sm text-muted-foreground">Avisos</div>
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">{summary.validRows}</div>
-            <div className="text-sm text-muted-foreground">Válidas</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-red-600">{summary.invalidRows}</div>
-            <div className="text-sm text-muted-foreground">Com erros</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-yellow-600">{summary.warnings}</div>
-            <div className="text-sm text-muted-foreground">Avisos</div>
-          </div>
-        </div>
 
-        <Separator />
-
-        {/* Status badges */}
-        <div className="flex flex-wrap gap-2">
-          {hasValidData && (
-            <Badge variant="default" className="bg-green-100 text-green-800 border-green-300">
-              <CheckCircle className="h-3 w-3 mr-1" />
-              {summary.validRows} orçamento{summary.validRows !== 1 ? 's' : ''} válido{summary.validRows !== 1 ? 's' : ''}
-            </Badge>
+          {summary.validRows > 0 && (
+            <div className="flex items-center justify-center gap-2 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 rounded-lg border border-green-200 dark:border-green-800 mb-4">
+              <TrendingUp className="h-5 w-5 text-green-600" />
+              <div className="text-center">
+                <div className="text-lg font-semibold text-green-700 dark:text-green-300">
+                  Valor Total Estimado
+                </div>
+                <div className="text-2xl font-bold text-green-600">
+                  {formatCurrency(totalValue)}
+                </div>
+              </div>
+            </div>
           )}
-          {summary.invalidRows > 0 && (
-            <Badge variant="destructive">
-              <XCircle className="h-3 w-3 mr-1" />
-              {summary.invalidRows} com erro{summary.invalidRows !== 1 ? 's' : ''}
-            </Badge>
-          )}
-          {summary.warnings > 0 && (
-            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">
-              <AlertTriangle className="h-3 w-3 mr-1" />
-              {summary.warnings} aviso{summary.warnings !== 1 ? 's' : ''}
-            </Badge>
-          )}
-        </div>
 
-        {/* Alertas */}
-        {hasValidData && summary.invalidRows > 0 && (
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              Apenas os orçamentos válidos serão importados. Os registros com erros serão ignorados.
-            </AlertDescription>
-          </Alert>
-        )}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {summary.validRows > 0 && (
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                {summary.validRows} Válido{summary.validRows !== 1 ? 's' : ''}
+              </Badge>
+            )}
+            {hasWarnings && (
+              <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                {summary.warnings} Aviso{summary.warnings !== 1 ? 's' : ''}
+              </Badge>
+            )}
+            {hasErrors && (
+              <Badge variant="destructive">
+                <XCircle className="h-3 w-3 mr-1" />
+                {summary.errors.length} Erro{summary.errors.length !== 1 ? 's' : ''}
+              </Badge>
+            )}
+          </div>
 
-        {hasErrors && (
-          <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
-            <AlertDescription>
-              <div className="space-y-2">
-                <div className="font-medium">Erros encontrados:</div>
+          {hasErrors && (
+            <Alert variant="destructive" className="mb-4">
+              <XCircle className="h-4 w-4" />
+              <AlertDescription>
+                <div className="font-medium mb-2">Erros encontrados:</div>
                 <div className="max-h-32 overflow-y-auto">
-                  {summary.errors.slice(0, 5).map((error, index) => (
+                  {summary.errors.slice(0, 3).map((error, index) => (
                     <div key={index} className="text-sm">• {error}</div>
                   ))}
-                  {summary.errors.length > 5 && (
+                  {summary.errors.length > 3 && (
                     <div className="text-sm text-muted-foreground">
-                      ... e mais {summary.errors.length - 5} erro(s)
+                      ... e mais {summary.errors.length - 3} erro(s)
                     </div>
                   )}
                 </div>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {summary.warnings > 0 && (
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              Alguns campos estavam vazios e foram preenchidos com valores padrão. 
-              Você pode revisar os dados após a importação.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Ações */}
-        <div className="flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={isProcessing}
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={onConfirm}
-            disabled={!hasValidData || isProcessing}
-          >
-            {isProcessing ? 'Importando...' : `Importar ${summary.validRows} orçamento${summary.validRows !== 1 ? 's' : ''}`}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={onCancel} disabled={isProcessing}>
+              Cancelar
+            </Button>
+            <Button onClick={onConfirm} disabled={!canImport}>
+              {isProcessing ? 'Importando...' : `Importar ${summary.validRows} orçamento${summary.validRows !== 1 ? 's' : ''}`}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
