@@ -112,16 +112,11 @@ export const BudgetCardEnhancedV2: React.FC<BudgetCardEnhancedV2Props> = ({
   };
 
   const formatInstallmentPrice = (value: number) => {
-    // Para valores de parcela que podem estar em formato inconsistente
-    // Se o valor for muito alto (acima de 10000), dividir por 1000 adicional
-    let adjustedValue = value / 100;
-    if (adjustedValue > 10000) {
-      adjustedValue = adjustedValue / 100; // Dividir mais uma vez se estiver muito alto
-    }
+    // Valor já está no formato correto (em reais), apenas formatar
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(adjustedValue);
+    }).format(value);
   };
 
   const formatDate = (dateString: string) => {
