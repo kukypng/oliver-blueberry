@@ -618,6 +618,7 @@ export type Database = {
           created_at: string
           expiration_date: string
           id: string
+          is_active: boolean
           name: string
           role: string | null
           updated_at: string
@@ -631,6 +632,7 @@ export type Database = {
           created_at?: string
           expiration_date?: string
           id: string
+          is_active?: boolean
           name: string
           role?: string | null
           updated_at?: string
@@ -644,6 +646,7 @@ export type Database = {
           created_at?: string
           expiration_date?: string
           id?: string
+          is_active?: boolean
           name?: string
           role?: string | null
           updated_at?: string
@@ -815,6 +818,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      count_active_budgets: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
       count_user_budgets: {
         Args: { p_user_id: string }
         Returns: number
@@ -933,7 +940,7 @@ export type Database = {
         Returns: boolean
       }
       is_user_license_active: {
-        Args: { p_user_id: string }
+        Args: { p_user_id?: string }
         Returns: boolean
       }
       log_admin_access: {
