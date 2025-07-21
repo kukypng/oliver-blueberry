@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { LoopDetectionBoundary } from "@/components/ErrorBoundaries/LoopDetectionBoundary";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import { AuthPage } from "./pages/AuthPage";
@@ -26,24 +25,16 @@ import { UnauthorizedPage } from "./pages/UnauthorizedPage";
 import { LicensePage } from "./pages/LicensePage";
 import { PWAProvider } from "./components/PWAProvider";
 
-// Query Client otimizado para performance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 2, // 2 min (reduzido para dados mais frescos)
-      gcTime: 1000 * 60 * 5, // 5 min garbage collection
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 10,
       refetchOnWindowFocus: false,
       refetchOnReconnect: 'always',
-      refetchOnMount: false, // Importante: evita re-fetch desnecessário
-      retry: 2, // Aumentado para melhor reliability
-      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 10000),
-      // Network mode otimizado
-      networkMode: 'online',
-    },
-    mutations: {
+      refetchOnMount: true,
       retry: 1,
-      networkMode: 'online',
-    }
+    },
   },
 });
 
@@ -57,20 +48,7 @@ const App = () => (
     >
       <TooltipProvider>
         <ErrorBoundary>
-          <LoopDetectionBoundary
-            maxErrors={3}
-            timeWindow={15000}
-            onLoopDetected={() => {
-              console.error('Loop de erro detectado no App');
-              // Limpar cache do React Query
-              queryClient.clear();
-              // Limpar localStorage relacionado
-              ['oliver-cache', 'oliver-state'].forEach(key => 
-                localStorage.removeItem(key)
-              );
-            }}
-          >
-            <BrowserRouter>
+          <BrowserRouter>
             <AuthProvider>
               <PWAProvider>
               <Toaster />
@@ -144,7 +122,6 @@ const App = () => (
               </PWAProvider>
             </AuthProvider>
           </BrowserRouter>
-          </LoopDetectionBoundary>
         </ErrorBoundary>
       </TooltipProvider>
     </ThemeProvider>
