@@ -802,6 +802,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      audit_rls_policies: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          rls_enabled: boolean
+          policy_count: number
+          security_status: string
+          recommendations: string
+        }[]
+      }
       check_budgets_integrity: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -815,6 +825,10 @@ export type Database = {
         Returns: boolean
       }
       cleanup_old_deleted_budgets: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      cleanup_old_logs: {
         Args: Record<PropertyKey, never>
         Returns: number
       }
@@ -839,6 +853,10 @@ export type Database = {
       debug_user_context: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      detect_sql_injection: {
+        Args: { input_text: string }
+        Returns: boolean
       }
       fix_orphaned_budgets: {
         Args: Record<PropertyKey, never>
@@ -887,6 +905,25 @@ export type Database = {
           client_name: string
           expires_at: string
           days_until_expiry: number
+        }[]
+      }
+      get_optimized_budgets: {
+        Args: {
+          p_user_id: string
+          p_limit?: number
+          p_offset?: number
+          p_search_term?: string
+        }
+        Returns: {
+          id: string
+          client_name: string
+          client_phone: string
+          device_type: string
+          device_model: string
+          total_price: number
+          workflow_status: string
+          created_at: string
+          updated_at: string
         }[]
       }
       get_shop_profile: {
