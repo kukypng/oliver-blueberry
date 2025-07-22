@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDeviceDetection } from './useDeviceDetection';
+import { APP_CONFIG } from '@/config/app';
 
 interface PWAState {
   isInstalled: boolean;
@@ -156,8 +157,8 @@ export const usePWA = (): PWAState & PWAActions => {
 
   const shareApp = async (): Promise<boolean> => {
     const shareData = {
-      title: 'Oliver - Sistema de Orçamentos',
-      text: 'O melhor sistema de orçamentos para sua empresa',
+      title: APP_CONFIG.pwa.shareTitle,
+      text: APP_CONFIG.pwa.shareText,
       url: window.location.origin
     };
 

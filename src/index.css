@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Oliver Design System - Global Styles */
+/* OneDrip Design System - Global Styles */
 
 @layer base {
   :root {
@@ -368,7 +368,7 @@
 
 @layer base {
   :root {
-    /* Oliver Design System - Professional Dark & Yellow */
+    /* OneDrip Design System - Professional Dark & Yellow */
     --background: 0 0% 7%; /* #121212 - Cinza escuro suave */
     --foreground: 0 0% 94%; /* #F0F0F0 - Off-white para melhor legibilidade */
 
@@ -432,7 +432,7 @@
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
-  /* Dark mode removed - using single Oliver design system */
+  /* Dark mode removed - using single OneDrip design system */
 }
 
 @layer base {

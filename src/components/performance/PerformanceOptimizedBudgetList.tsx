@@ -1,6 +1,6 @@
 /**
  * Lista de Orçamentos Otimizada para Performance
- * Sistema Oliver Blueberry - Componente de Alto Desempenho
+ * Sistema OneDrip Blueberry - Componente de Alto Desempenho
  */
 
 import { useState, useMemo, useCallback } from 'react';

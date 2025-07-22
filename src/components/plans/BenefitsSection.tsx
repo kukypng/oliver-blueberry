@@ -41,12 +41,12 @@ const defaultBenefits: Benefit[] = [
   {
     icon: "Award",
     title: "Resultados Comprovados",
-    description: "Mais de 500+ assistências técnicas já confiam no Oliver"
+    description: "Mais de 500+ assistências técnicas já confiam no OneDrip"
   }
 ];
 
 export const BenefitsSection = ({ 
-  title = "Vantagens do Oliver", 
+  title = "Vantagens do OneDrip", 
   subtitle = "Descubra os benefícios de usar nosso sistema",
   benefits = defaultBenefits,
   show = true 

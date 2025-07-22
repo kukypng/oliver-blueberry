@@ -70,7 +70,7 @@ export const ResetEmailPage = () => {
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <Link to="/">
-            <img src="/lovable-uploads/logoo.png" alt="Oliver Logo" className="w-20 h-20 mx-auto mb-4" />
+            <img src="/lovable-uploads/logoo.png" alt="OneDrip Logo" className="w-20 h-20 mx-auto mb-4" />
           </Link>
           <h1 className="text-3xl font-bold text-foreground tracking-tight">
             {isConfirmation ? 'E-mail Alterado!' : 'Alterar Email'}

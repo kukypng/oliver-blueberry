@@ -1,6 +1,6 @@
 /**
  * Utilitários de Validação e Segurança para Entradas do Usuário
- * Sistema Oliver Blueberry - Auditoria de Segurança 2025
+ * Sistema OneDrip Blueberry - Auditoria de Segurança 2025
  */
 
 // Padrões perigosos para detecção de SQL Injection

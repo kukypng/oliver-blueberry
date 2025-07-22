@@ -34,9 +34,9 @@ export interface UserStorageData {
 }
 
 class LocalStorageManager {
-  private readonly APP_KEY = 'oliver_app_data';
+  private readonly APP_KEY = 'onedrip_app_data';
   private readonly CACHE_TTL = 1000 * 60 * 30; // 30 minutos
-  private readonly BACKUP_KEY = 'oliver_backup';
+  private readonly BACKUP_KEY = 'onedrip_backup';
 
   /**
    * Obter todos os dados do app

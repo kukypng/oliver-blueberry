@@ -15,7 +15,7 @@ export const DashboardLiteHeader = ({
         <Button variant="ghost" size="sm" onClick={onMenuClick} className="p-2">
           <Menu className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold">Oliver</h1>
+        <h1 className="text-lg font-semibold">OneDrip</h1>
       </div>
       
       <div className="flex items-center gap-2">

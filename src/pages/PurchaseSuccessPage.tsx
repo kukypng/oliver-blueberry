@@ -3,8 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, MessageCircle, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAppInfo, useContactInfo } from '@/hooks/useAppConfig';
 
 export const PurchaseSuccessPage = () => {
+  const { name, logo } = useAppInfo();
+  const { whatsapp, whatsappUrl } = useContactInfo();
+  
   return <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-primary/10 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden">
@@ -30,8 +34,8 @@ export const PurchaseSuccessPage = () => {
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in">
           <div className="flex items-center justify-center space-x-2 mb-6">
-            <img src="/lovable-uploads/logoo.png" alt="Oliver Logo" className="h-12 w-12" />
-            <h1 className="text-4xl font-bold text-foreground">Oliver</h1>
+            <img src={logo} alt={`${name} Logo`} className="h-12 w-12" />
+            <h1 className="text-4xl font-bold text-foreground">{name}</h1>
           </div>
         </div>
 
@@ -44,7 +48,7 @@ export const PurchaseSuccessPage = () => {
               </div>
               <CardTitle className="text-3xl text-foreground mb-2">Pagamento Confirmado!</CardTitle>
               <CardDescription className="text-base">
-                Obrigado por escolher o Oliver para sua assistência técnica
+                Obrigado por escolher o {name} para sua assistência técnica
               </CardDescription>
             </CardHeader>
 
@@ -55,19 +59,19 @@ export const PurchaseSuccessPage = () => {
                   <li>Envie o comprovante de pagamento via WhatsApp</li>
                   <li>Aguarde nossa confirmação (geralmente em minutos)</li>
                   <li>Receba suas credenciais de acesso</li>
-                  <li>Comece a usar o Oliver imediatamente!</li>
+                  <li>Comece a usar o {name} imediatamente!</li>
                 </ol>
               </div>
 
               {/* WhatsApp Contact Button */}
-              <Button onClick={() => window.open('https://wa.me/556496028022', '_blank')} className="w-full h-12 text-base bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl" size="lg">
+              <Button onClick={() => window.open(whatsappUrl, '_blank')} className="w-full h-12 text-base bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl" size="lg">
                 <MessageCircle className="h-5 w-5 mr-2" />
                 Enviar Comprovante via WhatsApp
               </Button>
 
               <div className="text-center pt-4 border-t border-border/50">
                 <p className="text-sm text-muted-foreground mb-2">
-                  <strong>WhatsApp:</strong> (64) 9602-8022
+                  <strong>WhatsApp:</strong> {whatsapp}
                 </p>
                 <p className="text-xs text-muted-foreground">Suporte disponível de segunda a sábado, das 8h às 18h</p>
               </div>
