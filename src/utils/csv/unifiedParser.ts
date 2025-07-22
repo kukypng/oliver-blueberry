@@ -1,69 +1,67 @@
-import { normalizeHeader } from './normalizer';
+
+import { HeaderMapper, StandardHeader } from './standardHeaders';
 import { 
   ValidationResult, 
   ParsedRow, 
   ImportSummary, 
-  FieldMapping, 
-  FIELD_MAPPINGS,
   BudgetInsert 
 } from './validationTypes';
 
 /**
- * ✅ UNIFIED CSV PARSER - Sistema unificado para parsing CSV
+ * ✅ PARSER UNIFICADO PADRONIZADO
  * 
- * Resolve problemas críticos:
- * - Duplicação de parsers (parser.ts vs enhancedParser.ts)
- * - Inconsistências de cálculos financeiros (conversão múltipla para centavos)
- * - Detecção de cabeçalho frágil e repetida
- * - Validações inconsistentes
+ * Resolve problemas de compatibilidade:
+ * - Usa mapeamento inteligente de cabeçalhos
+ * - Aceita variações e aliases dos campos
+ * - Compatibilidade total com arquivos exportados
+ * - Validação flexível mas rigorosa
  */
 export class UnifiedCsvParser {
-  private fieldMappings: FieldMapping[];
+  private headerMapper: HeaderMapper;
   
-  constructor(fieldMappings: FieldMapping[] = FIELD_MAPPINGS) {
-    this.fieldMappings = fieldMappings;
+  constructor() {
+    this.headerMapper = new HeaderMapper();
   }
 
   /**
-   * 🔄 DETECÇÃO DE CABEÇALHO PADRONIZADA
-   * Busca flexível e robusta do cabeçalho em uma única função
+   * 🔍 DETECÇÃO INTELIGENTE DE CABEÇALHO
+   * Busca flexível que aceita variações dos nomes de campos
    */
   private findHeaderRow(lines: string[]): number {
-    // Primeira tentativa: busca exata dos campos principais
-    let headerIndex = lines.findIndex(line => 
-      line.includes('Tipo Aparelho') && 
-      line.includes('Modelo Aparelho') && 
-      line.includes('Preco Total')
-    );
+    const standardHeaders = this.headerMapper.getStandardHeaders();
+    const requiredFields = standardHeaders.filter(h => h.required);
     
-    // Segunda tentativa: busca normalizada (sem acentos, case insensitive)
-    if (headerIndex === -1) {
-      headerIndex = lines.findIndex(line => {
-        const normalized = line.toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '');
-        return normalized.includes('tipo aparelho') && 
-               normalized.includes('modelo aparelho') && 
-               normalized.includes('preco total');
-      });
-    }
+    console.log('=== BUSCA DE CABEÇALHO INTELIGENTE ===');
+    console.log('Campos obrigatórios:', requiredFields.map(f => f.csvHeader));
     
-    // Terceira tentativa: busca por palavras-chave flexível
-    if (headerIndex === -1) {
-      headerIndex = lines.findIndex(line => {
-        const hasDevice = /tipo|aparelho|device/i.test(line);
-        const hasModel = /modelo|model/i.test(line);
-        const hasPrice = /preco|total|price/i.test(line);
-        return hasDevice && hasModel && hasPrice;
+    // Busca linha que contenha pelo menos os campos obrigatórios
+    const headerIndex = lines.findIndex(line => {
+      const headers = line.split(';').map(h => h.trim().replace(/^"|"$/g, ''));
+      
+      // Verifica se consegue mapear os campos obrigatórios
+      let mappedRequired = 0;
+      headers.forEach(header => {
+        const standardHeader = this.headerMapper.findStandardHeader(header);
+        if (standardHeader && standardHeader.required) {
+          mappedRequired++;
+        }
       });
-    }
+      
+      const hasRequiredFields = mappedRequired >= requiredFields.length;
+      
+      if (hasRequiredFields) {
+        console.log(`Cabeçalho encontrado na linha ${lines.indexOf(line)}:`, headers);
+        console.log(`Campos obrigatórios mapeados: ${mappedRequired}/${requiredFields.length}`);
+      }
+      
+      return hasRequiredFields;
+    });
 
     return headerIndex;
   }
 
   /**
-   * 💰 CÁLCULO FINANCEIRO CORRETO
-   * Evita conversão múltipla para centavos e corrige valores
+   * 💰 PROCESSAMENTO FINANCEIRO PADRONIZADO
    */
   private parseFinancialValue(value: any): number {
     if (typeof value === 'number') return value;
@@ -79,9 +77,9 @@ export class UnifiedCsvParser {
   }
 
   /**
-   * ✅ VALIDAÇÃO DE CAMPO UNIFICADA
+   * ✅ VALIDAÇÃO PADRONIZADA POR TIPO
    */
-  private validateField(field: FieldMapping, value: any): ValidationResult {
+  private validateField(standardHeader: StandardHeader, value: any): ValidationResult {
     const result: ValidationResult = {
       isValid: true,
       errors: [],
@@ -90,32 +88,32 @@ export class UnifiedCsvParser {
     };
 
     // Campo obrigatório vazio
-    if (field.required && (!value || value.toString().trim() === '')) {
+    if (standardHeader.required && (!value || value.toString().trim() === '')) {
       result.isValid = false;
-      result.errors.push(`Campo obrigatório '${field.field}' está vazio`);
+      result.errors.push(`Campo obrigatório '${standardHeader.csvHeader}' está vazio`);
       return result;
     }
 
     // Campo opcional vazio - usar valor padrão
-    if ((!value || value.toString().trim() === '') && !field.required) {
-      result.data = field.defaultValue;
-      if (field.defaultValue !== null && field.defaultValue !== undefined && field.defaultValue !== '') {
-        result.warnings.push(`Campo '${field.field}' vazio, usando padrão: ${field.defaultValue}`);
+    if ((!value || value.toString().trim() === '') && !standardHeader.required) {
+      result.data = standardHeader.defaultValue;
+      if (standardHeader.defaultValue !== null && standardHeader.defaultValue !== undefined && standardHeader.defaultValue !== '') {
+        result.warnings.push(`Campo '${standardHeader.csvHeader}' vazio, usando padrão: ${standardHeader.defaultValue}`);
       }
       return result;
     }
 
     // Validação por tipo
-    switch (field.type) {
+    switch (standardHeader.type) {
       case 'number':
         const numValue = this.parseFinancialValue(value);
-        if (isNaN(numValue) && field.required) {
+        if (isNaN(numValue) && standardHeader.required) {
           result.isValid = false;
-          result.errors.push(`Campo '${field.field}' deve ser um número válido`);
+          result.errors.push(`Campo '${standardHeader.csvHeader}' deve ser um número válido`);
         } else {
           result.data = numValue;
           // Validação específica para preços
-          if (field.field === 'preco_total' && numValue <= 0) {
+          if (standardHeader.fieldName === 'preco_total' && numValue <= 0) {
             result.isValid = false;
             result.errors.push('Preço total deve ser maior que zero');
           }
@@ -139,9 +137,9 @@ export class UnifiedCsvParser {
   }
 
   /**
-   * 🔄 PROCESSAMENTO DE LINHA UNIFICADO
+   * 🔄 PROCESSAMENTO DE LINHA PADRONIZADO
    */
-  private processRow(rowData: { [key: string]: string }, rowIndex: number): ParsedRow {
+  private processRow(csvValues: string[], headerMapping: { [csvIndex: number]: StandardHeader }, rowIndex: number): ParsedRow {
     const processedRow: ParsedRow = {
       rowIndex,
       data: {},
@@ -150,17 +148,32 @@ export class UnifiedCsvParser {
       isValid: true
     };
 
-    for (const fieldMapping of this.fieldMappings) {
-      const value = rowData[fieldMapping.field];
-      const validation = this.validateField(fieldMapping, value);
+    // Processar todos os campos mapeados
+    Object.entries(headerMapping).forEach(([csvIndex, standardHeader]) => {
+      const value = csvValues[parseInt(csvIndex)] || '';
+      const validation = this.validateField(standardHeader, value);
       
-      processedRow.data[fieldMapping.field] = validation.data;
+      processedRow.data[standardHeader.fieldName] = validation.data;
       processedRow.errors.push(...validation.errors);
       processedRow.warnings.push(...validation.warnings);
       
       if (!validation.isValid) {
         processedRow.isValid = false;
       }
+    });
+
+    // Verificar se todos os campos obrigatórios foram mapeados
+    const standardHeaders = this.headerMapper.getStandardHeaders();
+    const requiredHeaders = standardHeaders.filter(h => h.required);
+    const mappedRequiredFields = Object.values(headerMapping).filter(h => h.required);
+    
+    if (mappedRequiredFields.length < requiredHeaders.length) {
+      const missingFields = requiredHeaders
+        .filter(req => !Object.values(headerMapping).some(mapped => mapped.fieldName === req.fieldName))
+        .map(h => h.csvHeader);
+      
+      processedRow.isValid = false;
+      processedRow.errors.push(`Campos obrigatórios não encontrados: ${missingFields.join(', ')}`);
     }
 
     return processedRow;
@@ -168,7 +181,6 @@ export class UnifiedCsvParser {
 
   /**
    * 💾 CONVERSÃO PARA BANCO PADRONIZADA
-   * Garantia de consistência nos dados salvos
    */
   private convertToDatabase(processedRow: ParsedRow, userId: string): BudgetInsert {
     const data = processedRow.data;
@@ -181,30 +193,30 @@ export class UnifiedCsvParser {
     const installments = data.parcelas || 1;
     const installmentPrice = data.preco_parcelado || 0;
     
-    // 💰 CORREÇÃO CRÍTICA: Não converter para centavos múltiplas vezes
+    // 💰 CONVERSÃO FINANCEIRA CORRETA
     const totalPrice = data.preco_total || 0;
     const cashPrice = totalPrice;
     const finalInstallmentPrice = installmentPrice > 0 ? installmentPrice : null;
     
-    // Auto-cálculo de preço parcelado se não fornecido
+    // Auto-cálculo de preço parcelado se necessário
     const autoCalculatedInstallmentPrice = installments > 1 && !finalInstallmentPrice 
       ? Math.round(totalPrice * 1.1) // 10% de acréscimo padrão
       : finalInstallmentPrice;
 
-    const paymentCondition = data.metodo_pagamento || data.condicao_pagamento || 
+    const paymentCondition = data.metodo_pagamento || 
       ((installments > 1) ? 'Cartao de Credito' : 'A Vista');
 
     return {
       owner_id: userId,
       device_type: data.tipo_aparelho,
       device_model: data.modelo_aparelho,
-      issue: data.qualidade || data.defeito_ou_problema || '',
+      issue: data.qualidade || '',
       part_quality: data.qualidade || '',
       part_type: data.servico_realizado,
       notes: data.observacoes || '',
       
-      // 💰 VALORES FINANCEIROS CORRETOS (já em reais, não converter novamente)
-      total_price: Math.round(totalPrice * 100), // Converter para centavos APENAS uma vez
+      // 💰 VALORES FINANCEIROS (conversão única para centavos)
+      total_price: Math.round(totalPrice * 100),
       cash_price: Math.round(cashPrice * 100),
       installment_price: autoCalculatedInstallmentPrice ? Math.round(autoCalculatedInstallmentPrice * 100) : null,
       
@@ -214,7 +226,7 @@ export class UnifiedCsvParser {
       includes_delivery: data.inclui_entrega || false,
       includes_screen_protector: data.inclui_pelicula || false,
       valid_until: validUntil.toISOString(),
-      expires_at: validUntil.toISOString().split('T')[0], // Data apenas
+      expires_at: validUntil.toISOString().split('T')[0],
       status: 'pending',
       workflow_status: 'pending',
       client_name: null,
@@ -223,30 +235,22 @@ export class UnifiedCsvParser {
   }
 
   /**
-   * 🚀 MÉTODO PRINCIPAL - Análise e validação unificada
-   * Substitui parseAndPrepareBudgets e EnhancedCsvParser.parseAndValidate
+   * 🚀 MÉTODO PRINCIPAL - Análise e validação padronizada
    */
   public parseAndValidate(csvText: string, userId: string): ImportSummary {
     const allLines = csvText.split(/\r\n|\n/);
     
-    console.log('=== UNIFIED CSV PARSER ===');
+    console.log('=== PARSER UNIFICADO PADRONIZADO ===');
     console.log('Total de linhas:', allLines.length);
     
-    // 🔍 Busca do cabeçalho padronizada
+    // 🔍 Busca inteligente do cabeçalho
     const headerRowIndex = this.findHeaderRow(allLines);
     
     if (headerRowIndex === -1) {
-      console.log('=== DEBUG: LINHAS DO ARQUIVO ===');
-      allLines.slice(0, 10).forEach((line, index) => {
-        console.log(`${index}: ${JSON.stringify(line)}`);
-      });
-      
-      throw new Error(`Cabeçalho não encontrado. Arquivo deve conter campos:
-- 'Tipo Aparelho'
-- 'Modelo Aparelho' 
-- 'Preco Total'
+      throw new Error(`Cabeçalho não encontrado. O arquivo deve conter pelo menos os campos obrigatórios:
+${this.headerMapper.getStandardHeaders().filter(h => h.required).map(h => `- ${h.csvHeader}`).join('\n')}
 
-Verifique o formato e tente novamente.`);
+Variações aceitas são suportadas. Verifique se o arquivo está no formato correto.`);
     }
 
     console.log('Cabeçalho encontrado na linha:', headerRowIndex);
@@ -258,11 +262,14 @@ Verifique o formato e tente novamente.`);
       throw new Error("Arquivo deve conter pelo menos uma linha de dados além do cabeçalho.");
     }
 
-    // Processar cabeçalho
+    // 📋 Processar cabeçalho e criar mapeamento
     const rawHeaders = lines[0].split(';').map(h => h.trim().replace(/^"|"$/g, ''));
-    const normalizedHeaders = rawHeaders.map(normalizeHeader);
+    const headerMapping = this.headerMapper.mapHeaders(rawHeaders);
 
-    // Processar dados
+    console.log('Mapeamento de cabeçalhos:', headerMapping);
+    console.log('Cabeçalhos encontrados:', Object.keys(headerMapping).length);
+
+    // 🔄 Processar linhas de dados
     const dataRows = lines.slice(1);
     const processedRows: ParsedRow[] = [];
     const validData: BudgetInsert[] = [];
@@ -272,18 +279,12 @@ Verifique o formato e tente novamente.`);
     dataRows.forEach((line, index) => {
       if (line.trim() === '') return;
 
-      // 🔄 Split de CSV robusto (preserva vírgulas dentro de aspas)
+      // Split CSV robusto
       const values = line.split(/;(?=(?:(?:[^"]*"){2})*[^"]*$)/)
         .map(v => v.trim().replace(/^"|"$/g, ''));
       
-      // Criar objeto de dados da linha
-      const rowData: { [key: string]: string } = {};
-      normalizedHeaders.forEach((header, i) => {
-        rowData[header] = values[i] || '';
-      });
-
       // Processar linha
-      const processedRow = this.processRow(rowData, index + 1);
+      const processedRow = this.processRow(values, headerMapping, index + 1);
       processedRows.push(processedRow);
       
       if (processedRow.isValid) {
@@ -297,6 +298,14 @@ Verifique o formato e tente novamente.`);
       totalWarnings += processedRow.warnings.length;
     });
 
+    console.log('Resultado do parsing:', {
+      totalRows: dataRows.length,
+      validRows: validData.length,
+      invalidRows: processedRows.length - validData.length,
+      warnings: totalWarnings,
+      errors: allErrors.length
+    });
+
     return {
       totalRows: dataRows.length,
       validRows: validData.length,
@@ -308,8 +317,7 @@ Verifique o formato e tente novamente.`);
   }
 
   /**
-   * 🔄 COMPATIBILIDADE - Substitui parseAndPrepareBudgets antigo
-   * Para componentes que ainda usam a função antiga
+   * 🔄 COMPATIBILIDADE - Método legado
    */
   public parseAndPrepareBudgetsLegacy(csvText: string, userId: string): BudgetInsert[] {
     const result = this.parseAndValidate(csvText, userId);
@@ -322,14 +330,10 @@ Verifique o formato e tente novamente.`);
   }
 }
 
-/**
- * 🔄 FUNÇÕES DE COMPATIBILIDADE
- * Garantem que código existente continue funcionando
- */
+// 🔄 FUNÇÕES DE COMPATIBILIDADE
 export const parseAndPrepareBudgets = (csvText: string, userId: string): BudgetInsert[] => {
   const parser = new UnifiedCsvParser();
   return parser.parseAndPrepareBudgetsLegacy(csvText, userId);
 };
 
-// Alias para compatibilidade com EnhancedCsvParser
 export const EnhancedCsvParser = UnifiedCsvParser;

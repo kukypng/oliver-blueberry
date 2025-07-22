@@ -1,3 +1,4 @@
+
 /**
  * ✅ TIPOS PADRONIZADOS - Sistema unificado de validação
  */
@@ -24,14 +25,6 @@ export interface ImportSummary {
   warnings: number;
   errors: string[];
   processedData: BudgetInsert[];
-}
-
-export interface FieldMapping {
-  field: string;
-  required: boolean;
-  type: 'string' | 'number' | 'boolean' | 'date';
-  defaultValue?: any;
-  validator?: (value: any) => ValidationResult;
 }
 
 /**
@@ -62,25 +55,17 @@ export interface BudgetInsert {
 }
 
 /**
- * 🔄 MAPEAMENTO DE CAMPOS ATUALIZADO
- * Configuração única para validação de todos os campos
+ * 🔄 INTERFACE LEGACY REMOVIDA
+ * FieldMapping agora é substituído pelo sistema StandardHeader
+ * Mantemos apenas para compatibilidade temporária
  */
-export const FIELD_MAPPINGS: FieldMapping[] = [
-  { field: 'tipo_aparelho', required: true, type: 'string' },
-  { field: 'modelo_aparelho', required: true, type: 'string' },
-  { field: 'qualidade', required: true, type: 'string' },
-  { field: 'servico_realizado', required: true, type: 'string' },
-  { field: 'observacoes', required: false, type: 'string', defaultValue: '' },
-  { field: 'preco_total', required: true, type: 'number' },
-  { field: 'preco_parcelado', required: false, type: 'number', defaultValue: null },
-  { field: 'parcelas', required: false, type: 'number', defaultValue: 1 },
-  { field: 'metodo_pagamento', required: false, type: 'string', defaultValue: 'A Vista' },
-  { field: 'condicao_pagamento', required: false, type: 'string', defaultValue: 'A Vista' },
-  { field: 'garantia_meses', required: false, type: 'number', defaultValue: 3 },
-  { field: 'validade_dias', required: false, type: 'number', defaultValue: 15 },
-  { field: 'inclui_entrega', required: false, type: 'boolean', defaultValue: false },
-  { field: 'inclui_pelicula', required: false, type: 'boolean', defaultValue: false },
-  
-  // Campos alternativos para compatibilidade
-  { field: 'defeito_ou_problema', required: false, type: 'string', defaultValue: '' },
-];
+export interface FieldMapping {
+  field: string;
+  required: boolean;
+  type: 'string' | 'number' | 'boolean' | 'date';
+  defaultValue?: any;
+  validator?: (value: any) => ValidationResult;
+}
+
+// Mantido apenas para compatibilidade com código antigo
+export const FIELD_MAPPINGS: FieldMapping[] = [];
