@@ -41,8 +41,21 @@ export const PWAInstallButton: React.FC = () => {
     }
   };
 
-  // Não mostrar botão de instalação em desktop
-  if (isDesktop || isInstalled || !isInstallable) {
+  // Não mostrar se já instalado
+  if (isInstalled) {
+    return null;
+  }
+
+  // Não mostrar em desktop
+  if (isDesktop) {
+    return null;
+  }
+
+  // Para iOS ou Android sem beforeinstallprompt, sempre mostrar se usuário recusou o popup
+  const hasUserDismissedPopup = localStorage.getItem('pwa-install-dismissed') === 'true';
+  
+  // Para Android/Chrome, mostrar se installable ou se usuário dispensou popup
+  if (!device.isIOS && !isInstallable && !hasUserDismissedPopup) {
     return null;
   }
 

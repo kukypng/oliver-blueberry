@@ -11,6 +11,7 @@ import { DashboardLiteHelpSupport } from '@/components/lite/DashboardLiteHelpSup
 import { BudgetErrorBoundary, AuthErrorBoundary } from '@/components/ErrorBoundaries';
 import { LayoutProvider } from '@/contexts/LayoutContext';
 import { useBudgetData } from '@/hooks/useBudgetData';
+import { PWAInstallButton } from '@/components/lite/PWAInstallButton';
 export const DashboardLite = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { profile, user, hasPermission } = useAuth();
@@ -89,6 +90,11 @@ export const DashboardLite = () => {
       <DashboardLiteQuickAccess onTabChange={setActiveTab} hasPermission={hasPermission} />
       <DashboardLiteLicenseStatus profile={profile} />
       <DashboardLiteHelpSupport />
+      
+      {/* Botão de instalação PWA */}
+      <div className="flex justify-center">
+        <PWAInstallButton />
+      </div>
       
       {/* Preview recente de orçamentos otimizado */}
       

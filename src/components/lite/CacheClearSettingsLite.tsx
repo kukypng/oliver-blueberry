@@ -15,8 +15,8 @@ export const CacheClearSettingsLite = () => {
       // Importar o storage manager
       const { storageManager } = await import('@/utils/localStorageManager');
       
-      // Limpeza inteligente - preserva configurações essenciais
-      storageManager.smartClear();
+      // Limpeza completa incluindo banco de dados local
+      storageManager.fullClear();
       
       // Clear sessionStorage (dados temporários)
       sessionStorage.clear();
@@ -29,18 +29,13 @@ export const CacheClearSettingsLite = () => {
         );
       }
       
-      // Clear IndexedDB data (iOS Safari 10+ com tratamento especial)
+      // Clear IndexedDB data (banco de dados local)
       if ('indexedDB' in window) {
         try {
           const databases = await indexedDB.databases?.();
           if (databases) {
-            // Filtrar apenas databases não essenciais
-            const nonEssentialDbs = databases.filter(db => 
-              db.name && !db.name.includes('supabase-auth')
-            );
-            
             await Promise.all(
-              nonEssentialDbs.map(db => {
+              databases.map(db => {
                 if (db.name) {
                   return new Promise<void>((resolve, reject) => {
                     const deleteReq = indexedDB.deleteDatabase(db.name!);
@@ -62,9 +57,16 @@ export const CacheClearSettingsLite = () => {
         }
       }
 
+      // Limpar dados do Supabase no localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-') || key.includes('supabase')) {
+          localStorage.removeItem(key);
+        }
+      });
+
       toast({
-        title: "Cache otimizado! ✨",
-        description: "Configurações preservadas. Recarregando...",
+        title: "Cache e dados limpos! ✨",
+        description: "Banco de dados local removido. Recarregando...",
       });
 
       // Reload page after successful cache clear
@@ -75,7 +77,7 @@ export const CacheClearSettingsLite = () => {
       console.error('Error clearing cache:', error);
       toast({
         title: "Erro",
-        description: "Erro ao limpar cache.",
+        description: "Erro ao limpar cache e dados.",
         variant: "destructive",
       });
     } finally {
@@ -119,15 +121,16 @@ export const CacheClearSettingsLite = () => {
             <AlertDialogHeader>
               <AlertDialogTitle className="text-lg">⚠️ Limpar Cache</AlertDialogTitle>
               <AlertDialogDescription className="text-sm space-y-3">
-                <p>Esta ação irá remover:</p>
-                <div className="bg-muted/50 p-3 rounded-md">
-                  <ul className="text-xs space-y-1">
-                    <li>• Configurações salvas</li>
-                    <li>• Dados em cache</li>
-                    <li>• Sessão atual</li>
-                    <li>• Preferências</li>
-                  </ul>
-                </div>
+                 <p>Esta ação irá remover:</p>
+                 <div className="bg-muted/50 p-3 rounded-md">
+                   <ul className="text-xs space-y-1">
+                     <li>• Banco de dados local</li>
+                     <li>• Configurações salvas</li>
+                     <li>• Dados em cache</li>
+                     <li>• Sessão atual</li>
+                     <li>• Preferências</li>
+                   </ul>
+                 </div>
                 <p className="font-medium text-destructive text-sm">
                   Você precisará fazer login novamente.
                 </p>
