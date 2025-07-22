@@ -400,6 +400,39 @@ export type Database = {
         }
         Relationships: []
       }
+      licenses: {
+        Row: {
+          activated_at: string | null
+          code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          last_validation: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          last_validation?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          last_validation?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ranking_invaders: {
         Row: {
           created_at: string
@@ -647,6 +680,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_license: {
+        Args: { license_code: string; p_user_id: string }
+        Returns: Json
+      }
+      activate_license_enhanced: {
+        Args: { license_code: string; p_user_id: string }
+        Returns: Json
+      }
+      admin_activate_user_license: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+      admin_create_bulk_licenses: {
+        Args: { p_quantity: number; p_expires_in_days?: number }
+        Returns: Json
+      }
+      admin_create_license: {
+        Args: { p_expires_at?: string }
+        Returns: Json
+      }
+      admin_deactivate_user_license: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       admin_delete_user: {
         Args: { p_user_id: string }
         Returns: boolean
@@ -658,7 +715,7 @@ export type Database = {
           name: string
           email: string
           role: string
-          is_active: boolean
+          license_active: boolean
           expiration_date: string
           created_at: string
           last_sign_in_at: string
@@ -668,6 +725,23 @@ export type Database = {
       admin_get_dashboard_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      admin_get_license_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      admin_get_licenses_with_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          code: string
+          user_id: string
+          user_email: string
+          user_name: string
+          expires_at: string
+          created_at: string
+          is_active: boolean
+        }[]
       }
       admin_get_logs: {
         Args: Record<PropertyKey, never>
@@ -710,6 +784,10 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_renew_license: {
+        Args: { license_id: string; additional_days?: number }
+        Returns: Json
+      }
       admin_renew_user_license: {
         Args: { p_user_id: string; p_additional_days: number }
         Returns: boolean
@@ -723,6 +801,16 @@ export type Database = {
           p_expiration_date?: string
         }
         Returns: boolean
+      }
+      audit_rls_policies: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          rls_enabled: boolean
+          policy_count: number
+          security_status: string
+          recommendations: string
+        }[]
       }
       check_budgets_integrity: {
         Args: Record<PropertyKey, never>
@@ -738,6 +826,14 @@ export type Database = {
       }
       cleanup_old_deleted_budgets: {
         Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      cleanup_old_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      count_active_budgets: {
+        Args: { p_user_id: string }
         Returns: number
       }
       count_user_budgets: {
@@ -758,9 +854,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      detect_sql_injection: {
+        Args: { input_text: string }
+        Returns: boolean
+      }
       fix_orphaned_budgets: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      generate_license_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_allowed_redirect_domains: {
         Args: Record<PropertyKey, never>
@@ -801,6 +905,25 @@ export type Database = {
           client_name: string
           expires_at: string
           days_until_expiry: number
+        }[]
+      }
+      get_optimized_budgets: {
+        Args: {
+          p_user_id: string
+          p_limit?: number
+          p_offset?: number
+          p_search_term?: string
+        }
+        Returns: {
+          id: string
+          client_name: string
+          client_phone: string
+          device_type: string
+          device_model: string
+          total_price: number
+          workflow_status: string
+          created_at: string
+          updated_at: string
         }[]
       }
       get_shop_profile: {
@@ -851,6 +974,10 @@ export type Database = {
       }
       is_user_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_user_license_active: {
+        Args: { p_user_id?: string }
         Returns: boolean
       }
       log_admin_access: {
@@ -907,10 +1034,6 @@ export type Database = {
           description: string
         }[]
       }
-      update_expired_users: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
       update_shop_profile: {
         Args: {
           p_user_id: string
@@ -949,6 +1072,10 @@ export type Database = {
           policy_count: number
           security_status: string
         }[]
+      }
+      validate_user_license: {
+        Args: { p_user_id: string }
+        Returns: Json
       }
     }
     Enums: {

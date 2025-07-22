@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Download, Upload, Trash2, Database, FileText, Search, RotateCcw, Loader2, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useCsvData } from '@/hooks/useCsvData';
+import { useCsvDataUnified } from '@/hooks/useCsvDataUnified';
 import { DevelopmentWarning } from '@/components/ui/DevelopmentWarning';
 import { useDevWarning } from '@/hooks/useDevWarning';
 
@@ -15,7 +15,7 @@ interface DataManagementLiteProps {
 }
 
 export const DataManagementLite = ({ userId, onBack }: DataManagementLiteProps) => {
-  const { isProcessing, fetchAndExportBudgets, downloadImportTemplate, processImportedFile } = useCsvData();
+  const { isProcessing, fetchAndExportBudgets, downloadImportTemplate, processImportFile } = useCsvDataUnified();
   const { showWarning, title, message, loading: devWarningLoading } = useDevWarning();
   
   const [stats, setStats] = useState({
@@ -126,7 +126,7 @@ export const DataManagementLite = ({ userId, onBack }: DataManagementLiteProps) 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && !isProcessing) {
-      processImportedFile(file);
+      processImportFile(file);
       event.target.value = ''; // Reseta o input para permitir selecionar o mesmo arquivo novamente
     }
   };

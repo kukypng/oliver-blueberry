@@ -24,7 +24,7 @@ export const UserEditModal = ({ user, isOpen, onClose, onSuccess }: UserEditModa
   const [formData, setFormData] = useState({
     name: '',
     role: 'user',
-    is_active: true,
+    license_active: true,
     expiration_date: '',
   });
   
@@ -35,7 +35,7 @@ export const UserEditModal = ({ user, isOpen, onClose, onSuccess }: UserEditModa
       setFormData({
         name: user.name,
         role: user.role,
-        is_active: user.is_active,
+        license_active: user.license_active,
         expiration_date: format(new Date(user.expiration_date), "yyyy-MM-dd'T'HH:mm"),
       });
     }
@@ -49,7 +49,7 @@ export const UserEditModal = ({ user, isOpen, onClose, onSuccess }: UserEditModa
         p_user_id: user.id,
         p_name: data.name,
         p_role: data.role,
-        p_is_active: data.is_active,
+        p_is_active: data.license_active,
         p_expiration_date: new Date(data.expiration_date).toISOString(),
       });
       
@@ -113,7 +113,6 @@ export const UserEditModal = ({ user, isOpen, onClose, onSuccess }: UserEditModa
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="user">Usuário</SelectItem>
-                    <SelectItem value="manager">Gerente</SelectItem>
                     <SelectItem value="admin">Administrador</SelectItem>
                   </SelectContent>
                 </Select>
@@ -132,11 +131,11 @@ export const UserEditModal = ({ user, isOpen, onClose, onSuccess }: UserEditModa
 
               <div className="flex items-center space-x-2">
                 <Switch
-                  id="is_active"
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  id="license_active"
+                  checked={formData.license_active}
+                  onCheckedChange={(checked) => setFormData({ ...formData, license_active: checked })}
                 />
-                <Label htmlFor="is_active">Usuário ativo</Label>
+                <Label htmlFor="license_active">Licença ativa</Label>
               </div>
             </div>
 

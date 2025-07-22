@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import { AuthPage } from "./pages/AuthPage";
 import { SignUpPage } from "./pages/SignUpPage";
+import { SignPage } from "./pages/SignPage";
 import { PlansPage } from "./plans/PlansPage";
 import { PurchaseSuccessPage } from "./pages/PurchaseSuccessPage";
 import { DashboardLite } from "./pages/DashboardLite";
@@ -22,29 +22,18 @@ import { ResetEmailPage } from "./pages/ResetEmailPage";
 import { VerifyPage } from "./pages/VerifyPage";
 import { BudgetsPage } from "./pages/BudgetsPage";
 import { UnauthorizedPage } from "./pages/UnauthorizedPage";
+import { LicensePage } from "./pages/LicensePage";
 import { PWAProvider } from "./components/PWAProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
-      refetchOnWindowFocus: false, // Prevent unnecessary refetches
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 10,
+      refetchOnWindowFocus: false,
       refetchOnReconnect: 'always',
       refetchOnMount: true,
-      retry: (failureCount, error: any) => {
-        // Don't retry on auth errors
-        if (error?.message?.includes('JWT') || error?.message?.includes('auth')) {
-          return false;
-        }
-        // Exponential backoff with max 3 retries
-        return failureCount < 3;
-      },
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
-    },
-    mutations: {
       retry: 1,
-      retryDelay: 1000,
     },
   },
 });
@@ -81,6 +70,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/licenca" element={<LicensePage />} />
                 <Route path="/plans" element={<PlansPage />} />
                 <Route path="/purchase-success" element={<PurchaseSuccessPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -96,6 +86,10 @@ const App = () => (
                 <Route
                   path="/signup"
                   element={<SignUpPage />}
+                />
+                <Route
+                  path="/sign"
+                  element={<SignPage />}
                 />
                 <Route 
                   path="/dashboard" 

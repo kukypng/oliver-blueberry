@@ -16,7 +16,7 @@ const NotFound = () => {
 
   const handleWhatsAppContact = () => {
     const message = encodeURIComponent('Olá! Encontrei um erro 404 no sistema e preciso de ajuda.');
-    const whatsappUrl = `https://wa.me/5511999999999?text=${message}`;
+    const whatsappUrl = `https://wa.me/5564996028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
 

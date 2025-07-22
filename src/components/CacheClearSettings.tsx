@@ -9,17 +9,19 @@ export const CacheClearSettings = () => {
   const [isClearing, setIsClearing] = useState(false);
   const { toast } = useToast();
 
-  const clearSiteCache = async () => {
+  const clearSiteCache = async (): Promise<void> => {
     setIsClearing(true);
-    
     try {
-      // Clear localStorage
-      localStorage.clear();
+      // Importar o storage manager
+      const { storageManager } = await import('@/utils/localStorageManager');
       
-      // Clear sessionStorage
+      // Limpeza inteligente - preserva configurações essenciais
+      storageManager.smartClear();
+      
+      // Clear sessionStorage (dados temporários)
       sessionStorage.clear();
       
-      // Clear Cache API if supported
+      // Clear Service Worker caches
       if ('caches' in window) {
         const cacheNames = await caches.keys();
         await Promise.all(
@@ -27,18 +29,27 @@ export const CacheClearSettings = () => {
         );
       }
       
-      // Clear IndexedDB data
+      // Clear IndexedDB data (Supabase pode usar)
       if ('indexedDB' in window) {
         try {
           const databases = await indexedDB.databases?.();
           if (databases) {
+            // Filtrar apenas databases não essenciais
+            const nonEssentialDbs = databases.filter(db => 
+              db.name && !db.name.includes('supabase-auth')
+            );
+            
             await Promise.all(
-              databases.map(db => {
+              nonEssentialDbs.map(db => {
                 if (db.name) {
                   return new Promise<void>((resolve, reject) => {
                     const deleteReq = indexedDB.deleteDatabase(db.name!);
                     deleteReq.onsuccess = () => resolve();
                     deleteReq.onerror = () => reject(deleteReq.error);
+                    deleteReq.onblocked = () => {
+                      console.warn(`Blocked deleting database: ${db.name}`);
+                      resolve(); // Continue anyway
+                    };
                   });
                 }
                 return Promise.resolve();
@@ -51,22 +62,22 @@ export const CacheClearSettings = () => {
       }
 
       toast({
-        title: "Cache limpo com sucesso",
-        description: "Todos os dados locais foram removidos. A página será recarregada.",
+        title: "Cache otimizado com sucesso! ✨",
+        description: "Dados desnecessários removidos. Configurações importantes preservadas.",
       });
 
-      // Delay for user to see the toast
+      // Reload page after successful cache clear
       setTimeout(() => {
         window.location.reload();
       }, 1500);
-      
     } catch (error) {
-      console.error('Erro ao limpar cache:', error);
+      console.error('Error clearing cache:', error);
       toast({
         title: "Erro ao limpar cache",
-        description: "Ocorreu um erro ao tentar limpar os dados locais.",
-        variant: "destructive"
+        description: "Ocorreu um erro ao tentar limpar o cache.",
+        variant: "destructive",
       });
+    } finally {
       setIsClearing(false);
     }
   };

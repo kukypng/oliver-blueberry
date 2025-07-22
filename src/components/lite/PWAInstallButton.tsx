@@ -6,6 +6,7 @@ import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useToast } from '@/hooks/use-toast';
 
 export const PWAInstallButton: React.FC = () => {
+  const { isDesktop } = useDeviceDetection();
   const { isInstalled, isInstallable, installApp } = usePWA();
   const device = useDeviceDetection();
   const { toast } = useToast();
@@ -40,8 +41,21 @@ export const PWAInstallButton: React.FC = () => {
     }
   };
 
-  // Não mostrar se já estiver instalado
+  // Não mostrar se já instalado
   if (isInstalled) {
+    return null;
+  }
+
+  // Não mostrar em desktop
+  if (isDesktop) {
+    return null;
+  }
+
+  // Para iOS ou Android sem beforeinstallprompt, sempre mostrar se usuário recusou o popup
+  const hasUserDismissedPopup = localStorage.getItem('pwa-install-dismissed') === 'true';
+  
+  // Para Android/Chrome, mostrar se installable ou se usuário dispensou popup
+  if (!device.isIOS && !isInstallable && !hasUserDismissedPopup) {
     return null;
   }
 

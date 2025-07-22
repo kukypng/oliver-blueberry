@@ -31,8 +31,8 @@ export const UsersTable = ({ users, onEdit, onDelete, onRenew }: UsersTableProps
     const expiration = new Date(user.expiration_date);
     const isExpired = expiration < now;
     
-    if (!user.is_active) {
-      return <Badge className="border-transparent bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Inativo</Badge>;
+    if (!(user as any).license_active) {
+      return <Badge className="border-transparent bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Licença Inativa</Badge>;
     }
     if (isExpired) {
       return <Badge className="border-transparent bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300">Expirado</Badge>;

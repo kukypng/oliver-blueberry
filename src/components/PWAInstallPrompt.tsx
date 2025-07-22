@@ -20,12 +20,19 @@ declare global {
 }
 
 export const PWAInstallPrompt: React.FC = () => {
+  const { isDesktop } = useDeviceDetection();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const device = useDeviceDetection();
 
   useEffect(() => {
+    // Verificar se usuário já recusou a instalação permanentemente
+    const isDismissedPermanently = localStorage.getItem('pwa-install-dismissed') === 'true';
+    if (isDismissedPermanently) {
+      return;
+    }
+
     // Verificar se já está instalado
     const checkInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
@@ -121,22 +128,15 @@ export const PWAInstallPrompt: React.FC = () => {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Registrar quando foi dispensado para mostrar novamente depois
-    sessionStorage.setItem('pwa-prompt-last-dismissed', Date.now().toString());
+    // Salvar no localStorage que o usuário não quer instalar (permanente)
+    localStorage.setItem('pwa-install-dismissed', 'true');
   };
 
-  // Verificar se deve mostrar baseado no tempo desde último dismiss
-  const lastDismissed = sessionStorage.getItem('pwa-prompt-last-dismissed');
-  if (lastDismissed) {
-    const timeSinceDismiss = Date.now() - parseInt(lastDismissed);
-    // Não mostrar se foi dispensado há menos de 1 hora
-    if (timeSinceDismiss < 60 * 60 * 1000) {
-      return null;
-    }
-  }
-
-  // Não mostrar se já estiver instalado
-  if (isInstalled || !showPrompt) {
+  // Verificar se usuário recusou permanentemente
+  const isDismissedPermanently = localStorage.getItem('pwa-install-dismissed') === 'true';
+  
+  // Não mostrar se já estiver instalado ou recusado permanentemente
+  if (isInstalled || !showPrompt || isDismissedPermanently) {
     return null;
   }
 
@@ -216,6 +216,11 @@ export const PWAInstallPrompt: React.FC = () => {
   // Renderizar baseado na plataforma
   if (device.isIOS) {
     return <IOSInstallInstructions />;
+  }
+
+  // Não mostrar em dispositivos desktop
+  if (isDesktop) {
+    return null;
   }
 
   return <AndroidInstallPrompt />;

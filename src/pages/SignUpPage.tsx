@@ -352,7 +352,6 @@ const AdminUserCreationForm = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="user">Usuário</SelectItem>
-                      <SelectItem value="manager">Gerente</SelectItem>
                       <SelectItem value="admin">Administrador</SelectItem>
                     </SelectContent>
                   </Select>

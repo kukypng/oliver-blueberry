@@ -8,7 +8,8 @@ import { AdminTestPanel } from '@/components/AdminTestPanel';
 import { SiteSettingsContent } from '@/components/SiteSettingsContent';
 import { AdminImageManager } from '@/components/admin/AdminImageManager';
 import { GameSettingsPanel } from '@/components/admin/GameSettingsPanel';
-import { Users, Shield, UserPlus, Settings, ChevronLeft, Globe, Image, Gamepad2 } from 'lucide-react';
+import { AdminLicenseManagerEnhanced } from '@/components/admin/AdminLicenseManagerEnhanced';
+import { Users, Shield, UserPlus, Settings, ChevronLeft, Globe, Image, Gamepad2, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -122,10 +123,14 @@ export const AdminPanel = () => {
 
       <Tabs defaultValue="users" className="w-full">
         <div className="overflow-x-auto pb-2 -mx-4 px-4">
-          <TabsList className="grid w-full min-w-max grid-cols-2 gap-2">
+          <TabsList className="grid w-full min-w-max grid-cols-3 gap-2">
             <TabsTrigger value="users" className="flex items-center gap-2 text-sm">
               <Users className="h-4 w-4" />
               <span>Usuários</span>
+            </TabsTrigger>
+            <TabsTrigger value="licenses" className="flex items-center gap-2 text-sm">
+              <Key className="h-4 w-4" />
+              <span>Licenças</span>
             </TabsTrigger>
             <TabsTrigger value="site" className="flex items-center gap-2 text-sm">
               <Globe className="h-4 w-4" />
@@ -147,6 +152,10 @@ export const AdminPanel = () => {
               <UserManagement />
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="licenses" className="mt-6 animate-fade-in">
+          <AdminLicenseManagerEnhanced />
         </TabsContent>
 
         <TabsContent value="site" className="mt-6 animate-fade-in">

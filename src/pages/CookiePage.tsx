@@ -38,8 +38,8 @@ export const CookiePage = () => {
             $ sudo ./debug_hunter --mode=professional --target=production
           </div>
           <div className="text-3xl font-bold mb-2 animate-pulse text-green-400">🐛 Caçador de Bugs</div>
-          <div className="text-sm opacity-70 font-mono">[SISTEMA] Caçador de bugs ativo. Eliminação em tempo real.</div>
-          <div className="text-xs text-green-400/60 mt-2">// Desenvolvido por: kuky.png | Parabéns você achou um easter egg.</div>
+          <div className="text-sm opacity-70 font-mono">[SISTEMA] Parabéns você achou um easter egg.</div>
+          <div className="text-xs text-green-400/60 mt-2">Desenvolvido por: kuky.png</div>
         </div>
 
         <DebugInvadersGame />

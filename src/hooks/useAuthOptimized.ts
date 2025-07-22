@@ -11,7 +11,6 @@ export interface UserProfile {
   id: string;
   name: string;
   role: UserRole;
-  is_active: boolean;
   budget_limit: number | null;
   expiration_date: string;
   budget_warning_enabled: boolean;
@@ -114,15 +113,14 @@ export const useAuthOptimized = (): AuthContextType => {
                 .maybeSingle();
 
               if (!existingProfile) {
-                await supabase
-                  .from('user_profiles')
-                  .insert({
-                    id: session.user.id,
-                    name: session.user.user_metadata?.name || session.user.email || 'Usuário',
-                    role: 'user',
-                    expiration_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-                    is_active: true
-                  });
+                  await supabase
+                    .from('user_profiles')
+                    .insert({
+                      id: session.user.id,
+                      name: session.user.user_metadata?.name || session.user.email || 'Usuário',
+                      role: 'user',
+                      expiration_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+                    });
               }
             } catch (error) {
               console.error('Profile creation error:', error);
