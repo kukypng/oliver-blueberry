@@ -7,7 +7,7 @@ import { ArrowLeft, Download, Upload, FileText, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { useCsvData } from '@/hooks/useCsvDataUnified';
+import { useCsvDataUnified } from '@/hooks/useCsvDataUnified';
 
 interface DataExportLiteProps {
   onBack: () => void;
@@ -16,7 +16,7 @@ interface DataExportLiteProps {
 export const DataExportLite = ({ onBack }: DataExportLiteProps) => {
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
-  const { fetchAndExportBudgets, processImportedFile } = useCsvData();
+  const { fetchAndExportBudgets, processImportFile } = useCsvDataUnified();
   const [stats, setStats] = useState({
     totalBudgets: 0,
     totalClients: 0,
@@ -110,7 +110,7 @@ export const DataExportLite = ({ onBack }: DataExportLiteProps) => {
     setIsImporting(true);
 
     try {
-      await processImportedFile(file);
+      await processImportFile(file);
       showSuccess({
         title: 'Dados importados!',
         description: 'Os dados foram importados com sucesso.'
