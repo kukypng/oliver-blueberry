@@ -35,20 +35,13 @@
 
 
 
-
-
 ## Fase 2: Interface Avançada (Semana 3-4)
-
-
 
 - [ ] 5. Criar componente de drag & drop
   - Implementar `DragDropZone` com suporte a múltiplos arquivos
 
 
   - Adicionar preview visual de arquivos
-
-
-
   - Criar validação de formato em tempo real
   - Implementar feedback visual durante upload
   - _Requirements: 2.1, 2.2_
