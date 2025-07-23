@@ -99,7 +99,9 @@ export const DataPreviewTable: React.FC<DataPreviewTableProps> = ({
       key,
       label: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       type: inferColumnType(firstRow[key]) as 'text' | 'number' | 'date' | 'boolean',
-      editable: true
+      editable: true,
+      required: false,
+      width: undefined
     }));
   }, [data, columns]);
 

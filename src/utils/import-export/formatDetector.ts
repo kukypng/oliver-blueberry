@@ -29,6 +29,8 @@ export interface FormatMetadata {
   rootElements?: string[]; // Para XML/JSON
   encoding: string;
   bom?: boolean; // Byte Order Mark
+  delimiter?: string; // Para CSV/TSV
+  hasHeader?: boolean; // Para CSV/TSV
 }
 
 export interface FormatValidationResult {
@@ -52,7 +54,7 @@ export class FormatDetector {
 
   private static readonly CSV_DELIMITERS = [',', ';', '\t', '|'];
   private static readonly ENCODING_PATTERNS = {
-    UTF8: /^[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3}*$/,
+    UTF8: /^[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3}$/,
     LATIN1: /^[\x00-\xFF]*$/
   };
 

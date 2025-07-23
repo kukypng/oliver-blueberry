@@ -84,7 +84,7 @@ export const generateBrandReport = () => {
         'Comentários de código'
       ]
     },
-    totalReferences: 50+ // Estimativa baseada no rebrand realizado
+    totalReferences: 50 // Estimativa baseada no rebrand realizado
   };
 };
 

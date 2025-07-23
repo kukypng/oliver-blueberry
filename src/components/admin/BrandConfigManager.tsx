@@ -19,8 +19,36 @@ import { toast } from 'sonner';
 export const BrandConfigManager = () => {
   const currentConfig = useAppConfig();
   
+  // Tipo para configuração editável
+  type EditableConfig = {
+    name: string;
+    fullName: string;
+    shortName: string;
+    description: string;
+    tagline: string;
+    subtitle: string;
+    email: string;
+    support: string;
+    security: string;
+    whatsapp: string;
+    mainUrl: string;
+    plansUrl: string;
+    heroTitle: string;
+    heroSubtitle: string;
+    benefitsTitle: string;
+    benefitsSubtitle: string;
+    testimonialsTitle: string;
+    testimonialsSubtitle: string;
+    faqTitle: string;
+    faqSubtitle: string;
+    installTitle: string;
+    installDescription: string;
+    shareTitle: string;
+    shareText: string;
+  };
+  
   // Estado para as configurações editáveis
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<EditableConfig>({
     // Informações básicas
     name: currentConfig.name,
     fullName: currentConfig.fullName,
@@ -254,7 +282,7 @@ export type MarketingConfig = typeof APP_CONFIG.marketing;`;
                   <Input
                     id="name"
                     value={config.name}
-                    onChange={(e) => setConfig({...config, name: e.target.value})}
+                    onChange={(e) => setConfig(prev => ({...prev, name: e.target.value}))}
                     placeholder="OneDrip"
                   />
                 </div>
