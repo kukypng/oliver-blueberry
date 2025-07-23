@@ -40,6 +40,7 @@ import { universalParser } from '@/utils/import-export/universalParser';
 import { MobileDragDrop, MobileFilePreview } from './MobileDragDrop';
 import { MobileDataPreview } from './MobileDataPreview';
 import { MobileImportWizard, MobileImportResult } from './MobileImportWizard';
+import { AdvancedDataManager } from '@/components/dashboard/AdvancedDataManager';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -65,7 +66,7 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
   onBack 
 }) => {
   // Estados principais
-  const [activeTab, setActiveTab] = useState('import');
+  const [activeTab, setActiveTab] = useState('analytics');
   const [filePreview, setFilePreview] = useState<FilePreview | null>(null);
   const [importHistory, setImportHistory] = useState<ImportHistory[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -346,7 +347,11 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
       {/* Tabs */}
       <div className="flex-1 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-3 mx-4">
+          <TabsList className="grid w-full grid-cols-4 mx-4">
+            <TabsTrigger value="analytics" className="text-xs">
+              <Database className="h-3 w-3 mr-1" />
+              Analytics
+            </TabsTrigger>
             <TabsTrigger value="import" className="text-xs">
               <Upload className="h-3 w-3 mr-1" />
               Importar
@@ -362,6 +367,14 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
           </TabsList>
 
           <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch">
+            {/* Tab de Analytics Avançado */}
+            <TabsContent value="analytics" className="p-4 space-y-4 mt-0">
+              <AdvancedDataManager 
+                userId={userId}
+                className="space-y-4"
+              />
+            </TabsContent>
+
             {/* Tab de Importação */}
             <TabsContent value="import" className="p-4 space-y-4 mt-0">
               {/* Upload Area */}
