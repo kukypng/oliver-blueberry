@@ -4,6 +4,7 @@ import { BudgetLiteListiOS } from './BudgetLiteListiOS';
 import { BudgetViewLite } from './BudgetViewLite';
 import { NewBudgetLite } from './NewBudgetLite';
 import { DataManagementLite } from './DataManagementLite';
+import { AdvancedDataManagementLite } from './AdvancedDataManagementLite';
 import { SettingsLite } from './SettingsLite';
 import { AdminLite } from './AdminLite';
 import { ClientsLite } from './ClientsLite';
@@ -74,7 +75,7 @@ export const DashboardLiteContent = ({
       
     case 'data-management':
       return (
-        <DataManagementLite
+        <AdvancedDataManagementLite
           userId={userId || ''}
           onBack={onNavigateBack || (() => {})}
         />
