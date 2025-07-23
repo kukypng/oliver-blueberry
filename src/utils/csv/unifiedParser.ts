@@ -67,7 +67,7 @@ export class UnifiedCsvParser {
     if (typeof value === 'number') return value;
     
     const stringValue = value.toString().trim();
-    if (stringValue === '' || stringValue === '0') return 0;
+    if (stringValue === '' || stringValue === '0' || stringValue === '0.00') return 0;
     
     // Normalizar formato brasileiro (vírgula para ponto)
     const normalizedValue = stringValue.replace(',', '.');
@@ -112,8 +112,8 @@ export class UnifiedCsvParser {
           result.errors.push(`Campo '${standardHeader.csvHeader}' deve ser um número válido`);
         } else {
           result.data = numValue;
-          // Validação específica para preços
-          if (standardHeader.fieldName === 'preco_total' && numValue <= 0) {
+          // Validação específica para preços - apenas para valores obrigatórios
+          if (standardHeader.fieldName === 'preco_total' && standardHeader.required && numValue <= 0) {
             result.isValid = false;
             result.errors.push('Preço total deve ser maior que zero');
           }
@@ -212,8 +212,8 @@ export class UnifiedCsvParser {
       device_model: data.modelo_aparelho,
       issue: data.qualidade || '',
       part_quality: data.qualidade || '',
-      part_type: data.servico_realizado,
-      notes: data.observacoes || '',
+      part_type: '',
+      notes: '',
       
       // 💰 VALORES FINANCEIROS (conversão única para centavos)
       total_price: Math.round(totalPrice * 100),
