@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCsvDataUnified } from '@/hooks/useCsvDataUnified';
+import { useImportPreview } from '@/hooks/useImportPreview';
 import { DevelopmentWarning } from '@/components/ui/DevelopmentWarning';
 import { useDevWarning } from '@/hooks/useDevWarning';
 import { SupportedFormat, formatDetector } from '@/utils/import-export/formatDetector';
@@ -41,6 +42,7 @@ import { MobileDragDrop, MobileFilePreview } from './MobileDragDrop';
 import { MobileDataPreview } from './MobileDataPreview';
 import { MobileImportWizard, MobileImportResult } from './MobileImportWizard';
 import { AdvancedDataManager } from '@/components/dashboard/AdvancedDataManager';
+import { ImportProgressFeedback } from '@/components/import/ImportProgressFeedback';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -74,8 +76,9 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
   const [showDataPreview, setShowDataPreview] = useState(false);
   const [showImportWizard, setShowImportWizard] = useState(false);
   
-  // Estados do sistema original
-  const { fetchAndExportBudgets, downloadImportTemplate } = useCsvDataUnified();
+  // Estados do sistema original e melhorado
+  const { fetchAndExportBudgets, downloadImportTemplate, processImportFile, confirmImport, cancelImport, importPreview, isProcessing: csvProcessing } = useCsvDataUnified();
+  const { previewData, isProcessing: previewProcessing, generatePreview, clearPreview, getPreviewStats } = useImportPreview();
   const { showWarning, title, message, loading: devWarningLoading } = useDevWarning();
   
   const [stats, setStats] = useState({
@@ -136,55 +139,36 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
     }
   };
 
-  // Handler para arquivo processado pelo MobileDragDrop
-  const handleFileProcessed = (preview: FilePreview) => {
+  // ✅ HANDLERS MELHORADOS COM PREVIEW INTELIGENTE
+  const handleFileProcessed = async (preview: FilePreview) => {
     setFilePreview(preview);
+    
+    // Gerar preview automático para melhor UX
+    if (preview.status === 'ready') {
+      await generatePreview(preview.file, userId);
+    }
   };
 
   // Handler para remoção de arquivo
   const handleFileRemoved = () => {
     setFilePreview(null);
+    clearPreview();
   };
 
-  // Confirmar importação
+  // ✅ IMPORTAÇÃO UNIFICADA COM SISTEMA PADRONIZADO
   const handleConfirmImport = async () => {
-    if (!filePreview || filePreview.status !== 'ready') return;
+    if (!previewData || previewData.validRows === 0) {
+      toast.error('Nenhum dado válido para importar');
+      return;
+    }
 
     setIsProcessing(true);
     
     try {
-      // Parse completo do arquivo
-      const parseResult = await universalParser.parse(filePreview.file, {
-        format: filePreview.format
-      });
-
-      if (parseResult.errors.length > 0) {
-        throw new Error(`Erros encontrados: ${parseResult.errors[0].message}`);
-      }
-
-      // Converter dados para formato do sistema
-      const budgetsToInsert = parseResult.data.map((row: any) => ({
-        owner_id: userId,
-        device_type: row['Tipo Aparelho'] || row['device_type'] || 'Não informado',
-        device_model: row['Modelo Aparelho'] || row['device_model'] || 'Não informado',
-        part_quality: row['Qualidade'] || row['part_quality'] || 'Original',
-        total_price: Math.round((parseFloat(row['Preco Total'] || row['total_price'] || '0') * 100)),
-        cash_price: Math.round((parseFloat(row['Preco Total'] || row['total_price'] || '0') * 100)),
-        installment_price: row['Preco Parcelado'] ? Math.round(parseFloat(row['Preco Parcelado']) * 100) : null,
-        installments: parseInt(row['Parcelas'] || row['installments'] || '1'),
-        payment_condition: row['Metodo Pagamento'] || row['payment_condition'] || 'A Vista',
-        warranty_months: parseInt(row['Garantia (meses)'] || row['warranty_months'] || '3'),
-        includes_delivery: (row['Inclui Entrega'] || row['includes_delivery'] || 'nao').toLowerCase() === 'sim',
-        includes_screen_protector: (row['Inclui Pelicula'] || row['includes_screen_protector'] || 'nao').toLowerCase() === 'sim',
-        valid_until: new Date(Date.now() + (parseInt(row['Validade (dias)'] || '15') * 24 * 60 * 60 * 1000)).toISOString(),
-        workflow_status: 'pending',
-        client_name: row['Cliente'] || 'Cliente Padrão'
-      }));
-
-      // Inserir no banco
+      // Usar dados já processados e validados
       const { data, error } = await supabase
         .from('budgets')
-        .insert(budgetsToInsert)
+        .insert(previewData.processedData)
         .select();
 
       if (error) throw error;
@@ -192,8 +176,8 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
       // Atualizar histórico
       const historyEntry: ImportHistory = {
         id: Date.now().toString(),
-        fileName: filePreview.file.name,
-        format: filePreview.format,
+        fileName: filePreview?.file.name || 'arquivo_importado.csv',
+        format: filePreview?.format || SupportedFormat.CSV,
         recordsImported: data.length,
         timestamp: new Date(),
         status: 'success'
@@ -208,14 +192,24 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
         totalImports: prev.totalImports + 1
       }));
 
+      // Limpar estados
       setFilePreview(null);
+      clearPreview();
       
-      toast.success(`${data.length} orçamentos importados com sucesso!`);
+      const stats = getPreviewStats();
+      const message = stats?.drafts 
+        ? `${data.length} orçamentos importados (${stats.active} ativos, ${stats.drafts} rascunhos)`
+        : `${data.length} orçamentos importados com sucesso!`;
+      
+      toast.success(message);
       
       // Vibração de sucesso no mobile
       if (window.navigator.vibrate) {
         window.navigator.vibrate([100, 50, 100]);
       }
+
+      // Recarregar dados
+      await loadInitialData();
 
     } catch (error) {
       toast.error('Erro na importação: ' + (error as Error).message);
@@ -223,8 +217,8 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
       // Adicionar ao histórico como erro
       const historyEntry: ImportHistory = {
         id: Date.now().toString(),
-        fileName: filePreview.file.name,
-        format: filePreview.format,
+        fileName: filePreview?.file.name || 'arquivo_erro.csv',
+        format: filePreview?.format || SupportedFormat.CSV,
         recordsImported: 0,
         timestamp: new Date(),
         status: 'error'
@@ -433,40 +427,18 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
                 </CardContent>
               </Card>
 
-              {/* Action Buttons para arquivo pronto */}
-              {filePreview && filePreview.status === 'ready' && (
-                <Card>
-                  <CardContent className="py-4 space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button 
-                        onClick={() => setShowDataPreview(true)}
-                        variant="outline"
-                        disabled={isProcessing}
-                        size="lg"
-                      >
-                        <Eye className="mr-2 h-4 w-4" />
-                        Preview
-                      </Button>
-                      
-                      <Button 
-                        onClick={handleConfirmImport}
-                        disabled={isProcessing}
-                        size="lg"
-                      >
-                        {isProcessing ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                        )}
-                        Importar
-                      </Button>
-                    </div>
-                    
-                    <p className="text-xs text-center text-muted-foreground">
-                      {filePreview.recordCount} registros prontos para importação
-                    </p>
-                  </CardContent>
-                </Card>
+              {/* ✅ FEEDBACK INTELIGENTE DE IMPORTAÇÃO */}
+              {(previewData || previewProcessing) && (
+                <ImportProgressFeedback
+                  summary={previewData}
+                  isProcessing={previewProcessing || isProcessing}
+                  onPreview={() => setShowDataPreview(true)}
+                  onConfirm={handleConfirmImport}
+                  onCancel={() => {
+                    setFilePreview(null);
+                    clearPreview();
+                  }}
+                />
               )}
 
               {/* Import History */}
