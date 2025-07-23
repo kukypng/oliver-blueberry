@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { X, Download, Share, Plus } from 'lucide-react';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
-import { usePWAConfig } from '@/hooks/useAppConfig';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -22,7 +21,6 @@ declare global {
 
 export const PWAInstallPrompt: React.FC = () => {
   const { isDesktop } = useDeviceDetection();
-  const { installTitle, installDescription } = usePWAConfig();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -149,10 +147,10 @@ export const PWAInstallPrompt: React.FC = () => {
         <div className="flex items-start justify-between">
           <div className="flex-1 pr-4">
             <h3 className="font-semibold text-foreground mb-2">
-              {installTitle}
+              Instalar Oliver como App
             </h3>
             <div className="text-sm text-muted-foreground space-y-2">
-              <p>{installDescription}</p>
+              <p>Para melhor experiência, adicione à tela inicial:</p>
               <div className="flex items-center gap-2">
                 <Share className="h-4 w-4" />
                 <span>1. Toque no botão compartilhar</span>
@@ -187,10 +185,10 @@ export const PWAInstallPrompt: React.FC = () => {
             </div>
             <div>
               <h3 className="font-semibold text-foreground">
-                {installTitle}
+                Instalar Oliver
               </h3>
               <p className="text-sm text-muted-foreground">
-                {installDescription}
+                Acesso rápido e melhor experiência
               </p>
             </div>
           </div>

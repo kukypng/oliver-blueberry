@@ -34,7 +34,7 @@ const defaultFaqs: FAQ[] = [
 
 export const FAQSection = ({ 
   title = "Perguntas Frequentes",
-  subtitle = "Tire suas dúvidas sobre o OneDrip",
+  subtitle = "Tire suas dúvidas sobre o Oliver",
   faqs = defaultFaqs,
   show = true 
 }: FAQSectionProps) => {

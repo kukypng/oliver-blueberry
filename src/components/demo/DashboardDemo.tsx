@@ -1,5 +1,5 @@
 /**
- * Dashboard Demo - OneDrip
+ * Dashboard Demo - Oliver
  * Demonstração das melhorias implementadas no design system
  */
 
@@ -70,7 +70,7 @@ export const DashboardDemo: React.FC = () => {
           <FadeInUp>
             <div className="text-center space-y-4">
               <Heading level="h1" size="4xl" gradient className="mb-2">
-                OneDrip Design System 2.0
+                Oliver Design System 2.0
               </Heading>
               <Text size="xl" color="secondary" className="max-w-3xl mx-auto">
                 Demonstração das melhorias implementadas no design, UX e performance do sistema

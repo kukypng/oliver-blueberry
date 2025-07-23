@@ -1,5 +1,5 @@
 /**
- * Modern Cards - OneDrip Design System
+ * Modern Cards - Oliver Design System
  * Cards modernos com glassmorphism e microinterações
  */
 

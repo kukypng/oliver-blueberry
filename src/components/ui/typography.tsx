@@ -1,5 +1,5 @@
 /**
- * Sistema de Tipografia - OneDrip Design System
+ * Sistema de Tipografia - Oliver Design System
  * Componentes tipográficos consistentes e acessíveis
  */
 

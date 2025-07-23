@@ -1,6 +1,6 @@
 {
-  "name": "OneDrip - Sistema de Orçamentos",
-  "short_name": "OneDrip",
+  "name": "Oliver - Sistema de Orçamentos",
+  "short_name": "Oliver",
   "description": "O melhor sistema de orçamentos para sua empresa",
   "start_url": "/",
   "display": "standalone",
@@ -92,14 +92,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Dashboard do OneDrip"
+      "label": "Dashboard do Oliver"
     },
     {
       "src": "/lovable-uploads/logoo.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "OneDrip Mobile"
+      "label": "Oliver Mobile"
     }
   ],
   "related_applications": [],

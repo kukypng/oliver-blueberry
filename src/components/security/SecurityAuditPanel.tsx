@@ -1,6 +1,6 @@
 /**
  * Painel de Auditoria de Segurança
- * Sistema OneDrip Blueberry - Monitoramento de Segurança
+ * Sistema Oliver Blueberry - Monitoramento de Segurança
  */
 
 import { useQuery } from '@tanstack/react-query';

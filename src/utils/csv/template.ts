@@ -18,7 +18,7 @@ export const generateTemplateCsv = (): string => {
     '1. Este modelo usa EXATAMENTE os mesmos cabeçalhos da exportação.',
     '2. Arquivos exportados pelo sistema podem ser editados e reimportados sem avisos.',
     '3. NAO altere os nomes das colunas - elas são padronizadas.',
-    '4. Campos obrigatórios: Tipo Aparelho, Modelo Aparelho, Qualidade, Preco Total.',
+    '4. Campos obrigatórios: Tipo Aparelho, Modelo Aparelho, Qualidade, Servico Realizado, Preco Total.',
     '5. Para preços, use ponto ou vírgula como decimal (ex: 150.00 ou 150,00).',
     '6. Para sim/não, digite "sim" ou "nao" (sem acentos).',
     '7. A linha de exemplo deve ser substituída pelos seus dados.',
@@ -36,6 +36,8 @@ export const generateTemplateCsv = (): string => {
     'Smartphone',                                    // Tipo Aparelho
     'Galaxy A12',                                   // Modelo Aparelho
     'Original',                                     // Qualidade
+    'Troca de Frontal Completa',                   // Servico Realizado
+    'Aparelho com marcas de uso na tampa',         // Observacoes
     '350.00',                                       // Preco Total
     '400.00',                                       // Preco Parcelado
     '2',                                            // Parcelas

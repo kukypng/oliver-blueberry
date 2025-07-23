@@ -34,7 +34,7 @@ export function StorageDebugPanel() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `onedrip-storage-backup-${Date.now()}.json`;
+    a.download = `oliver-storage-backup-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
     

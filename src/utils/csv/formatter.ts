@@ -56,6 +56,8 @@ export const generateExportCsv = (budgets: any[]): string => {
       b.device_type || '',                              // Tipo Aparelho
       b.device_model || '',                             // Modelo Aparelho  
       b.part_quality || b.issue || '',                 // Qualidade
+      b.part_type || b.device_info || '',              // Servico Realizado
+      b.notes || '',                                    // Observacoes
       totalPrice,                                       // Preco Total
       installmentPrice,                                 // Preco Parcelado
       b.installments || '1',                           // Parcelas

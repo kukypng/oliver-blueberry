@@ -40,7 +40,7 @@ export const PLANS_CONTENT = {
   // SEÇÃO DE VANTAGENS/BENEFÍCIOS
   vantagens: {
     mostrar_secao: true,
-    titulo: "Vantagens do OneDrip",
+    titulo: "Vantagens do Oliver",
     subtitulo: "Descubra os benefícios de usar nosso sistema",
     
     lista: [
@@ -62,7 +62,7 @@ export const PLANS_CONTENT = {
       {
         icone: "Award" as const,
         titulo: "Resultados Comprovados", 
-        descricao: "Mais de 500+ assistências técnicas já confiam no OneDrip"
+        descricao: "Mais de 500+ assistências técnicas já confiam no Oliver"
       }
     ]
   },
@@ -71,13 +71,13 @@ export const PLANS_CONTENT = {
   depoimentos: {
     mostrar_secao: true,
     titulo: "O que nossos clientes dizem",
-    subtitulo: "Depoimentos reais de quem já usa o OneDrip",
+    subtitulo: "Depoimentos reais de quem já usa o Oliver",
     
     lista: [
       {
         nome: "Carlos Silva",
         cargo: "Proprietário - TechRepair", 
-        texto: "O OneDrip transformou minha assistência. Agora consigo fazer orçamentos profissionais em minutos!",
+        texto: "O Oliver transformou minha assistência. Agora consigo fazer orçamentos profissionais em minutos!",
         nota: 5
       },
       {
@@ -99,7 +99,7 @@ export const PLANS_CONTENT = {
   perguntas_frequentes: {
     mostrar_secao: true,
     titulo: "Perguntas Frequentes",
-    subtitulo: "Tire suas dúvidas sobre o OneDrip",
+    subtitulo: "Tire suas dúvidas sobre o Oliver",
     
     lista: [
       {

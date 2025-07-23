@@ -7,12 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Eye, EyeOff, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAppInfo } from '@/hooks/useAppConfig';
 
 
 export const ResetPasswordPage = () => {
   const { requestPasswordReset, updatePassword, user } = useAuth();
-  const { name, logo } = useAppInfo();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -106,7 +104,7 @@ export const ResetPasswordPage = () => {
         <div className="w-full max-w-md relative z-10">
             <div className="text-center mb-8">
                 <Link to="/">
-                    <img src={logo} alt={`${name} Logo`} className="w-24 h-24 mx-auto mb-4" />
+                    <img src="/lovable-uploads/logoo.png" alt="Oliver Logo" className="w-24 h-24 mx-auto mb-4" />
                 </Link>
                 <h1 className="text-4xl font-bold text-foreground tracking-tight">
                     {getTitle()}

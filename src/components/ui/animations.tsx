@@ -1,5 +1,5 @@
 /**
- * Componentes de Animação - OneDrip Design System
+ * Componentes de Animação - Oliver Design System
  * Microinterações e animações reutilizáveis
  */
 

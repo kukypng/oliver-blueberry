@@ -1,8 +1,8 @@
 
 <div align="center">
-  <img src="/public/lovable-uploads/logoo.png" alt="OneDrip Logo" width="120" height="120">
+  <img src="/public/lovable-uploads/logoo.png" alt="Oliver Logo" width="120" height="120">
   
-  # OneDrip - Sistema de Gestão Profissional
+  # Oliver - Sistema de Gestão Profissional
 
   ### *Plataforma completa para assistências técnicas modernas*
   
@@ -15,11 +15,11 @@
   ---
 </div>
 
-## ✨ **Sobre o OneDrip**
+## ✨ **Sobre o Oliver**
 
 > **"O sistema mais completo e moderno para gestão de assistências técnicas"**
 
-O **OneDrip** é uma plataforma SaaS desenvolvida especificamente para assistências técnicas que desejam **profissionalizar** e **otimizar** suas operações. Com tecnologia de ponta e interface intuitiva, oferece tudo que você precisa para transformar seu negócio.
+O **Oliver** é uma plataforma SaaS desenvolvida especificamente para assistências técnicas que desejam **profissionalizar** e **otimizar** suas operações. Com tecnologia de ponta e interface intuitiva, oferece tudo que você precisa para transformar seu negócio.
 
 ---
 
@@ -126,7 +126,7 @@ src/
 
 <div align="center">
 
-| **OneDrip** | **Concorrentes** |
+| **Oliver** | **Concorrentes** |
 |:----------:|:----------------:|
 | ✅ **Interface Moderna** | ❌ Design Ultrapassado |
 | ✅ **Preço Acessível (R$ 45/mês)** | ❌ Mensalidades Altas |
@@ -171,7 +171,7 @@ src/
 <div align="center">
 
 [![WhatsApp](https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/GPwLAJHurVnA0fJa9aWlEL?mode=r_t)
-[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:suporte@onedrip.com)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:suporte@kuky.pro)
 
 </div>
 
@@ -184,7 +184,7 @@ src/
 
 ### **Suporte Técnico**
 - 📞 **WhatsApp**: (64) 9602-8022
-- 📧 **E-mail**: suporte@onedrip.com
+- 📧 **E-mail**: suporte@kuky.pro
 - 🕐 **Horário**: Segunda à Sexta, 8h às 18h
 
 ---
@@ -193,7 +193,7 @@ src/
 
 ## 🌟 **Transforme sua Assistência Técnica Hoje!**
 
-**Junte-se a centenas de profissionais que já escolheram o OneDrip**
+**Junte-se a centenas de profissionais que já escolheram o Oliver**
 
 [![Começar Agora](https://img.shields.io/badge/🚀_COMEÇAR_AGORA-4CAF50?style=for-the-badge&logoColor=white)](https://kuky.pro/plans)
 [![Demo Gratuita](https://img.shields.io/badge/🎯_DEMO_GRATUITA-2196F3?style=for-the-badge&logoColor=white)](https://kuky.pro)

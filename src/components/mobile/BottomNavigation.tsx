@@ -1,5 +1,5 @@
 /**
- * Bottom Navigation - OneDrip Mobile
+ * Bottom Navigation - Oliver Mobile
  * Navegação inferior otimizada para mobile
  */
 

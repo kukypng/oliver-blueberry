@@ -1,5 +1,5 @@
 /**
- * Modern Notifications - OneDrip Design System
+ * Modern Notifications - Oliver Design System
  * Sistema de notificações rico e interativo
  */
 

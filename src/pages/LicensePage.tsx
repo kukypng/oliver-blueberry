@@ -90,14 +90,14 @@ export const LicensePage = () => {
     }
   };
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent(`Olá! Preciso de ajuda com minha licença do OneDrip.\n\nMeu email: ${user?.email || 'Não informado'}`);
+    const message = encodeURIComponent(`Olá! Preciso de ajuda com minha licença do Oliver.\n\nMeu email: ${user?.email || 'Não informado'}`);
     const whatsappUrl = `https://wa.me/556496028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
   const handleEmailContact = () => {
-    const subject = encodeURIComponent('Suporte - Licença OneDrip');
-    const body = encodeURIComponent(`Olá,\n\nPreciso de ajuda com minha licença do OneDrip.\n\nMeu email: ${user?.email || 'Não informado'}\nData: ${new Date().toLocaleDateString('pt-BR')}`);
-    window.open(`mailto:suporte@onedrip.com?subject=${subject}&body=${body}`, '_blank');
+    const subject = encodeURIComponent('Suporte - Licença Oliver');
+    const body = encodeURIComponent(`Olá,\n\nPreciso de ajuda com minha licença do Oliver.\n\nMeu email: ${user?.email || 'Não informado'}\nData: ${new Date().toLocaleDateString('pt-BR')}`);
+    window.open(`mailto:suporte@oliverblueberry.com?subject=${subject}&body=${body}`, '_blank');
   };
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -107,7 +107,7 @@ export const LicensePage = () => {
             <Shield className="h-8 w-8 text-blue-600" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">Ativação de Licença</h1>
-          <p className="text-muted-foreground">Ative sua licença para ter acesso completo ao OneDrip</p>
+          <p className="text-muted-foreground">Ative sua licença para ter acesso completo ao Oliver</p>
         </div>
 
         {/* License Activation Card */}
@@ -180,7 +180,7 @@ export const LicensePage = () => {
               
               <Button onClick={handleEmailContact} variant="outline" className="w-full justify-start">
                 <Mail className="mr-2 h-4 w-4" />
-                suporte@onedrip.com
+                suporte@oliverblueberry.com
               </Button>
 
               <div className="flex items-center gap-2 text-sm text-muted-foreground">

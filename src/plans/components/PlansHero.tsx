@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAppInfo } from '@/hooks/useAppConfig';
 
 interface PlansHeroProps {
   logo: string;
@@ -8,19 +7,17 @@ interface PlansHeroProps {
 }
 
 export const PlansHero = ({ logo, tituloPrincipal, subtituloPrincipal }: PlansHeroProps) => {
-  const { name } = useAppInfo();
-  
   return (
     <section className="text-center animate-fade-in-up">
       <div className="flex items-center justify-center space-x-3 mb-8">
         <img 
-          alt={`${name} Logo`} 
+          alt="Oliver Logo" 
           className="h-16 w-16 interactive-scale" 
           src={logo}
           loading="lazy"
         />
         <h1 className="text-5xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-          {name}
+          Oliver
         </h1>
       </div>
       <h2 className="text-4xl lg:text-6xl font-bold mb-6 text-foreground">

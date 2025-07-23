@@ -14,7 +14,7 @@ export const PWAInstallButton: React.FC = () => {
   const handleInstall = async () => {
     if (device.isIOS) {
       toast({
-        title: "Instalar OneDrip",
+        title: "Instalar Oliver",
         description: (
           <div className="space-y-2">
             <p>Para instalar no iPhone/iPad:</p>
@@ -35,7 +35,7 @@ export const PWAInstallButton: React.FC = () => {
       if (success) {
         toast({
           title: "App Instalado!",
-          description: "OneDrip foi instalado com sucesso.",
+          description: "Oliver foi instalado com sucesso.",
         });
       }
     }
