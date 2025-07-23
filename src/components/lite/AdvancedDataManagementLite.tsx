@@ -168,8 +168,6 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
         device_type: row['Tipo Aparelho'] || row['device_type'] || 'Não informado',
         device_model: row['Modelo Aparelho'] || row['device_model'] || 'Não informado',
         part_quality: row['Qualidade'] || row['part_quality'] || 'Original',
-        part_type: row['Servico Realizado'] || row['part_type'] || 'Reparo',
-        notes: row['Observacoes'] || row['notes'] || '',
         total_price: Math.round((parseFloat(row['Preco Total'] || row['total_price'] || '0') * 100)),
         cash_price: Math.round((parseFloat(row['Preco Total'] || row['total_price'] || '0') * 100)),
         installment_price: row['Preco Parcelado'] ? Math.round(parseFloat(row['Preco Parcelado']) * 100) : null,
@@ -178,7 +176,9 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
         warranty_months: parseInt(row['Garantia (meses)'] || row['warranty_months'] || '3'),
         includes_delivery: (row['Inclui Entrega'] || row['includes_delivery'] || 'nao').toLowerCase() === 'sim',
         includes_screen_protector: (row['Inclui Pelicula'] || row['includes_screen_protector'] || 'nao').toLowerCase() === 'sim',
-        valid_until: new Date(Date.now() + (parseInt(row['Validade (dias)'] || '15') * 24 * 60 * 60 * 1000)).toISOString()
+        valid_until: new Date(Date.now() + (parseInt(row['Validade (dias)'] || '15') * 24 * 60 * 60 * 1000)).toISOString(),
+        workflow_status: 'pending',
+        client_name: row['Cliente'] || 'Cliente Padrão'
       }));
 
       // Inserir no banco
@@ -247,8 +247,6 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
         device_type: row['Tipo Aparelho'] || row['device_type'] || 'Não informado',
         device_model: row['Modelo Aparelho'] || row['device_model'] || 'Não informado',
         part_quality: row['Qualidade'] || row['part_quality'] || 'Original',
-        part_type: row['Servico Realizado'] || row['part_type'] || 'Reparo',
-        notes: row['Observacoes'] || row['notes'] || '',
         total_price: Math.round((parseFloat(row['Preco Total'] || row['total_price'] || '0') * 100)),
         cash_price: Math.round((parseFloat(row['Preco Total'] || row['total_price'] || '0') * 100)),
         installment_price: row['Preco Parcelado'] ? Math.round(parseFloat(row['Preco Parcelado']) * 100) : null,
@@ -257,7 +255,9 @@ export const AdvancedDataManagementLite: React.FC<AdvancedDataManagementLiteProp
         warranty_months: parseInt(row['Garantia (meses)'] || row['warranty_months'] || '3'),
         includes_delivery: (row['Inclui Entrega'] || row['includes_delivery'] || 'nao').toLowerCase() === 'sim',
         includes_screen_protector: (row['Inclui Pelicula'] || row['includes_screen_protector'] || 'nao').toLowerCase() === 'sim',
-        valid_until: new Date(Date.now() + (parseInt(row['Validade (dias)'] || '15') * 24 * 60 * 60 * 1000)).toISOString()
+        valid_until: new Date(Date.now() + (parseInt(row['Validade (dias)'] || '15') * 24 * 60 * 60 * 1000)).toISOString(),
+        workflow_status: 'pending',
+        client_name: row['Cliente'] || 'Cliente Padrão'
       }));
 
       // Inserir no banco

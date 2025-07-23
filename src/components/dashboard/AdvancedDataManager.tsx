@@ -42,7 +42,7 @@ import {
   FileText,
   Copy
 } from 'lucide-react';
-import { useAdvancedBudgets } from '@/hooks/useAdvancedBudgets';
+import { useDataInsights } from '@/hooks/useDataInsights';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format, subDays, isAfter, isBefore } from 'date-fns';
@@ -86,8 +86,10 @@ export const AdvancedDataManager: React.FC<AdvancedDataManagerProps> = ({
   // Estados principais
   const [activeTab, setActiveTab] = useState('insights');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [lastAnalysis, setLastAnalysis] = useState<Date | null>(null);
+  const [duplicatesFound, setDuplicatesFound] = useState<any[]>([]);
+  
+  // Hook de insights
+  const { generateInsights, isAnalyzing, lastAnalysis } = useDataInsights();
   
   // Filtros
   const [filters, setFilters] = useState<FilterOptions>({
@@ -99,18 +101,28 @@ export const AdvancedDataManager: React.FC<AdvancedDataManagerProps> = ({
   });
 
   // Dados
-  const { budgetStats, expiringBudgets, clients, isLoading } = useAdvancedBudgets();
   const [rawBudgets, setRawBudgets] = useState<any[]>([]);
   const [insights, setInsights] = useState<DataInsight[]>([]);
   const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetric[]>([]);
+  const [budgetStats, setBudgetStats] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Carregar dados brutos
+  // Carregar dados iniciais quando o componente monta
   useEffect(() => {
-    if (!userId) return;
-    loadRawData();
-  }, [userId, filters]);
+    if (userId) {
+      loadRawData();
+    }
+  }, [userId]);
+
+  // Carregar dados automaticamente quando os filtros mudam
+  useEffect(() => {
+    if (userId) {
+      loadRawData();
+    }
+  }, [filters]);
 
   const loadRawData = async () => {
+    setIsLoading(true);
     try {
       const days = parseInt(filters.dateRange);
       const startDate = subDays(new Date(), days);
@@ -144,145 +156,74 @@ export const AdvancedDataManager: React.FC<AdvancedDataManagerProps> = ({
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       toast.error('Erro ao carregar dados');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Analisar dados e gerar insights
+  // Analisar dados e gerar insights usando o novo hook
   const analyzeData = async () => {
-    if (!rawBudgets.length) return;
-    
-    setIsAnalyzing(true);
+    if (!rawBudgets.length) {
+      toast.error('Não há dados suficientes para análise');
+      return;
+    }
     
     try {
-      // Simular processamento de análise
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const result = await generateInsights({
+        userId,
+        dateRange: parseInt(filters.dateRange)
+      });
       
-      const newInsights: DataInsight[] = [];
+      // Converter insights para o formato esperado
+      const formattedInsights: DataInsight[] = result.insights.map((insight, index) => ({
+        id: `insight-${index}`,
+        type: insight.type as 'trend' | 'anomaly' | 'opportunity' | 'warning',
+        title: insight.title,
+        description: insight.description,
+        priority: insight.priority as 'high' | 'medium' | 'low'
+      }));
+      
+      // Gerar métricas de performance
       const newMetrics: PerformanceMetric[] = [];
       
-      // Análise de tendências de preço
-      const totalPrice = rawBudgets.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
-      const avgPrice = totalPrice / rawBudgets.length / 100;
-      const recentBudgets = rawBudgets.slice(0, Math.floor(rawBudgets.length / 2));
-      const olderBudgets = rawBudgets.slice(Math.floor(rawBudgets.length / 2));
-      
-      const recentTotal = recentBudgets.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
-      const recentAvg = recentTotal / recentBudgets.length / 100;
-      const olderTotal = olderBudgets.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
-      const olderAvg = olderTotal / olderBudgets.length / 100;
-      const priceChange = olderAvg > 0 ? ((recentAvg - olderAvg) / olderAvg) * 100 : 0;
-      
-      if (Math.abs(priceChange) > 10) {
-        newInsights.push({
-          id: 'price-trend',
-          type: priceChange > 0 ? 'opportunity' : 'warning',
-          title: `Tendência de ${priceChange > 0 ? 'Alta' : 'Baixa'} nos Preços`,
-          description: `Seus orçamentos têm média ${priceChange > 0 ? 'maior' : 'menor'} recentemente`,
-          value: `${priceChange.toFixed(1)}%`,
-          change: priceChange,
-          priority: 'high'
+      if (result.metadata) {
+        newMetrics.push({
+          label: 'Taxa de Conversão',
+          value: result.metadata.conversionRate,
+          change: Math.random() * 10 - 5, // Simulado - seria calculado comparando períodos
+          format: 'percentage',
+          trend: result.metadata.conversionRate > 60 ? 'up' : 'down'
         });
-      }
-
-      // Análise de conversão
-      const approvedCount = rawBudgets.filter(b => b.workflow_status === 'approved').length;
-      const conversionRate = (approvedCount / rawBudgets.length) * 100;
-      
-      newMetrics.push({
-        label: 'Taxa de Conversão',
-        value: conversionRate,
-        change: Math.random() * 10 - 5, // Simulado
-        format: 'percentage',
-        trend: conversionRate > 60 ? 'up' : 'down'
-      });
-
-      // Análise de faturamento
-      const paidBudgets = rawBudgets.filter(b => b.is_paid);
-      const totalRevenue = paidBudgets
-        .reduce((sum, b) => sum + (Number(b.total_price) || 0), 0) / 100;
-      
-      newMetrics.push({
-        label: 'Faturamento',
-        value: totalRevenue,
-        change: Math.random() * 20 - 10, // Simulado
-        format: 'currency',
-        trend: 'up'
-      });
-
-      // Análise de dispositivos mais populares
-      const deviceCounts = rawBudgets.reduce((acc, budget) => {
-        const device = budget.device_type || 'Outros';
-        acc[device] = (acc[device] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      
-      const deviceEntries = Object.entries(deviceCounts);
-      const mostPopularDevice = deviceEntries.length > 0 
-        ? deviceEntries.sort(([,a], [,b]) => (b as number) - (a as number))[0]
-        : null;
-      
-      if (mostPopularDevice && (mostPopularDevice[1] as number) > rawBudgets.length * 0.3) {
-        newInsights.push({
-          id: 'popular-device',
-          type: 'opportunity',
-          title: `${mostPopularDevice[0]} em Alta`,
-          description: `Representa ${Math.round(((mostPopularDevice[1] as number) / rawBudgets.length) * 100)}% dos seus orçamentos`,
-          value: `${mostPopularDevice[1]} orçamentos`,
-          priority: 'medium'
-        });
-      }
-
-      // Análise de orçamentos vencendo
-      if (expiringBudgets.length > 0) {
-        const expiredCount = expiringBudgets.filter(b => b.days_until_expiry < 0).length;
         
-        newInsights.push({
-          id: 'expiring-budgets',
-          type: 'warning',
-          title: 'Orçamentos Vencendo',
-          description: `${expiringBudgets.length} orçamentos precisam de atenção`,
-          value: expiredCount > 0 ? `${expiredCount} vencidos` : undefined,
-          priority: 'high'
+        newMetrics.push({
+          label: 'Faturamento',
+          value: result.metadata.totalRevenue,
+          change: Math.random() * 20 - 10, // Simulado
+          format: 'currency',
+          trend: 'up'
+        });
+        
+        newMetrics.push({
+          label: 'Ticket Médio',
+          value: result.metadata.averageValue,
+          change: Math.random() * 15 - 7.5,
+          format: 'currency',
+          trend: 'stable'
         });
       }
-
-      // Análise de pagamentos pendentes
-      const pendingPayments = rawBudgets.filter(b => 
-        b.workflow_status === 'approved' && !b.is_paid
-      ).length;
       
-      if (pendingPayments > 0) {
-        newInsights.push({
-          id: 'pending-payments',
-          type: 'warning',
-          title: 'Pagamentos Pendentes',
-          description: `${pendingPayments} orçamentos aprovados aguardando pagamento`,
-          priority: 'high'
-        });
-      }
-
-      // Oportunidades de upsell
-      const lowValueBudgets = rawBudgets.filter(b => (b.total_price / 100) < avgPrice * 0.7).length;
-      if (lowValueBudgets > rawBudgets.length * 0.2) {
-        newInsights.push({
-          id: 'upsell-opportunity',
-          type: 'opportunity',
-          title: 'Oportunidade de Upsell',
-          description: `${lowValueBudgets} orçamentos abaixo da média podem ser otimizados`,
-          priority: 'medium'
-        });
-      }
-
-      setInsights(newInsights);
+      setInsights(formattedInsights);
       setPerformanceMetrics(newMetrics);
-      setLastAnalysis(new Date());
+      setDuplicatesFound(result.duplicates);
       
-      toast.success('Análise concluída!');
+      if (result.duplicates.length > 0) {
+        toast.warning(`${result.duplicates.length} possíveis duplicatas encontradas!`);
+      } else {
+        toast.success('Análise concluída! Dados estão limpos.');
+      }
       
     } catch (error) {
-      toast.error('Erro na análise');
-    } finally {
-      setIsAnalyzing(false);
+      toast.error('Erro na análise: ' + (error as Error).message);
     }
   };
 
@@ -306,7 +247,6 @@ export const AdvancedDataManager: React.FC<AdvancedDataManagerProps> = ({
         'Cliente': budget.client_name || 'N/A',
         'Dispositivo': budget.device_type,
         'Modelo': budget.device_model,
-        'Serviço': budget.part_type,
         'Valor': (budget.total_price / 100).toFixed(2),
         'Status': budget.workflow_status,
         'Pago': budget.is_paid ? 'Sim' : 'Não',
@@ -332,6 +272,38 @@ export const AdvancedDataManager: React.FC<AdvancedDataManagerProps> = ({
       toast.success('Dados exportados com sucesso!');
     } catch (error) {
       toast.error('Erro na exportação');
+    }
+  };
+
+  // Função para remover duplicatas
+  const removeDuplicates = async () => {
+    if (duplicatesFound.length === 0) {
+      toast.error('Nenhuma duplicata encontrada para remover');
+      return;
+    }
+
+    try {
+      const duplicateIds = duplicatesFound.map(d => d.id);
+      
+      // Soft delete dos orçamentos duplicados
+      const { error } = await supabase
+        .from('budgets')
+        .update({ 
+          deleted_at: new Date().toISOString(),
+          deleted_by: userId 
+        })
+        .in('id', duplicateIds);
+
+      if (error) throw error;
+
+      // Atualizar dados locais
+      setRawBudgets(prev => prev.filter(b => !duplicateIds.includes(b.id)));
+      setDuplicatesFound([]);
+      
+      toast.success(`${duplicateIds.length} orçamentos duplicados removidos!`);
+      
+    } catch (error) {
+      toast.error('Erro ao remover duplicatas: ' + (error as Error).message);
     }
   };
 
@@ -497,34 +469,81 @@ export const AdvancedDataManager: React.FC<AdvancedDataManagerProps> = ({
                           >
                             {insight.priority === 'high' ? 'Alto' : 
                              insight.priority === 'medium' ? 'Médio' : 'Baixo'}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-2">
-                          {insight.description}
-                        </p>
-                        {insight.value && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm font-medium">{insight.value}</span>
-                            {insight.change && (
-                              <span className={cn(
-                                "text-xs flex items-center",
-                                insight.change > 0 ? "text-green-600" : "text-red-600"
-                              )}>
-                                {insight.change > 0 ? (
-                                  <ArrowUpRight className="h-3 w-3" />
-                                ) : (
-                                  <ArrowDownRight className="h-3 w-3" />
-                                )}
-                                {Math.abs(insight.change).toFixed(1)}%
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                           </Badge>
+                         </div>
+                         <p className="text-xs text-muted-foreground mb-2">
+                           {insight.description}
+                         </p>
+                         {insight.value && (
+                           <div className="flex items-center gap-1">
+                             <span className="text-sm font-medium">{insight.value}</span>
+                             {insight.change && (
+                               <span className={cn(
+                                 "text-xs flex items-center",
+                                 insight.change > 0 ? "text-green-600" : "text-red-600"
+                               )}>
+                                 {insight.change > 0 ? (
+                                   <ArrowUpRight className="h-3 w-3" />
+                                 ) : (
+                                   <ArrowDownRight className="h-3 w-3" />
+                                 )}
+                                 {Math.abs(insight.change).toFixed(1)}%
+                               </span>
+                             )}
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+               ))}
+               
+               {/* Card de Duplicatas se encontradas */}
+               {duplicatesFound.length > 0 && (
+                 <Card className="border-orange-200 bg-orange-50">
+                   <CardContent className="py-4">
+                     <div className="flex items-start gap-3">
+                       <Copy className="h-5 w-5 text-orange-500 mt-0.5" />
+                       <div className="flex-1">
+                         <div className="flex items-center justify-between mb-2">
+                           <h3 className="font-medium text-sm">Duplicatas Detectadas</h3>
+                           <Badge variant="destructive" className="text-xs">
+                             {duplicatesFound.length} encontrada{duplicatesFound.length !== 1 ? 's' : ''}
+                           </Badge>
+                         </div>
+                         <p className="text-xs text-muted-foreground mb-3">
+                           Orçamentos similares foram encontrados nos seus dados. Limpe para melhorar a organização.
+                         </p>
+                         <div className="space-y-2">
+                           {duplicatesFound.slice(0, 3).map((duplicate, index) => (
+                             <div key={index} className="bg-white rounded p-2 text-xs border">
+                               <span className="font-medium">{duplicate.device_model}</span>
+                               <span className="text-muted-foreground"> • {duplicate.device_type}</span>
+                               {duplicate.client_name && (
+                                 <span className="text-muted-foreground"> • {duplicate.client_name}</span>
+                               )}
+                             </div>
+                           ))}
+                           {duplicatesFound.length > 3 && (
+                             <p className="text-xs text-muted-foreground">
+                               E mais {duplicatesFound.length - 3} duplicata{duplicatesFound.length - 3 !== 1 ? 's' : ''}...
+                             </p>
+                           )}
+                           <Button
+                             onClick={removeDuplicates}
+                             size="sm"
+                             variant="outline"
+                             className="w-full mt-3"
+                           >
+                             <Copy className="mr-2 h-4 w-4" />
+                             Remover Duplicatas
+                           </Button>
+                         </div>
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+               )}
             </div>
           )}
         </TabsContent>
@@ -605,10 +624,10 @@ export const AdvancedDataManager: React.FC<AdvancedDataManagerProps> = ({
                     <div key={budget.id} className="border rounded-lg p-3 space-y-2">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-medium text-sm">{budget.device_model}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {budget.device_type} • {budget.part_type}
-                          </p>
+          <p className="font-medium text-sm">{budget.device_model}</p>
+          <p className="text-xs text-muted-foreground">
+            {budget.device_type} • {budget.part_quality || 'Original'}
+          </p>
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-medium">
