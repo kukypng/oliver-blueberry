@@ -1,106 +1,70 @@
-import { 
-  APP_CONFIG, 
-  CONTACT_CONFIG, 
-  PAYMENT_CONFIG, 
-  MESSAGES_CONFIG, 
-  FEATURES_CONFIG, 
-  URLS_CONFIG,
-  getWhatsAppUrl,
-  getPaymentUrl
-} from '@/config';
-import { applyConfigReplacements } from '@/utils/configReplacements';
+/**
+ * Hook para Configuração da Aplicação - OneDrip
+ * 
+ * Este hook fornece acesso fácil e tipado às configurações centralizadas
+ * da aplicação. Use este hook em qualquer componente que precise
+ * referenciar o nome da aplicação, contatos ou outras informações.
+ * 
+ * Exemplo de uso:
+ * ```tsx
+ * import { useAppConfig } from '@/hooks/useAppConfig';
+ * 
+ * const MyComponent = () => {
+ *   const { name, fullName, contact } = useAppConfig();
+ *   
+ *   return (
+ *     <div>
+ *       <h1>{fullName}</h1>
+ *       <p>Contato: {contact.email}</p>
+ *     </div>
+ *   );
+ * };
+ * ```
+ */
+
+import { APP_CONFIG, type AppConfig } from '@/config/app';
 
 /**
- * Hook centralizado para acessar todas as configurações do app
- * Garante que mudanças na pasta config sejam aplicadas em todo o app
+ * Hook que retorna a configuração completa da aplicação
  */
-export const useAppConfig = () => {
-  return {
-    // Configurações do app
-    app: APP_CONFIG,
-    
-    // Configurações de contato
-    contacts: CONTACT_CONFIG,
-    
-    // Configurações de pagamento
-    payment: PAYMENT_CONFIG,
-    
-    // Mensagens do sistema
-    messages: MESSAGES_CONFIG,
-    
-    // Funcionalidades ativas/inativas
-    features: FEATURES_CONFIG,
-    
-    // URLs do sistema
-    urls: URLS_CONFIG,
-    
-    // Helpers úteis
-    helpers: {
-      getWhatsAppUrl,
-      getPaymentUrl,
-      
-      // WhatsApp com mensagem personalizada
-      getWhatsAppSupportUrl: (message?: string) => 
-        getWhatsAppUrl(message || CONTACT_CONFIG.whatsapp.supportMessage),
-      
-      // WhatsApp para cliente específico
-      getWhatsAppClientUrl: (phone: string, message?: string) => {
-        const cleanPhone = phone.replace(/\D/g, '');
-        const finalMessage = message || 'Olá! Entro em contato através do sistema de gestão.';
-        return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(finalMessage)}`;
-      },
-      
-      // URL de renovação de licença
-      getLicenseRenewalWhatsApp: () => 
-        getWhatsAppUrl('Olá! Gostaria de renovar minha licença do sistema.'),
-      
-      // URL de suporte técnico
-      getTechnicalSupportWhatsApp: () => 
-        getWhatsAppUrl('Olá! Preciso de suporte técnico com o sistema.'),
-    }
-  };
+export const useAppConfig = (): AppConfig => {
+  return APP_CONFIG;
 };
 
 /**
- * Hook simplificado apenas para configurações do app
+ * Hook que retorna apenas as informações básicas da aplicação
  */
 export const useAppInfo = () => {
-  const { app } = useAppConfig();
+  const { name, fullName, shortName, description, tagline, subtitle, logo } = APP_CONFIG;
+  
   return {
-    name: app.name,
-    fullName: app.fullName,
-    description: app.description,
-    version: app.version,
-    logoPath: app.branding.logoPath,
-    domain: app.domain,
-    website: app.website
+    name,
+    fullName,
+    shortName,
+    description,
+    tagline,
+    subtitle,
+    logo
   };
 };
 
 /**
- * Hook simplificado para contatos
+ * Hook que retorna apenas as informações de contato
  */
-export const useContacts = () => {
-  const { contacts, helpers } = useAppConfig();
-  return {
-    ...contacts,
-    getWhatsAppUrl: helpers.getWhatsAppSupportUrl,
-    getClientWhatsApp: helpers.getWhatsAppClientUrl,
-    getLicenseRenewalWhatsApp: helpers.getLicenseRenewalWhatsApp,
-    getTechnicalSupportWhatsApp: helpers.getTechnicalSupportWhatsApp
-  };
+export const useContactInfo = () => {
+  return APP_CONFIG.contact;
 };
 
 /**
- * Hook para aplicar configurações em textos hardcoded
+ * Hook que retorna apenas as configurações de PWA
  */
-export const useConfigText = () => {
-  return {
-    replace: applyConfigReplacements,
-    // Helpers para casos comuns
-    appName: APP_CONFIG.name,
-    appFullName: APP_CONFIG.fullName,
-    logoAlt: `${APP_CONFIG.name} Logo`,
-    withAppName: (text: string) => text.replace('Oliver', APP_CONFIG.name)
-  };
+export const usePWAConfig = () => {
+  return APP_CONFIG.pwa;
+};
+
+/**
+ * Hook que retorna apenas as informações de marketing
+ */
+export const useMarketingConfig = () => {
+  return APP_CONFIG.marketing;
 };

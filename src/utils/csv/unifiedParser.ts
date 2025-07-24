@@ -67,7 +67,7 @@ export class UnifiedCsvParser {
     if (typeof value === 'number') return value;
     
     const stringValue = value.toString().trim();
-    if (stringValue === '' || stringValue === '0') return 0;
+    if (stringValue === '' || stringValue === '0' || stringValue === '0.00') return 0;
     
     // Normalizar formato brasileiro (vírgula para ponto)
     const normalizedValue = stringValue.replace(',', '.');
@@ -77,9 +77,9 @@ export class UnifiedCsvParser {
   }
 
   /**
-   * ✅ VALIDAÇÃO PADRONIZADA POR TIPO
+   * ✅ VALIDAÇÃO PADRONIZADA POR TIPO - CORRIGIDA
    */
-  private validateField(standardHeader: StandardHeader, value: any): ValidationResult {
+  private validateField(standardHeader: StandardHeader, value: any, rowData?: any): ValidationResult {
     const result: ValidationResult = {
       isValid: true,
       errors: [],
@@ -112,10 +112,13 @@ export class UnifiedCsvParser {
           result.errors.push(`Campo '${standardHeader.csvHeader}' deve ser um número válido`);
         } else {
           result.data = numValue;
-          // Validação específica para preços
-          if (standardHeader.fieldName === 'preco_total' && numValue <= 0) {
+          // ✅ CORREÇÃO CRÍTICA: Validação contextual de preços
+          // Permite preço zero para orçamentos de rascunho ou em desenvolvimento
+          if (standardHeader.fieldName === 'preco_total' && standardHeader.required && numValue < 0) {
             result.isValid = false;
-            result.errors.push('Preço total deve ser maior que zero');
+            result.errors.push('Preço total não pode ser negativo');
+          } else if (standardHeader.fieldName === 'preco_total' && numValue === 0) {
+            result.warnings.push('Preço total é zero - orçamento será marcado como rascunho');
           }
         }
         break;
@@ -180,7 +183,7 @@ export class UnifiedCsvParser {
   }
 
   /**
-   * 💾 CONVERSÃO PARA BANCO PADRONIZADA
+   * 💾 CONVERSÃO PARA BANCO PADRONIZADA - MELHORADA
    */
   private convertToDatabase(processedRow: ParsedRow, userId: string): BudgetInsert {
     const data = processedRow.data;
@@ -206,14 +209,20 @@ export class UnifiedCsvParser {
     const paymentCondition = data.metodo_pagamento || 
       ((installments > 1) ? 'Cartao de Credito' : 'A Vista');
 
+    // ✅ DETERMINAÇÃO INTELIGENTE DE STATUS
+    // Orçamentos com preço zero são marcados como rascunho
+    const isDraft = totalPrice === 0;
+    const status = isDraft ? 'draft' : 'pending';
+    const workflowStatus = isDraft ? 'draft' : 'pending';
+
     return {
       owner_id: userId,
       device_type: data.tipo_aparelho,
       device_model: data.modelo_aparelho,
       issue: data.qualidade || '',
       part_quality: data.qualidade || '',
-      part_type: data.servico_realizado,
-      notes: data.observacoes || '',
+      part_type: 'Peça de Reposição', // Valor padrão consistente
+      notes: `Importado automaticamente em ${new Date().toLocaleDateString('pt-BR')}`,
       
       // 💰 VALORES FINANCEIROS (conversão única para centavos)
       total_price: Math.round(totalPrice * 100),
@@ -227,8 +236,8 @@ export class UnifiedCsvParser {
       includes_screen_protector: data.inclui_pelicula || false,
       valid_until: validUntil.toISOString(),
       expires_at: validUntil.toISOString().split('T')[0],
-      status: 'pending',
-      workflow_status: 'pending',
+      status: status,
+      workflow_status: workflowStatus,
       client_name: null,
       client_phone: null,
     };

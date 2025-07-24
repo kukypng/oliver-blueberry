@@ -178,7 +178,7 @@ const helpContentByContext: Record<string, HelpContent[]> = {
   index: [
     {
       id: 'welcome',
-      title: 'Bem-vindo ao Oliver!',
+      title: 'Bem-vindo ao OneDrip!',
       description: 'Descubra as principais funcionalidades e como começar rapidamente.',
       category: 'tutorial',
       tags: ['início', 'apresentação'],

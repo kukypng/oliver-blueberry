@@ -1,4 +1,4 @@
-# 🔐 Política de Segurança - Oliver System
+# 🔐 Política de Segurança - OneDrip System
 
 <div align="center">
 
@@ -14,7 +14,7 @@
 
 ## 🛡️ **Visão Geral de Segurança**
 
-O **Oliver System** implementa um conjunto abrangente de medidas de segurança para proteger dados sensíveis, garantir a integridade do sistema e manter a confiança dos usuários. Nossa arquitetura segue as melhores práticas da indústria e padrões internacionais de segurança.
+O **OneDrip System** implementa um conjunto abrangente de medidas de segurança para proteger dados sensíveis, garantir a integridade do sistema e manter a confiança dos usuários. Nossa arquitetura segue as melhores práticas da indústria e padrões internacionais de segurança.
 
 ---
 
@@ -66,7 +66,7 @@ Levamos a segurança muito a sério. Se você descobrir uma vulnerabilidade, ped
 ### **📋 Processo de Reporte**
 
 1. **🚫 NÃO** abra um issue público no GitHub
-2. **📧 ENVIE** um e-mail detalhado para security@oliver.com.br
+2. **📧 ENVIE** um e-mail detalhado para security@onedrip.com.br
 3. **📋 INCLUA** as seguintes informações:
    - Descrição detalhada da vulnerabilidade
    - Passos para reprodução
@@ -96,14 +96,14 @@ Para **vulnerabilidades críticas** que representem risco imediato:
 - 📖 [OWASP Top 10 Compliance](https://owasp.org/www-project-top-ten/)
 - 🔒 [Supabase Security Documentation](https://supabase.com/docs/guides/auth/row-level-security)
 - 📋 [LGPD Compliance Guide](https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd)
-- 🛡️ [Security Best Practices](https://docs.oliver.com.br/security)
+- 🛡️ [Security Best Practices](https://docs.onedrip.com.br/security)
 
 ---
 
 <div align="center">
 
 **Desenvolvido com segurança em mente**  
-**© 2025 - Oliver System by KukySolutions™**
+**© 2025 - OneDrip System by KukySolutions™**
 
 *"A segurança não é um produto, mas um processo"*
 

@@ -2,7 +2,7 @@
 
 -- Adicionar campos para seção de benefícios
 ALTER TABLE public.site_settings 
-ADD COLUMN benefits_section_title TEXT DEFAULT 'Vantagens do Oliver',
+ADD COLUMN benefits_section_title TEXT DEFAULT 'Vantagens do OneDrip',
 ADD COLUMN benefits_section_subtitle TEXT DEFAULT 'Descubra os benefícios de usar nosso sistema',
 ADD COLUMN benefits_data JSONB DEFAULT '[
   {
@@ -23,19 +23,19 @@ ADD COLUMN benefits_data JSONB DEFAULT '[
   {
     "icon": "Award",
     "title": "Resultados Comprovados",
-    "description": "Mais de 500+ assistências técnicas já confiam no Oliver"
+    "description": "Mais de 500+ assistências técnicas já confiam no OneDrip"
   }
 ]'::jsonb;
 
 -- Adicionar campos para seção de depoimentos  
 ALTER TABLE public.site_settings
 ADD COLUMN testimonials_section_title TEXT DEFAULT 'O que nossos clientes dizem',
-ADD COLUMN testimonials_section_subtitle TEXT DEFAULT 'Depoimentos reais de quem já usa o Oliver',
+ADD COLUMN testimonials_section_subtitle TEXT DEFAULT 'Depoimentos reais de quem já usa o OneDrip',
 ADD COLUMN testimonials_data JSONB DEFAULT '[
   {
     "name": "Carlos Silva",
     "role": "Proprietário - TechRepair", 
-    "content": "O Oliver transformou minha assistência. Agora consigo fazer orçamentos profissionais em minutos!",
+    "content": "O OneDrip transformou minha assistência. Agora consigo fazer orçamentos profissionais em minutos!",
     "rating": 5
   },
   {
@@ -55,7 +55,7 @@ ADD COLUMN testimonials_data JSONB DEFAULT '[
 -- Adicionar campos para seção de FAQ
 ALTER TABLE public.site_settings
 ADD COLUMN faq_section_title TEXT DEFAULT 'Perguntas Frequentes',
-ADD COLUMN faq_section_subtitle TEXT DEFAULT 'Tire suas dúvidas sobre o Oliver',
+ADD COLUMN faq_section_subtitle TEXT DEFAULT 'Tire suas dúvidas sobre o OneDrip',
 ADD COLUMN faq_data JSONB DEFAULT '[
   {
     "question": "Como funciona o período de teste?",

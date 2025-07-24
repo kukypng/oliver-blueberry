@@ -1,4 +1,4 @@
-# Oliver Design System 2.0 - Resumo das Melhorias Implementadas
+# OneDrip Design System 2.0 - Resumo das Melhorias Implementadas
 
 ## 🎨 **Melhorias Implementadas**
 

@@ -48,21 +48,6 @@ export const STANDARD_HEADERS: StandardHeader[] = [
     aliases: ['Defeito ou Problema', 'Issue', 'Problem']
   },
   {
-    csvHeader: 'Servico Realizado',
-    fieldName: 'servico_realizado',
-    required: true,
-    type: 'string',
-    aliases: ['Serviço Realizado', 'Service', 'Part Type']
-  },
-  {
-    csvHeader: 'Observacoes',
-    fieldName: 'observacoes',
-    required: false,
-    type: 'string',
-    defaultValue: '',
-    aliases: ['Observações', 'Notes', 'Notas']
-  },
-  {
     csvHeader: 'Preco Total',
     fieldName: 'preco_total',
     required: true,

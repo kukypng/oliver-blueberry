@@ -609,7 +609,7 @@ export const SiteSettingsContent = () => {
                 id="benefits_section_title"
                 value={currentSettings.benefits_section_title || ''}
                 onChange={(e) => handleInputChange('benefits_section_title', e.target.value)}
-                placeholder="Vantagens do Oliver"
+                placeholder="Vantagens do OneDrip"
               />
             </div>
             <div>

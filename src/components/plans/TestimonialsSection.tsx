@@ -20,7 +20,7 @@ const defaultTestimonials: Testimonial[] = [
   {
     name: "Carlos Silva",
     role: "Proprietário - TechRepair",
-    content: "O Oliver transformou minha assistência. Agora consigo fazer orçamentos profissionais em minutos!",
+    content: "O OneDrip transformou minha assistência. Agora consigo fazer orçamentos profissionais em minutos!",
     rating: 5
   },
   {
@@ -39,7 +39,7 @@ const defaultTestimonials: Testimonial[] = [
 
 export const TestimonialsSection = ({ 
   title = "O que nossos clientes dizem",
-  subtitle = "Depoimentos reais de quem já usa o Oliver",
+  subtitle = "Depoimentos reais de quem já usa o OneDrip",
   testimonials = defaultTestimonials,
   show = true 
 }: TestimonialsSectionProps) => {

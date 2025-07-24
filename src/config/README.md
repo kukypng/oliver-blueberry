@@ -1,79 +1,75 @@
+# Sistema de Configuração Centralizada - OneDrip
 
-# 📁 Pasta de Configuração - Oliver
+Este diretório contém a configuração centralizada da aplicação, permitindo mudanças fáceis de marca e informações do sistema.
 
-Esta pasta contém todas as configurações importantes do aplicativo Oliver, organizadas em arquivos específicos para facilitar a edição e manutenção.
+## 📁 Arquivos
 
-## 📄 Arquivos de Configuração
+- `app.ts` - Configuração principal da aplicação
+- `README.md` - Este arquivo de documentação
 
-### `app.ts` - Configurações Gerais
-- Nome do aplicativo e versão
-- URLs de redirecionamento de autenticação
-- Configurações de licença
-- Branding e visual
+## 🎯 Como Usar
 
-### `contacts.ts` - Informações de Contato
-- **WhatsApp**: Número e mensagens padrão
-- **Email**: Endereços de suporte e contato
-- **Endereço**: Localização da empresa
-- **Redes Sociais**: Links para expansão futura
+### Importando a configuração completa:
+```tsx
+import { useAppConfig } from '@/hooks/useAppConfig';
 
-### `payment.ts` - Configurações de Pagamento
-- Links do MercadoPago
-- Configurações de planos e preços
-- Configurações de moeda
-
-### `messages.ts` - Textos do Sistema
-- Mensagens de erro e sucesso
-- Textos da interface
-- Textos de marketing
-
-### `features.ts` - Funcionalidades
-- Ativar/desativar recursos
-- Configurações de performance
-- Limites de dados
-
-### `urls.ts` - URLs e Redirecionamentos
-- URLs de redirecionamento interno
-- Links externos
-- Configurações de API
-
-## 🔧 Como Usar
-
-### Exemplo 1: Alterar WhatsApp
-```typescript
-// Em contacts.ts, altere:
-whatsapp: {
-  number: '556496028022', // ← Seu novo número
-  supportMessage: 'Sua nova mensagem aqui'
-}
+const MyComponent = () => {
+  const config = useAppConfig();
+  
+  return <h1>{config.fullName}</h1>;
+};
 ```
 
-### Exemplo 2: Alterar Nome do App
-```typescript
-// Em app.ts, altere:
-name: 'Oliver', // ← Novo nome
-fullName: 'Oliver - Sistema de Gestão' // ← Nome completo
+### Usando hooks específicos:
+```tsx
+import { useAppInfo, useContactInfo } from '@/hooks/useAppConfig';
+
+const Header = () => {
+  const { name, logo } = useAppInfo();
+  
+  return (
+    <div>
+      <img src={logo} alt={`${name} Logo`} />
+      <h1>{name}</h1>
+    </div>
+  );
+};
+
+const Footer = () => {
+  const { email, whatsapp } = useContactInfo();
+  
+  return (
+    <div>
+      <p>Email: {email}</p>
+      <p>WhatsApp: {whatsapp}</p>
+    </div>
+  );
+};
 ```
 
-### Exemplo 3: Alterar Preço do Plano
-```typescript
-// Em payment.ts, altere:
-plans: {
-  professional: {
-    price: 45, // ← Novo preço
-    currency: 'R$'
-  }
-}
-```
+## 🔄 Como Alterar o Nome da Aplicação
 
-## ⚡ Helpers Úteis
+1. Abra o arquivo `src/config/app.ts`
+2. Modifique as propriedades desejadas:
+   ```typescript
+   export const APP_CONFIG = {
+     name: 'NovoNome',
+     fullName: 'NovoNome - Sistema de Orçamentos',
+     shortName: 'NovoNome',
+     // ... outras configurações
+   };
+   ```
+3. Salve o arquivo
+4. Todas as referências na aplicação serão atualizadas automaticamente!
 
-O arquivo `index.ts` exporta helpers para uso fácil:
+## ✅ Benefícios
 
-- `getWhatsAppUrl(message)` - Gera URL do WhatsApp
-- `getPaymentUrl()` - Retorna URL de pagamento
-- `getLicenseValidation()` - Validação de licença
+- **Centralizado**: Todas as configurações em um só lugar
+- **Tipado**: IntelliSense completo com TypeScript
+- **Reutilizável**: Hooks específicos para diferentes necessidades
+- **Manutenível**: Mudanças futuras são simples e rápidas
+- **Consistente**: Garante que todas as referências sejam iguais
 
-## 🚨 Importante
+## 🚀 Próximos Passos
 
-Após alterar qualquer configuração, reinicie o servidor de desenvolvimento para que as mudanças tenham efeito.
+Após criar este sistema, os componentes da aplicação devem ser migrados para usar estes hooks ao invés de strings hardcoded. Isso garante que futuras mudanças de marca sejam feitas apenas alterando este arquivo de configuração.

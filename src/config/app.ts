@@ -1,37 +1,71 @@
+/**
+ * Configuração Central da Aplicação - OneDrip
+ * 
+ * Este arquivo centraliza todas as configurações da aplicação,
+ * incluindo nome, contatos, URLs e outras informações importantes.
+ * 
+ * Para alterar o nome da aplicação ou outras informações,
+ * modifique apenas este arquivo e todas as referências serão atualizadas.
+ */
 
-// Configurações gerais do aplicativo
 export const APP_CONFIG = {
-  // Informações básicas do app
+  // Informações básicas da aplicação
   name: 'OneDrip',
-  fullName: 'Oliver - Sistema de Gestão',
-  description: 'Sistema completo de orçamentos para assistências técnicas',
-  version: '1.0.0',
+  fullName: 'OneDrip - Sistema de Orçamentos',
+  shortName: 'OneDrip',
+  description: 'O melhor sistema de orçamentos para sua empresa. Gerencie orçamentos de forma profissional e eficiente.',
+  tagline: 'Sistema de Gestão Profissional',
+  subtitle: 'Plataforma completa para assistências técnicas modernas',
   
-  // URLs e domínios
-  domain: 'oliverblueberry.com',
-  website: 'https://oliverblueberry.com',
+  // Assets
+  logo: '/lovable-uploads/logoo.png',
   
-  // Configurações de autenticação
-  auth: {
-    redirectUrl: '/dashboard',
-    loginRedirectUrl: '/dashboard',
-    signupRedirectUrl: '/dashboard',
-    resetPasswordRedirectUrl: '/reset-password',
-    verifyRedirectUrl: '/verify'
+  // Informações de contato
+  contact: {
+    email: 'contato@onedrip.com',
+    support: 'suporte@onedrip.com',
+    security: 'bugs@onedrip.com.br',
+    whatsapp: '(64) 9602-8022',
+    whatsappUrl: 'https://wa.me/556496028022'
   },
   
-  // Configurações de licença
-  license: {
-    trialDays: 2,
-    defaultValidityDays: 30,
-    codePrefix: '344333',
-    codeLength: 13
+  // URLs importantes
+  urls: {
+    main: 'https://kuky.pro',
+    plans: 'https://kuky.pro/plans',
+    demo: 'https://kuky.pro'
   },
   
-  // Configurações visuais
-  branding: {
-    logoPath: '/lovable-uploads/logoo.png',
-    primaryColor: 'hsl(220, 70%, 50%)',
-    favicon: '/favicon.ico'
+  // Informações para PWA e compartilhamento
+  pwa: {
+    installTitle: 'Instalar OneDrip como App',
+    installDescription: 'Acesse rapidamente o sistema direto da sua tela inicial',
+    shareTitle: 'OneDrip - Sistema de Orçamentos',
+    shareText: 'O melhor sistema de orçamentos para sua empresa'
+  },
+  
+  // Informações da empresa
+  company: {
+    name: 'OneDrip',
+    author: 'kuky',
+    supportHours: 'Segunda à Sexta, 8h às 18h'
+  },
+  
+  // Marketing copy
+  marketing: {
+    heroTitle: 'Transforme sua Assistência Técnica',
+    heroSubtitle: 'Junte-se a centenas de profissionais que já utilizam o OneDrip para gerenciar seus negócios de forma mais eficiente.',
+    benefitsTitle: 'Vantagens do OneDrip',
+    benefitsSubtitle: 'Descubra os benefícios de usar nosso sistema',
+    testimonialsTitle: 'O que nossos clientes dizem',
+    testimonialsSubtitle: 'Depoimentos reais de quem já usa o OneDrip',
+    faqTitle: 'Perguntas Frequentes',
+    faqSubtitle: 'Tire suas dúvidas sobre o OneDrip'
   }
 } as const;
+
+// Tipos TypeScript para melhor intellisense
+export type AppConfig = typeof APP_CONFIG;
+export type ContactInfo = typeof APP_CONFIG.contact;
+export type PWAConfig = typeof APP_CONFIG.pwa;
+export type MarketingConfig = typeof APP_CONFIG.marketing;

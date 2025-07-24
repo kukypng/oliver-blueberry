@@ -2,8 +2,9 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Home, FileText, Plus, Settings, Menu, Shield, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAppInfo } from '@/hooks/useAppConfig';
+
 import { useAuth } from '@/hooks/useAuth';
+import { useAppInfo } from '@/hooks/useAppConfig';
 import { Badge } from '@/components/ui/badge';
 interface TabletHeaderNavProps {
   activeTab: string;
@@ -15,12 +16,13 @@ export const TabletHeaderNav = ({
   onTabChange,
   onMenuToggle
 }: TabletHeaderNavProps) => {
-  const appInfo = useAppInfo();
   const {
     signOut,
     profile,
     hasPermission
   } = useAuth();
+  
+  const { name, logo } = useAppInfo();
   const navItems = [{
     id: 'dashboard',
     icon: Home,
@@ -46,8 +48,8 @@ export const TabletHeaderNav = ({
   return <div className="flex items-center justify-between h-16 px-6 bg-card/95 backdrop-blur-xl border-b border-border">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-3">
-          <img alt={`${appInfo.name} Logo`} className="h-8 w-8" src={appInfo.logoPath} />
-          <h1 className="text-xl font-bold text-foreground">{appInfo.name}</h1>
+          <img alt={`${name} Logo`} className="h-8 w-8" src={logo} />
+          <h1 className="text-xl font-bold text-foreground">{name}</h1>
         </div>
         
         <nav className="hidden sm:flex items-center gap-2">

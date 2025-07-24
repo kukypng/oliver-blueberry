@@ -20,7 +20,7 @@ export const UserLicenseCardIOS = () => {
   const remainingDays = differenceInDays(expirationDate, today);
 
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent('Olá! Gostaria de renovar minha licença do Oliver.');
+    const message = encodeURIComponent('Olá! Gostaria de renovar minha licença do OneDrip.');
     const whatsappUrl = `https://wa.me/5564996028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };

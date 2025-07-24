@@ -14,7 +14,7 @@ export const LicenseStatusCard = ({ onSupportClick }: LicenseStatusCardProps) =>
   const { data: license, isLoading } = useEnhancedLicenseValidation();
 
   const handleWhatsAppSupport = () => {
-    const message = encodeURIComponent('Olá! Preciso de ajuda com minha licença do Oliver.');
+    const message = encodeURIComponent('Olá! Preciso de ajuda com minha licença do OneDrip.');
     const whatsappUrl = `https://wa.me/556496028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };

@@ -11,7 +11,6 @@ import { MobileMenuProvider } from '@/components/mobile/MobileMenuProvider';
 import { MobileHamburgerButton } from '@/components/mobile/MobileHamburgerButton';
 import { MobileHamburgerMenu } from '@/components/mobile/MobileHamburgerMenu';
 import { useMobileMenuContext } from '@/components/mobile/MobileMenuProvider';
-import { useAppInfo } from '@/hooks/useAppConfig';
 
 interface AdaptiveLayoutProps {
   children: ReactNode;
@@ -22,7 +21,6 @@ interface AdaptiveLayoutProps {
 // Mobile Layout Component with Menu Integration
 const MobileLayoutContent = ({ children, activeTab, onTabChange }: AdaptiveLayoutProps) => {
   const { safeArea } = useLayout();
-  const appInfo = useAppInfo();
   const { 
     isOpen, 
     menuData, 
@@ -47,8 +45,8 @@ const MobileLayoutContent = ({ children, activeTab, onTabChange }: AdaptiveLayou
             isOpen={isOpen}
             onClick={toggleMenu}
           />
-          <img src={appInfo.logoPath} alt={`${appInfo.name} Logo`} className="h-8 w-8" />
-          <h1 className="text-xl font-bold text-foreground">{appInfo.name}</h1>
+          <img src="/lovable-uploads/logoo.png" alt="OneDrip Logo" className="h-8 w-8" />
+          <h1 className="text-xl font-bold text-foreground">OneDrip</h1>
         </div>
       </header>
 
@@ -72,7 +70,6 @@ const MobileLayoutContent = ({ children, activeTab, onTabChange }: AdaptiveLayou
 export const AdaptiveLayout = ({ children, activeTab, onTabChange }: AdaptiveLayoutProps) => {
   const layoutContext = useLayout();
   const authContext = useAuth();
-  const appInfo = useAppInfo();
   
   // Proteção contra contextos não inicializados
   if (!layoutContext || !authContext) {
@@ -102,8 +99,8 @@ export const AdaptiveLayout = ({ children, activeTab, onTabChange }: AdaptiveLay
               navHeight
             )}>
               <div className="flex items-center gap-3">
-                <img src={appInfo.logoPath} alt={`${appInfo.name} Logo`} className="h-9 w-9" />
-                <h1 className="text-2xl font-bold text-foreground">{appInfo.name}</h1>
+                <img src="/lovable-uploads/logoo.png" alt="OneDrip Logo" className="h-9 w-9" />
+                <h1 className="text-2xl font-bold text-foreground">OneDrip</h1>
               </div>
             </header>
             

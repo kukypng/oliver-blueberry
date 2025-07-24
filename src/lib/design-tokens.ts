@@ -1,5 +1,5 @@
 /**
- * Design Tokens Centralizados - Oliver Design System
+ * Design Tokens Centralizados - OneDrip Design System
  * Tokens de design para consistência visual em todo o app
  */
 

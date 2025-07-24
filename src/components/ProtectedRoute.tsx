@@ -35,7 +35,7 @@ export const ProtectedRoute = ({
         description="Você precisa estar logado para acessar esta página."
         action={{
           label: "Fazer Login",
-          onClick: () => window.location.href = '/login'
+          onClick: () => window.location.href = '/auth'
         }}
       />
     );
