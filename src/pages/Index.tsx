@@ -7,11 +7,14 @@ import { FileText, Calculator, Smartphone, Shield, Star, Activity, ArrowRight, C
 import { DashboardSkeleton } from '@/components/ui/loading-states';
 import { FadeInUp, ScaleOnHover, StaggerList } from '@/components/ui/animations';
 import { Heading, Text } from '@/components/ui/typography';
+import { useAppInfo, useContacts } from '@/hooks/useAppConfig';
 const Index = () => {
   const {
     user,
     loading
   } = useAuth();
+  const appInfo = useAppInfo();
+  const contacts = useContacts();
   if (loading) {
     return <DashboardSkeleton />;
   }
@@ -28,8 +31,8 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <Link to="/" className="flex items-center space-x-2 interactive-scale">
-              <img alt="Oliver Logo" className="h-8 w-8" src="/lovable-uploads/logoo.png" />
-              <h1 className="text-2xl font-bold text-foreground">Oliver</h1>
+              <img alt={`${appInfo.name} Logo`} className="h-8 w-8" src={appInfo.logoPath} />
+              <h1 className="text-2xl font-bold text-foreground">{appInfo.name}</h1>
             </Link>
             <div className="flex items-center space-x-2">
               <Button asChild variant="outline" className="btn-apple-secondary interactive-scale">
@@ -67,12 +70,12 @@ const Index = () => {
                 </Button>
               </ScaleOnHover>
               <ScaleOnHover>
-                <Button className="btn-mercadopago text-lg px-8 py-4" onClick={() => window.open('https://wa.me/556496028022', '_blank')}>
+                <Button className="btn-mercadopago text-lg px-8 py-4" onClick={() => window.open(contacts.getWhatsAppUrl(), '_blank')}>
                   Confirmar Pagamento
                 </Button>
               </ScaleOnHover>
               <ScaleOnHover>
-                <Button variant="outline" className="btn-apple-secondary text-lg px-8 py-4" onClick={() => window.open('https://wa.me/556496028022', '_blank')}>
+                <Button variant="outline" className="btn-apple-secondary text-lg px-8 py-4" onClick={() => window.open(contacts.getWhatsAppUrl(), '_blank')}>
                   Entre em contato
                 </Button>
               </ScaleOnHover>
@@ -163,7 +166,7 @@ const Index = () => {
               Pronto para otimizar sua assistência técnica?
             </Heading>
             <Text size="xl" color="secondary" className="mb-8 max-w-2xl mx-auto">
-              Junte-se a centenas de profissionais que já utilizam o Oliver 
+              Junte-se a centenas de profissionais que já utilizam o {appInfo.name} 
               para gerenciar seus negócios de forma mais eficiente.
             </Text>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -189,8 +192,8 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <FadeInUp className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-6">
-              <img alt="Oliver Logo" className="h-8 w-8" src="/lovable-uploads/logoo.png" />
-              <Heading level="h3" size="2xl">Oliver</Heading>
+              <img alt={`${appInfo.name} Logo`} className="h-8 w-8" src={appInfo.logoPath} />
+              <Heading level="h3" size="2xl">{appInfo.name}</Heading>
             </div>
             <Text color="secondary" className="mb-4">
               © 2025 Sistema profissional para gestão de orçamentos.
