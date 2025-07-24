@@ -6,9 +6,7 @@
  */
 
 // Componentes principais
-export { AdvancedDataManagementLite } from './AdvancedDataManagementLite';
 export { DataManagementLite } from './DataManagementLite';
-export { MobileDragDrop } from './MobileDragDrop';
 
 // Outros componentes lite existentes
 export { DashboardLiteContent } from './DashboardLiteContent';
@@ -19,6 +17,3 @@ export { NewBudgetLite } from './NewBudgetLite';
 export { SettingsLite } from './SettingsLite';
 export { AdminLite } from './AdminLite';
 export { ClientsLite } from './ClientsLite';
-
-// Tipos
-export type { MobileFilePreview } from './MobileDragDrop';
