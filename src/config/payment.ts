@@ -11,7 +11,7 @@ export const PAYMENT_CONFIG = {
   plans: {
     professional: {
       name: 'Plano Profissional',
-      price: 85,
+      price: 45,
       currency: 'R$',
       period: '/mês',
       description: 'Para assistências técnicas que querem crescer',

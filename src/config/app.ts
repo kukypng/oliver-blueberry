@@ -2,14 +2,14 @@
 // Configurações gerais do aplicativo
 export const APP_CONFIG = {
   // Informações básicas do app
-  name: 'OneDrip',
-  fullName: 'OneDrip - Sistema de Gestão',
+  name: 'Oliver',
+  fullName: 'Oliver - Sistema de Gestão',
   description: 'Sistema completo de orçamentos para assistências técnicas',
-  version: '2.1.2',
+  version: '1.0.0',
   
   // URLs e domínios
-  domain: 'onedrip.com.br',
-  website: 'https://onedrip.com.br',
+  domain: 'oliverblueberry.com',
+  website: 'https://oliverblueberry.com',
   
   // Configurações de autenticação
   auth: {

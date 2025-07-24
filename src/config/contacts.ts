@@ -5,15 +5,15 @@ export const CONTACT_CONFIG = {
   whatsapp: {
     number: '556496028022',
     fullNumber: '+55 64 9602-8022',
-    supportMessage: 'Olá! Preciso de ajuda com minha licença da OneDrip.',
-    businessMessage: 'Olá! Gostaria de saber mais sobre o OneDrip.'
+    supportMessage: 'Olá! Preciso de ajuda com minha licença do Oliver.',
+    businessMessage: 'Olá! Gostaria de saber mais sobre o Oliver.'
   },
   
   // Email
   email: {
-    support: 'suporte@onedrip.com.br',
-    contact: 'contato@onedrip.com.br',
-    admin: 'admin@onedrip.com.br'
+    support: 'suporte@oliverblueberry.com',
+    contact: 'contato@oliverblueberry.com',
+    admin: 'admin@oliverblueberry.com'
   },
   
   // Endereço
