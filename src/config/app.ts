@@ -2,7 +2,7 @@
 // Configurações gerais do aplicativo
 export const APP_CONFIG = {
   // Informações básicas do app
-  name: 'Oliver',
+  name: 'OneDrip',
   fullName: 'Oliver - Sistema de Gestão',
   description: 'Sistema completo de orçamentos para assistências técnicas',
   version: '1.0.0',
