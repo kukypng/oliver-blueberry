@@ -8,6 +8,7 @@ import {
   getWhatsAppUrl,
   getPaymentUrl
 } from '@/config';
+import { applyConfigReplacements } from '@/utils/configReplacements';
 
 /**
  * Hook centralizado para acessar todas as configurações do app
@@ -87,5 +88,19 @@ export const useContacts = () => {
     getClientWhatsApp: helpers.getWhatsAppClientUrl,
     getLicenseRenewalWhatsApp: helpers.getLicenseRenewalWhatsApp,
     getTechnicalSupportWhatsApp: helpers.getTechnicalSupportWhatsApp
+  };
+};
+
+/**
+ * Hook para aplicar configurações em textos hardcoded
+ */
+export const useConfigText = () => {
+  return {
+    replace: applyConfigReplacements,
+    // Helpers para casos comuns
+    appName: APP_CONFIG.name,
+    appFullName: APP_CONFIG.fullName,
+    logoAlt: `${APP_CONFIG.name} Logo`,
+    withAppName: (text: string) => text.replace('Oliver', APP_CONFIG.name)
   };
 };
