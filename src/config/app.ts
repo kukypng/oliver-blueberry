@@ -10,7 +10,7 @@
 
 export const APP_CONFIG = {
   // Informações básicas da aplicação
-  name: 'OneDri',
+  name: 'OneDrip',
   fullName: 'OneDrip - Sistema de Orçamentos',
   shortName: 'OneDrip',
   description: 'O melhor sistema de orçamentos para sua empresa. Gerencie orçamentos de forma profissional e eficiente.',
