@@ -103,53 +103,6 @@ export const DashboardLiteStatsEnhanced = ({ profile, userId }: DashboardLiteSta
     );
   }
 
-  const statCards = [
-    {
-      title: 'Total de Orçamentos',
-      value: stats.totalBudgets,
-      icon: Users,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-500/10'
-    },
-    {
-      title: 'Esta Semana',
-      value: stats.weeklyGrowth,
-      icon: stats.weeklyGrowth > 0 ? TrendingUp : TrendingDown,
-      color: stats.weeklyGrowth > 0 ? 'text-green-500' : 'text-red-500',
-      bgColor: stats.weeklyGrowth > 0 ? 'bg-green-500/10' : 'bg-red-500/10'
-    },
-    {
-      title: 'Faturamento Total',
-      value: `R$ ${stats.totalRevenue.toFixed(2)}`,
-      icon: DollarSign,
-      color: 'text-green-500',
-      bgColor: 'bg-green-500/10',
-      isAmount: true
-    },
-    {
-      title: 'Pendentes',
-      value: stats.pendingBudgets,
-      icon: Clock,
-      color: 'text-yellow-500',
-      bgColor: 'bg-yellow-500/10'
-    },
-    {
-      title: 'Concluídos',
-      value: stats.completedBudgets,
-      icon: CheckCircle,
-      color: 'text-green-500',
-      bgColor: 'bg-green-500/10'
-    },
-    {
-      title: 'Ticket Médio',
-      value: `R$ ${stats.averageValue.toFixed(2)}`,
-      icon: DollarSign,
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-500/10',
-      isAmount: true
-    }
-  ];
-
   return (
     <div className="space-y-6 mb-6">
       {/* Header com saudação */}
@@ -193,45 +146,6 @@ export const DashboardLiteStatsEnhanced = ({ profile, userId }: DashboardLiteSta
           </div>
         </motion.div>
       </GlassCard>
-
-      {/* Grid de estatísticas */}
-      <StaggerContainer className="grid grid-cols-2 gap-4">
-        {statCards.map((stat, index) => {
-          const Icon = stat.icon;
-          
-          return (
-            <GlassCard key={index} className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className={`w-8 h-8 rounded-full ${stat.bgColor} flex items-center justify-center`}>
-                  <Icon className={`h-4 w-4 ${stat.color}`} />
-                </div>
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: index * 0.1, type: 'spring' }}
-                >
-                  <div className="w-2 h-2 bg-primary rounded-full" />
-                </motion.div>
-              </div>
-              
-              <h3 className="text-xs text-muted-foreground mb-1 line-clamp-2">
-                {stat.title}
-              </h3>
-              
-              <div className="text-lg font-bold text-foreground">
-                {stat.isAmount ? (
-                  <span>{stat.value}</span>
-                ) : (
-                  <AnimatedCounter 
-                    value={typeof stat.value === 'number' ? stat.value : 0} 
-                    duration={1.5}
-                  />
-                )}
-              </div>
-            </GlassCard>
-          );
-        })}
-      </StaggerContainer>
     </div>
   );
 };
