@@ -135,14 +135,6 @@ export const BudgetsContent = ({ onTabChange }: BudgetsContentProps) => {
           onSearchTermChange={setSearchTerm}
           onSearch={handleSearch}
           onKeyPress={handleKeyPress}
-          onClearSearch={clearSearch}
-          showFilter={true}
-          hasActiveFilters={hasActiveSearch}
-          onFilterToggle={() => {
-            // Aqui você pode implementar a lógica para mostrar filtros avançados
-            // Por exemplo, abrir um modal ou expandir uma seção de filtros
-            console.log('Filtros avançados');
-          }}
         />
       </div>
       
