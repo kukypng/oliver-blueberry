@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Link, Navigate } from 'react-router-dom';
-import { EnhancedButton } from '@/components/ui/enhanced-button';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Calculator, Smartphone, Shield, Star, Activity, ArrowRight, CheckCircle } from 'lucide-react';
 import { DashboardSkeleton } from '@/components/ui/loading-states';
@@ -36,12 +36,12 @@ const Index = () => {
               <h1 className="text-2xl font-bold text-foreground">{name}</h1>
             </Link>
             <div className="flex items-center space-x-2">
-              <EnhancedButton asChild variant="outline" animation="scale" haptic={true}>
+              <Button asChild variant="outline" className="btn-apple-secondary interactive-scale">
                 <Link to="/auth">Login</Link>
-              </EnhancedButton>
-              <EnhancedButton asChild variant="premium" animation="scale" haptic={true}>
-                <Link to="/plans">Começar</Link>
-              </EnhancedButton>
+              </Button>
+               <Button asChild className="btn-apple interactive-scale">
+                
+              </Button>
             </div>
           </div>
         </div>
@@ -62,39 +62,24 @@ const Index = () => {
               clientes e relatórios de forma eficiente e organizada.
             </Text>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <EnhancedButton 
-                asChild 
-                variant="premium" 
-                size="lg" 
-                animation="bounce"
-                className="text-lg px-8 py-4 group"
-                haptic={true}
-              >
-                <Link to="/plans">
-                  Começar Agora
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </EnhancedButton>
-              <EnhancedButton 
-                variant="info" 
-                size="lg" 
-                animation="scale"
-                className="text-lg px-8 py-4"
-                haptic={true}
-                onClick={() => window.open('https://wa.me/556496028022', '_blank')}
-              >
-                Confirmar Pagamento
-              </EnhancedButton>
-              <EnhancedButton 
-                variant="outline" 
-                size="lg" 
-                animation="scale"
-                className="text-lg px-8 py-4"
-                haptic={true}
-                onClick={() => window.open('https://wa.me/556496028022', '_blank')}
-              >
-                Entre em contato
-              </EnhancedButton>
+              <ScaleOnHover>
+                <Button asChild className="btn-premium text-lg px-8 py-4 group">
+                  <Link to="/plans">
+                    Começar Agora
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </ScaleOnHover>
+              <ScaleOnHover>
+                <Button className="btn-mercadopago text-lg px-8 py-4" onClick={() => window.open('https://wa.me/556496028022', '_blank')}>
+                  Confirmar Pagamento
+                </Button>
+              </ScaleOnHover>
+              <ScaleOnHover>
+                <Button variant="outline" className="btn-apple-secondary text-lg px-8 py-4" onClick={() => window.open('https://wa.me/556496028022', '_blank')}>
+                  Entre em contato
+                </Button>
+              </ScaleOnHover>
             </div>
           </FadeInUp>
         </div>
@@ -185,19 +170,14 @@ const Index = () => {
               {heroSubtitle}
             </Text>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <EnhancedButton 
-                asChild 
-                variant="premium" 
-                size="lg" 
-                animation="bounce"
-                className="text-lg px-8 py-4 group"
-                haptic={true}
-              >
-                <Link to="/plans">
-                  Começar Agora
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </EnhancedButton>
+              <ScaleOnHover>
+                <Button asChild className="btn-premium text-lg px-8 py-4 group">
+                  <Link to="/plans">
+                    Começar Agora
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </ScaleOnHover>
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <CheckCircle className="h-5 w-5 text-green-500" />
                 <Text size="sm">Sem compromisso • Cancele quando quiser</Text>

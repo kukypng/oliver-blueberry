@@ -1,449 +1,387 @@
 /**
- * Modern Notifications - Apple/iOS Design System
- * Toast notifications, alerts e modals com animações premium
+ * Modern Notifications - OneDrip Design System
+ * Sistema de notificações rico e interativo
  */
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createPortal } from 'react-dom';
-import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react';
+import { 
+  CheckCircle, 
+  AlertCircle, 
+  XCircle, 
+  Info, 
+  X, 
+  Bell,
+  Clock,
+  User,
+  FileText,
+  DollarSign
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useIOSHaptic } from './animations-ios';
+import { Button } from '@/components/ui/button';
+import { Text, Heading } from '@/components/ui/typography';
+import { GlassCard } from './modern-cards';
 
-// Toast notification types
-type ToastType = 'success' | 'error' | 'warning' | 'info' | 'default';
+// Tipos de notificação
+export type NotificationType = 'success' | 'warning' | 'error' | 'info';
+export type NotificationCategory = 'budget' | 'client' | 'system' | 'payment';
 
-interface Toast {
+export interface Notification {
   id: string;
-  type: ToastType;
+  type: NotificationType;
+  category: NotificationCategory;
   title: string;
-  description?: string;
-  duration?: number;
-  action?: {
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  actions?: Array<{
     label: string;
-    onClick: () => void;
-  };
+    action: () => void;
+    variant?: 'default' | 'destructive';
+  }>;
+  data?: any;
 }
 
-// Toast context
-const ToastContext = React.createContext<{
-  toasts: Toast[];
-  addToast: (toast: Omit<Toast, 'id'>) => void;
-  removeToast: (id: string) => void;
-}>({
-  toasts: [],
-  addToast: () => {},
-  removeToast: () => {}
-});
+// Componente de notificação individual
+interface NotificationItemProps {
+  notification: Notification;
+  onDismiss: (id: string) => void;
+  onMarkAsRead: (id: string) => void;
+  compact?: boolean;
+}
 
-// Toast provider
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [toasts, setToasts] = React.useState<Toast[]>([]);
-
-  const addToast = React.useCallback((toast: Omit<Toast, 'id'>) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    const newToast = { ...toast, id };
-    
-    setToasts(prev => [...prev, newToast]);
-
-    // Auto remove after duration
-    if (toast.duration !== 0) {
-      setTimeout(() => {
-        removeToast(id);
-      }, toast.duration || 5000);
-    }
-  }, []);
-
-  const removeToast = React.useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
-
-  return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
-      {children}
-      <ToastContainer />
-    </ToastContext.Provider>
-  );
-};
-
-// Toast hook
-export const useToast = () => {
-  const context = React.useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
-  }
-  return context;
-};
-
-// Toast container
-const ToastContainer: React.FC = () => {
-  const { toasts } = useToast();
-
-  if (typeof window === 'undefined') return null;
-
-  return createPortal(
-    <div className="fixed top-4 right-4 z-[100] space-y-2 max-w-sm w-full">
-      <AnimatePresence>
-        {toasts.map(toast => (
-          <ToastItem key={toast.id} toast={toast} />
-        ))}
-      </AnimatePresence>
-    </div>,
-    document.body
-  );
-};
-
-// Individual toast item
-const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
-  const { removeToast } = useToast();
-  const { triggerHaptic } = useIOSHaptic();
-
-  const typeConfig = {
-    success: {
-      icon: CheckCircle,
-      className: 'border-success/20 bg-success/10 text-success-foreground',
-      iconColor: 'text-success'
-    },
-    error: {
-      icon: AlertCircle,
-      className: 'border-destructive/20 bg-destructive/10 text-destructive-foreground',
-      iconColor: 'text-destructive'
-    },
-    warning: {
-      icon: AlertTriangle,
-      className: 'border-warning/20 bg-warning/10 text-warning-foreground',
-      iconColor: 'text-warning'
-    },
-    info: {
-      icon: Info,
-      className: 'border-info/20 bg-info/10 text-info-foreground',
-      iconColor: 'text-info'
-    },
-    default: {
-      icon: Info,
-      className: 'border-border bg-card text-card-foreground',
-      iconColor: 'text-muted-foreground'
-    }
+export const NotificationItem: React.FC<NotificationItemProps> = ({
+  notification,
+  onDismiss,
+  onMarkAsRead,
+  compact = false
+}) => {
+  const icons = {
+    success: CheckCircle,
+    warning: AlertCircle,
+    error: XCircle,
+    info: Info
   };
 
-  const config = typeConfig[toast.type];
-  const Icon = config.icon;
+  const categoryIcons = {
+    budget: FileText,
+    client: User,
+    system: Bell,
+    payment: DollarSign
+  };
 
-  const handleClose = () => {
-    triggerHaptic('light');
-    removeToast(toast.id);
+  const colors = {
+    success: 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400',
+    warning: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400',
+    error: 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400',
+    info: 'text-blue-600 bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400'
+  };
+
+  const Icon = icons[notification.type];
+  const CategoryIcon = categoryIcons[notification.category];
+
+  const formatTime = (date: Date) => {
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Agora';
+    if (minutes < 60) return `${minutes}m`;
+    if (hours < 24) return `${hours}h`;
+    return `${days}d`;
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 300, scale: 0.9 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      exit={{ opacity: 0, x: 300, scale: 0.9 }}
-      transition={{
-        type: "spring",
-        stiffness: 400,
-        damping: 25
-      }}
+      initial={{ opacity: 0, x: 300 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 300 }}
+      layout
       className={cn(
-        "relative p-4 rounded-2xl border backdrop-blur-xl shadow-strong",
-        config.className
+        'relative group',
+        !notification.read && 'ring-2 ring-primary/20'
       )}
     >
-      <div className="flex items-start space-x-3">
-        <Icon className={cn("w-5 h-5 mt-0.5 flex-shrink-0", config.iconColor)} />
-        
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-sm">{toast.title}</h4>
-          {toast.description && (
-            <p className="text-sm opacity-90 mt-1">{toast.description}</p>
-          )}
-          
-          {toast.action && (
-            <button
-              onClick={toast.action.onClick}
-              className="text-sm font-medium text-primary hover:text-primary/80 mt-2"
-            >
-              {toast.action.label}
-            </button>
-          )}
+      <GlassCard 
+        variant="premium" 
+        className={cn(
+          'p-4 hover:shadow-strong transition-all duration-300',
+          !notification.read && 'bg-primary/5'
+        )}
+      >
+        <div className="flex items-start gap-3">
+          {/* Ícone da categoria */}
+          <div className={cn(
+            'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
+            colors[notification.type]
+          )}>
+            <CategoryIcon className="h-5 w-5" />
+          </div>
+
+          {/* Conteúdo */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Heading 
+                    level="h4" 
+                    size="sm" 
+                    weight="semibold"
+                    className={cn(!notification.read && 'text-foreground')}
+                  >
+                    {notification.title}
+                  </Heading>
+                  <Icon className={cn('h-4 w-4', colors[notification.type].split(' ')[0])} />
+                </div>
+                
+                <Text 
+                  size="sm" 
+                  color="secondary" 
+                  className="mb-2 line-clamp-2"
+                >
+                  {notification.message}
+                </Text>
+
+                {/* Timestamp */}
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  <span>{formatTime(notification.timestamp)}</span>
+                </div>
+              </div>
+
+              {/* Botão de fechar */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDismiss(notification.id)}
+                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Ações */}
+            {notification.actions && notification.actions.length > 0 && (
+              <div className="flex gap-2 mt-3">
+                {notification.actions.map((action, index) => (
+                  <Button
+                    key={index}
+                    variant={action.variant === 'destructive' ? 'destructive' : 'outline'}
+                    size="sm"
+                    onClick={() => {
+                      action.action();
+                      onMarkAsRead(notification.id);
+                    }}
+                    className="text-xs"
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        <button
-          onClick={handleClose}
-          className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-background/50"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+        {/* Indicador de não lida */}
+        {!notification.read && (
+          <div className="absolute top-4 right-4 w-2 h-2 bg-primary rounded-full" />
+        )}
+      </GlassCard>
     </motion.div>
   );
 };
 
-// Alert dialog
-interface AlertDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  description?: string;
-  type?: 'default' | 'destructive';
-  confirmText?: string;
-  cancelText?: string;
-  onConfirm?: () => void;
-  onCancel?: () => void;
-}
-
-export const AlertDialog: React.FC<AlertDialogProps> = ({
-  isOpen,
-  onClose,
-  title,
-  description,
-  type = 'default',
-  confirmText = 'Confirmar',
-  cancelText = 'Cancelar',
-  onConfirm,
-  onCancel
-}) => {
-  const { triggerHaptic } = useIOSHaptic();
-
-  const handleConfirm = () => {
-    triggerHaptic(type === 'destructive' ? 'error' : 'success');
-    onConfirm?.();
-    onClose();
-  };
-
-  const handleCancel = () => {
-    triggerHaptic('light');
-    onCancel?.();
-    onClose();
-  };
-
-  if (typeof window === 'undefined') return null;
-
-  return createPortal(
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200]"
-            onClick={onClose}
-          />
-
-          {/* Dialog */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{
-              type: "spring",
-              stiffness: 400,
-              damping: 25
-            }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[201] w-full max-w-md mx-4"
-          >
-            <div className="bg-card border border-border/50 rounded-3xl shadow-xl p-6 space-y-4">
-              <div className="text-center space-y-2">
-                <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-                {description && (
-                  <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-                )}
-              </div>
-
-              <div className="flex space-x-3 pt-2">
-                <button
-                  onClick={handleCancel}
-                  className="flex-1 px-4 py-3 rounded-xl border border-border/50 text-foreground hover:bg-muted/50 transition-colors font-medium"
-                >
-                  {cancelText}
-                </button>
-                <button
-                  onClick={handleConfirm}
-                  className={cn(
-                    "flex-1 px-4 py-3 rounded-xl font-medium transition-colors",
-                    type === 'destructive'
-                      ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90"
-                  )}
-                >
-                  {confirmText}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>,
-    document.body
-  );
-};
-
-// Bottom sheet modal
-interface BottomSheetProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
+// Container de notificações
+interface NotificationCenterProps {
+  notifications: Notification[];
+  onDismiss: (id: string) => void;
+  onMarkAsRead: (id: string) => void;
+  onMarkAllAsRead: () => void;
+  onClearAll: () => void;
   className?: string;
 }
 
-export const BottomSheet: React.FC<BottomSheetProps> = ({
-  isOpen,
-  onClose,
-  title,
-  children,
+export const NotificationCenter: React.FC<NotificationCenterProps> = ({
+  notifications,
+  onDismiss,
+  onMarkAsRead,
+  onMarkAllAsRead,
+  onClearAll,
   className
 }) => {
-  const { triggerHaptic } = useIOSHaptic();
+  const unreadCount = notifications.filter(n => !n.read).length;
 
-  const handleClose = () => {
-    triggerHaptic('light');
-    onClose();
-  };
-
-  if (typeof window === 'undefined') return null;
-
-  return createPortal(
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200]"
-            onClick={handleClose}
-          />
-
-          {/* Sheet */}
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{
-              type: "spring",
-              stiffness: 400,
-              damping: 30
-            }}
-            className={cn(
-              "fixed bottom-0 left-0 right-0 z-[201] bg-background rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden",
-              className
-            )}
-          >
-            {/* Handle */}
-            <div className="flex justify-center py-3">
-              <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+  return (
+    <div className={cn('w-full max-w-md', className)}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Heading level="h3" size="lg" weight="semibold">
+            Notificações
+          </Heading>
+          {unreadCount > 0 && (
+            <div className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+              {unreadCount}
             </div>
+          )}
+        </div>
 
-            {/* Title */}
-            {title && (
-              <div className="px-6 pb-4 border-b border-border/30">
-                <h2 className="text-lg font-semibold text-center">{title}</h2>
-              </div>
-            )}
+        <div className="flex gap-2">
+          {unreadCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onMarkAllAsRead}
+              className="text-xs"
+            >
+              Marcar todas como lidas
+            </Button>
+          )}
+          {notifications.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClearAll}
+              className="text-xs text-destructive hover:text-destructive"
+            >
+              Limpar todas
+            </Button>
+          )}
+        </div>
+      </div>
 
-            {/* Content */}
-            <div className="px-6 py-4 overflow-y-auto max-h-[calc(90vh-120px)]">
-              {children}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>,
-    document.body
+      {/* Lista de notificações */}
+      <div className="space-y-3 max-h-96 overflow-y-auto">
+        <AnimatePresence mode="popLayout">
+          {notifications.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-8"
+            >
+              <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <Text color="secondary">
+                Nenhuma notificação no momento
+              </Text>
+            </motion.div>
+          ) : (
+            notifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                notification={notification}
+                onDismiss={onDismiss}
+                onMarkAsRead={onMarkAsRead}
+              />
+            ))
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 };
 
-// Floating notification (iOS-style banner)
-interface FloatingNotificationProps {
-  isVisible: boolean;
-  title: string;
-  description?: string;
-  icon?: React.ReactNode;
-  onTap?: () => void;
-  onDismiss?: () => void;
-  duration?: number;
+// Toast notification flutuante
+interface ToastNotificationProps {
+  notification: Notification;
+  onDismiss: (id: string) => void;
+  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
-export const FloatingNotification: React.FC<FloatingNotificationProps> = ({
-  isVisible,
-  title,
-  description,
-  icon,
-  onTap,
+export const ToastNotification: React.FC<ToastNotificationProps> = ({
+  notification,
   onDismiss,
-  duration = 4000
+  position = 'top-right'
 }) => {
-  const { triggerHaptic } = useIOSHaptic();
-
-  React.useEffect(() => {
-    if (isVisible && duration > 0) {
-      const timer = setTimeout(() => {
-        onDismiss?.();
-      }, duration);
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, duration, onDismiss]);
-
-  const handleTap = () => {
-    triggerHaptic('light');
-    onTap?.();
+  const positionClasses = {
+    'top-right': 'top-4 right-4',
+    'top-left': 'top-4 left-4',
+    'bottom-right': 'bottom-4 right-4',
+    'bottom-left': 'bottom-4 left-4'
   };
 
-  if (typeof window === 'undefined') return null;
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      onDismiss(notification.id);
+    }, 5000);
 
-  return createPortal(
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: -100, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -100, scale: 0.9 }}
-          transition={{
-            type: "spring",
-            stiffness: 400,
-            damping: 25
-          }}
-          className="fixed top-4 left-4 right-4 z-[100] mx-auto max-w-sm"
-        >
-          <div
-            className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-xl p-4 cursor-pointer"
-            onClick={handleTap}
-          >
-            <div className="flex items-center space-x-3">
-              {icon && (
-                <div className="flex-shrink-0 text-primary">
-                  {icon}
-                </div>
-              )}
-              
-              <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-sm text-foreground">{title}</h4>
-                {description && (
-                  <p className="text-sm text-muted-foreground mt-1">{description}</p>
-                )}
-              </div>
+    return () => clearTimeout(timer);
+  }, [notification.id, onDismiss]);
 
-              {onDismiss && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    triggerHaptic('light');
-                    onDismiss();
-                  }}
-                  className="text-muted-foreground hover:text-foreground transition-colors p-1"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        </motion.div>
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8, y: -20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.8, y: -20 }}
+      className={cn(
+        'fixed z-50 w-80',
+        positionClasses[position]
       )}
-    </AnimatePresence>,
-    document.body
+    >
+      <NotificationItem
+        notification={notification}
+        onDismiss={onDismiss}
+        onMarkAsRead={() => {}}
+        compact
+      />
+    </motion.div>
   );
+};
+
+// Hook para gerenciar notificações
+export const useNotifications = () => {
+  const [notifications, setNotifications] = React.useState<Notification[]>([]);
+
+  const addNotification = React.useCallback((
+    type: NotificationType,
+    category: NotificationCategory,
+    title: string,
+    message: string,
+    actions?: Notification['actions'],
+    data?: any
+  ) => {
+    const notification: Notification = {
+      id: Math.random().toString(36).substr(2, 9),
+      type,
+      category,
+      title,
+      message,
+      timestamp: new Date(),
+      read: false,
+      actions,
+      data
+    };
+
+    setNotifications(prev => [notification, ...prev]);
+    return notification.id;
+  }, []);
+
+  const dismissNotification = React.useCallback((id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  const markAsRead = React.useCallback((id: string) => {
+    setNotifications(prev => 
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
+  }, []);
+
+  const markAllAsRead = React.useCallback(() => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  }, []);
+
+  const clearAll = React.useCallback(() => {
+    setNotifications([]);
+  }, []);
+
+  return {
+    notifications,
+    addNotification,
+    dismissNotification,
+    markAsRead,
+    markAllAsRead,
+    clearAll,
+    unreadCount: notifications.filter(n => !n.read).length
+  };
 };
