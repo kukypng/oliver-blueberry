@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { useToast } from '@/hooks/useToast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -15,7 +15,7 @@ export const AuthForm = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
-  const { signIn, signUp, requestPasswordReset, loading } = useAuth();
+  const { signIn, signUp, resetPassword, loading, isLoginBlocked } = useSecureAuth();
   const { showSuccess, showError } = useToast();
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -27,7 +27,17 @@ export const AuthForm = () => {
       });
       return;
     }
-    await signIn(email, password);
+    
+    // Verificar rate limiting
+    if (isLoginBlocked(email)) {
+      showError({
+        title: 'Limite excedido',
+        description: 'Muitas tentativas de login. Aguarde antes de tentar novamente.',
+      });
+      return;
+    }
+    
+    await signIn({ email, password });
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -39,7 +49,7 @@ export const AuthForm = () => {
       });
       return;
     }
-    await signUp(email, password, { name });
+    await signUp({ email, password, name });
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -51,7 +61,7 @@ export const AuthForm = () => {
       });
       return;
     }
-    await requestPasswordReset(email);
+    await resetPassword(email);
   };
 
   const handleSocialLogin = async (provider: 'google' | 'apple') => {

@@ -16,6 +16,7 @@ import { CookiePage } from "./pages/CookiePage";
 import { IOSRedirectHandler } from "./components/IOSRedirectHandler";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./components/ThemeProvider";
+import SecurityHeaders from "@/components/security/SecurityHeaders";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { ResetEmailPage } from "./pages/ResetEmailPage";
@@ -51,8 +52,9 @@ const App = () => (
           <BrowserRouter>
             <AuthProvider>
               <PWAProvider>
+              <SecurityHeaders />
               <Toaster />
-              <Sonner 
+              <Sonner
                 position="top-right"
                 expand={false}
                 richColors

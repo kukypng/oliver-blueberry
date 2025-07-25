@@ -433,6 +433,36 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          failure_reason: string | null
+          id: string
+          ip_address: string | null
+          success: boolean | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          failure_reason?: string | null
+          id?: string
+          ip_address?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          failure_reason?: string | null
+          id?: string
+          ip_address?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       ranking_invaders: {
         Row: {
           created_at: string
@@ -461,6 +491,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rate_limit_tracking: {
+        Row: {
+          action_type: string
+          attempt_count: number | null
+          created_at: string | null
+          id: string
+          identifier: string
+          window_start: string | null
+        }
+        Insert: {
+          action_type: string
+          attempt_count?: number | null
+          created_at?: string | null
+          id?: string
+          identifier: string
+          window_start?: string | null
+        }
+        Update: {
+          action_type?: string
+          attempt_count?: number | null
+          created_at?: string | null
+          id?: string
+          identifier?: string
+          window_start?: string | null
+        }
+        Relationships: []
       }
       shop_profiles: {
         Row: {
@@ -820,6 +877,15 @@ export type Database = {
           valid_budgets: number
         }[]
       }
+      check_rate_limit: {
+        Args: {
+          p_identifier: string
+          p_action_type: string
+          p_max_attempts?: number
+          p_window_minutes?: number
+        }
+        Returns: Json
+      }
       check_shop_profile_exists: {
         Args: { p_user_id: string }
         Returns: boolean
@@ -829,6 +895,10 @@ export type Database = {
         Returns: number
       }
       cleanup_old_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      cleanup_security_logs: {
         Args: Record<PropertyKey, never>
         Returns: number
       }
@@ -926,6 +996,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_secure_user_data: {
+        Args: { p_user_id?: string }
+        Returns: Json
+      }
       get_shop_profile: {
         Args: { p_user_id: string }
         Returns: Json
@@ -991,6 +1065,19 @@ export type Database = {
       }
       log_admin_action: {
         Args: { p_target_user_id: string; p_action: string; p_details?: Json }
+        Returns: undefined
+      }
+      log_login_attempt: {
+        Args: { p_email: string; p_success: boolean; p_failure_reason?: string }
+        Returns: undefined
+      }
+      log_security_event: {
+        Args: {
+          p_event_type: string
+          p_user_id?: string
+          p_details?: Json
+          p_severity?: string
+        }
         Returns: undefined
       }
       restore_deleted_budget: {
