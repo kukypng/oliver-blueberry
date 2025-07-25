@@ -23,7 +23,7 @@ export const AdvancedSkeleton = ({
       x: '100%',
       transition: {
         duration: 1.5,
-        ease: 'easeInOut',
+        ease: "easeInOut",
         repeat: Infinity,
         repeatDelay: 0.5
       }
@@ -38,9 +38,14 @@ export const AdvancedSkeleton = ({
             {showShimmer && (
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                variants={shimmerVariants}
-                initial="initial"
-                animate="animate"
+                initial={{ x: '-100%' }}
+                animate={{ x: '100%' }}
+                transition={{
+                  duration: 1.5,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatDelay: 0.5
+                }}
               />
             )}
           </div>
@@ -49,21 +54,31 @@ export const AdvancedSkeleton = ({
               {showShimmer && (
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                  variants={shimmerVariants}
-                  initial="initial"
-                  animate="animate"
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '100%' }}
+                  transition={{
+                    duration: 1.5,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                    repeatDelay: 0.5
+                  }}
                 />
               )}
             </div>
             <div className="relative overflow-hidden bg-muted rounded h-3 w-1/2">
-              {showShimmer && (
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                  variants={shimmerVariants}
-                  initial="initial"
-                  animate="animate"
-                />
-              )}
+            {showShimmer && (
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                initial={{ x: '-100%' }}
+                animate={{ x: '100%' }}
+                transition={{
+                  duration: 1.5,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatDelay: 0.5
+                }}
+              />
+            )}
             </div>
           </div>
         </div>
@@ -80,9 +95,14 @@ export const AdvancedSkeleton = ({
           {showShimmer && (
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-              variants={shimmerVariants}
-              initial="initial"
-              animate="animate"
+              initial={{ x: '-100%' }}
+              animate={{ x: '100%' }}
+              transition={{
+                duration: 1.5,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatDelay: 0.5
+              }}
             />
           )}
         </div>
