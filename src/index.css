@@ -242,6 +242,27 @@
   }
 }
 
+/* Performance Optimizations */
+.is-scrolling * {
+  pointer-events: none !important;
+}
+
+.is-scrolling {
+  scroll-behavior: auto !important;
+}
+
+/* Reduce animations for low performance */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Mobile Optimizations */
 @media (max-width: 768px) {
   .mobile-optimized {
@@ -250,6 +271,18 @@
 
   .mobile-touch-target {
     @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Optimize for mobile performance */
+  * {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  /* Improve scroll performance */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
   }
 }
 
@@ -368,71 +401,116 @@
 
 @layer base {
   :root {
-    /* OneDrip Design System - Professional Dark & Yellow */
-    --background: 0 0% 7%; /* #121212 - Cinza escuro suave */
-    --foreground: 0 0% 94%; /* #F0F0F0 - Off-white para melhor legibilidade */
+    /* OneDrip Design System - Apple-inspired Premium Dark & Yellow */
+    --background: 0 0% 6%; /* #0f0f0f - Preto mais profundo Apple */
+    --foreground: 0 0% 96%; /* #f5f5f5 - Branco mais puro */
 
-    --card: 0 0% 9%; /* #171717 - Cartões ligeiramente mais claros */
-    --card-foreground: 0 0% 94%; /* #F0F0F0 - Texto nos cartões */
+    --card: 0 0% 8%; /* #141414 - Cards com contraste sutil */
+    --card-foreground: 0 0% 96%; /* #f5f5f5 - Texto nos cartões */
 
-    --popover: 0 0% 9%; /* #171717 - Popovers ligeiramente mais claros */
-    --popover-foreground: 0 0% 94%; /* #F0F0F0 - Texto nos popovers */
+    --popover: 0 0% 8%; /* #141414 - Popovers consistentes */
+    --popover-foreground: 0 0% 96%; /* #f5f5f5 - Texto nos popovers */
 
-    --primary: 43 98% 59%; /* #fec832 - Amarelo accent principal */
+    --primary: 43 96% 56%; /* #fec832 - Amarelo OneDrip otimizado */
     --primary-foreground: 0 0% 0%; /* #000000 - Texto em botões amarelos */
 
-    --secondary: 0 0% 15%; /* #262626 - Elementos secundários mais suaves */
-    --secondary-foreground: 0 0% 70%; /* #B3B3B3 - Texto secundário melhorado */
+    --secondary: 0 0% 12%; /* #1f1f1f - Elementos secundários Apple */
+    --secondary-foreground: 0 0% 75%; /* #bfbfbf - Texto secundário melhorado */
 
-    --muted: 0 0% 15%; /* #262626 - Elementos silenciados mais suaves */
-    --muted-foreground: 0 0% 70%; /* #B3B3B3 - Texto secundário melhorado */
+    --muted: 0 0% 12%; /* #1f1f1f - Elementos silenciados consistentes */
+    --muted-foreground: 0 0% 65%; /* #a6a6a6 - Texto muted Apple */
 
-    --accent: 43 98% 59%; /* #fec832 - Amarelo para destaques */
+    --accent: 43 96% 56%; /* #fec832 - Amarelo para destaques */
     --accent-foreground: 0 0% 0%; /* #000000 - Texto em elementos accent */
 
-    --destructive: 5 73% 53%; /* #E03E2D - Vermelho para erros */
-    --destructive-foreground: 0 0% 93%; /* #EEEEEE - Texto em erros */
+    /* Apple iOS semantic colors */
+    --destructive: 4 90% 58%; /* #ff453a - Vermelho iOS */
+    --destructive-foreground: 0 0% 98%; /* #fafafa - Texto em erros */
 
-    --success: 129 73% 53%; /* #3ECF50 - Verde para sucesso */
+    --success: 142 76% 36%; /* #30d158 - Verde iOS */
     --success-foreground: 0 0% 0%; /* #000000 - Texto em sucessos */
 
-    --border: 0 0% 20%; /* #333333 - Bordas mais suaves */
-    --input: 0 0% 9%; /* #171717 - Campos de input ligeiramente mais claros */
-    --ring: 43 98% 59%; /* #fec832 - Focus ring */
+    --warning: 35 91% 65%; /* #ff9f0a - Laranja iOS */
+    --warning-foreground: 0 0% 0%; /* #000000 - Texto em avisos */
 
-    --radius: 0.75rem;
+    --info: 211 100% 50%; /* #007aff - Azul iOS */
+    --info-foreground: 0 0% 98%; /* #fafafa - Texto em info */
 
-    --sidebar-background: 0 0% 7%; /* #121212 - Sidebar com mesmo fundo */
-    --sidebar-foreground: 0 0% 94%; /* #F0F0F0 - Texto da sidebar */
-    --sidebar-primary: 43 98% 59%; /* #fec832 - Amarelo para itens ativos */
+    --border: 0 0% 18%; /* #2d2d2d - Bordas Apple */
+    --input: 0 0% 8%; /* #141414 - Campos de input */
+    --ring: 43 96% 56%; /* #fec832 - Focus ring */
+
+    --radius: 0.875rem; /* 14px - Raio Apple padrão */
+
+    --sidebar-background: 0 0% 6%; /* #0f0f0f - Sidebar consistente */
+    --sidebar-foreground: 0 0% 96%; /* #f5f5f5 - Texto da sidebar */
+    --sidebar-primary: 43 96% 56%; /* #fec832 - Amarelo para itens ativos */
     --sidebar-primary-foreground: 0 0% 0%; /* #000000 - Texto em amarelo */
-    --sidebar-accent: 0 0% 9%; /* #171717 - Hover states */
-    --sidebar-accent-foreground: 0 0% 94%; /* #F0F0F0 - Texto em hover */
-    --sidebar-border: 0 0% 20%; /* #333333 - Bordas da sidebar */
-    --sidebar-ring: 43 98% 59%; /* #fec832 - Focus ring */
+    --sidebar-accent: 0 0% 8%; /* #141414 - Hover states */
+    --sidebar-accent-foreground: 0 0% 96%; /* #f5f5f5 - Texto em hover */
+    --sidebar-border: 0 0% 18%; /* #2d2d2d - Bordas da sidebar */
+    --sidebar-ring: 43 96% 56%; /* #fec832 - Focus ring */
 
-    /* Sombras suaves para modo escuro */
-    --shadow-soft: 0 2px 4px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(255, 255, 255, 0.02);
-    --shadow-medium: 0 4px 8px 0 rgba(0, 0, 0, 0.5), 0 2px 4px 0 rgba(255, 255, 255, 0.03);
-    --shadow-strong: 0 8px 16px 0 rgba(0, 0, 0, 0.6), 0 4px 8px 0 rgba(255, 255, 255, 0.04);
-    --shadow-xl: 0 16px 32px 0 rgba(0, 0, 0, 0.7), 0 8px 16px 0 rgba(255, 255, 255, 0.05);
+    /* Apple-style shadows with depth */
+    --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-premium: 0 25px 50px -12px rgba(254, 200, 50, 0.25);
 
-    /* Premium spacing system */
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    --spacing-2xl: 3rem;
-    --spacing-3xl: 4rem;
+    /* Apple spacing system (4pt grid) */
+    --spacing-xs: 0.25rem; /* 4px */
+    --spacing-sm: 0.5rem;  /* 8px */
+    --spacing-md: 1rem;    /* 16px */
+    --spacing-lg: 1.5rem;  /* 24px */
+    --spacing-xl: 2rem;    /* 32px */
+    --spacing-2xl: 3rem;   /* 48px */
+    --spacing-3xl: 4rem;   /* 64px */
 
-    /* Apple-style blur */
-    --blur-glass: blur(16px);
+    /* Apple-style blur and transitions */
+    --blur-glass: blur(20px);
+    --blur-heavy: blur(40px);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Apple typography scale */
+    --font-size-xs: 0.75rem;   /* 12px */
+    --font-size-sm: 0.875rem;  /* 14px */
+    --font-size-base: 1rem;    /* 16px */
+    --font-size-lg: 1.125rem;  /* 18px */
+    --font-size-xl: 1.25rem;   /* 20px */
+    --font-size-2xl: 1.5rem;   /* 24px */
+    --font-size-3xl: 1.875rem; /* 30px */
+    --font-size-4xl: 2.25rem;  /* 36px */
+    --font-size-5xl: 3rem;     /* 48px */
+
+    /* Apple line heights */
+    --line-height-tight: 1.25;
+    --line-height-snug: 1.375;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.625;
+    --line-height-loose: 2;
   }
 
-  /* Dark mode removed - using single OneDrip design system */
+  /* Light mode support (for future implementation) */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --background: 0 0% 100%; /* #ffffff */
+      --foreground: 0 0% 3.9%; /* #0a0a0a */
+      --card: 0 0% 100%; /* #ffffff */
+      --card-foreground: 0 0% 3.9%; /* #0a0a0a */
+      --popover: 0 0% 100%; /* #ffffff */
+      --popover-foreground: 0 0% 3.9%; /* #0a0a0a */
+      --muted: 0 0% 96.1%; /* #f5f5f5 */
+      --muted-foreground: 0 0% 45.1%; /* #737373 */
+      --border: 0 0% 89.8%; /* #e5e5e5 */
+      --input: 0 0% 89.8%; /* #e5e5e5 */
+      --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+  }
 }
 
 @layer base {

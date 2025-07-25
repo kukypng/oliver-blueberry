@@ -98,9 +98,12 @@ export default {
 					}
 				},
         shimmer: {
-          '100%': {
-            transform: 'translateX(100%)',
+          '0%': {
+            backgroundPosition: '-200px 0'
           },
+          '100%': {
+            backgroundPosition: 'calc(200px + 100%) 0'
+          }
         },
         'fade-in': {
           '0%': {
@@ -248,6 +251,39 @@ export default {
           '100%': {
             boxShadow: '0 0 5px hsl(var(--primary) / 0.3)'
           }
+        },
+        'float': {
+          '0%, 100%': {
+            transform: 'translateY(0px)'
+          },
+          '50%': {
+            transform: 'translateY(-4px)'
+          }
+        },
+        'wiggle': {
+          '0%, 100%': {
+            transform: 'rotate(-3deg)'
+          },
+          '50%': {
+            transform: 'rotate(3deg)'
+          }
+        },
+        'heartbeat': {
+          '0%': {
+            transform: 'scale(1)'
+          },
+          '14%': {
+            transform: 'scale(1.1)'
+          },
+          '28%': {
+            transform: 'scale(1)'
+          },
+          '42%': {
+            transform: 'scale(1.1)'
+          },
+          '70%': {
+            transform: 'scale(1)'
+          }
         }
 			},
 			animation: {
@@ -267,7 +303,10 @@ export default {
         'pulse-scale': 'pulse-scale 1.5s ease-in-out infinite',
         'ripple': 'ripple 0.6s ease-out',
         'shake': 'shake 0.5s ease-in-out',
-        'glow': 'glow 2s ease-in-out infinite'
+        'glow': 'glow 2s ease-in-out infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'wiggle': 'wiggle 1s ease-in-out infinite',
+        'heartbeat': 'heartbeat 1.5s ease-in-out infinite'
 			},
       // iOS-specific utilities
       screens: {
