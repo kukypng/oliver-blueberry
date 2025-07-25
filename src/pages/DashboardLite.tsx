@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthGuard } from '@/components/AuthGuard';
@@ -12,7 +11,6 @@ import { DashboardLiteHelpSupport } from '@/components/lite/DashboardLiteHelpSup
 import { BudgetErrorBoundary, AuthErrorBoundary } from '@/components/ErrorBoundaries';
 import { LayoutProvider } from '@/contexts/LayoutContext';
 import { useBudgetData } from '@/hooks/useBudgetData';
-import { PWAInstallButton } from '@/components/lite/PWAInstallButton';
 import { PageTransition } from '@/components/ui/animations/page-transitions';
 import { IOSSpinner } from '@/components/ui/animations/loading-states';
 
@@ -101,11 +99,6 @@ export const DashboardLite = () => {
         <DashboardLiteQuickAccessEnhanced onTabChange={setActiveTab} hasPermission={hasPermission} />
         <DashboardLiteLicenseStatus profile={profile} />
         <DashboardLiteHelpSupport />
-        
-        {/* Botão de instalação PWA */}
-        <div className="flex justify-center">
-          <PWAInstallButton />
-        </div>
       </div>
     </PageTransition>
   ), [profile, user?.id, hasPermission]);
