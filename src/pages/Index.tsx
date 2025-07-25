@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Link, Navigate } from 'react-router-dom';
@@ -8,6 +9,7 @@ import { DashboardSkeleton } from '@/components/ui/loading-states';
 import { FadeInUp, ScaleOnHover, StaggerList } from '@/components/ui/animations';
 import { Heading, Text } from '@/components/ui/typography';
 import { useAppInfo, useMarketingConfig } from '@/hooks/useAppConfig';
+
 const Index = () => {
   const {
     user,
@@ -16,6 +18,7 @@ const Index = () => {
   
   const { name, logo } = useAppInfo();
   const { heroSubtitle } = useMarketingConfig();
+  
   if (loading) {
     return <DashboardSkeleton />;
   }
@@ -26,7 +29,8 @@ const Index = () => {
   }
 
   // Landing page para usuários não logados
-  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
       <header className="glass border-b shadow-soft sticky top-0 z-50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,8 +43,8 @@ const Index = () => {
               <Button asChild variant="outline" className="btn-apple-secondary interactive-scale">
                 <Link to="/auth">Login</Link>
               </Button>
-               <Button asChild className="btn-apple interactive-scale">
-                
+              <Button asChild className="btn-apple interactive-scale">
+                <Link to="/sign">Criar Conta</Link>
               </Button>
             </div>
           </div>
@@ -204,6 +208,8 @@ const Index = () => {
           </FadeInUp>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
