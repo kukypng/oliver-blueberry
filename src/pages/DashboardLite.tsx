@@ -1,17 +1,21 @@
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthGuard } from '@/components/AuthGuard';
 import { supabase } from '@/integrations/supabase/client';
 import { AdaptiveLayout } from '@/components/adaptive/AdaptiveLayout';
 import { DashboardLiteContent } from '@/components/lite/DashboardLiteContent';
-import { DashboardLiteStats } from '@/components/lite/DashboardLiteStats';
-import { DashboardLiteQuickAccess } from '@/components/lite/DashboardLiteQuickAccess';
+import { DashboardLiteStatsEnhanced } from '@/components/lite/enhanced/DashboardLiteStatsEnhanced';
+import { DashboardLiteQuickAccessEnhanced } from '@/components/lite/enhanced/DashboardLiteQuickAccessEnhanced';
 import { DashboardLiteLicenseStatus } from '@/components/lite/DashboardLiteLicenseStatus';
 import { DashboardLiteHelpSupport } from '@/components/lite/DashboardLiteHelpSupport';
 import { BudgetErrorBoundary, AuthErrorBoundary } from '@/components/ErrorBoundaries';
 import { LayoutProvider } from '@/contexts/LayoutContext';
 import { useBudgetData } from '@/hooks/useBudgetData';
 import { PWAInstallButton } from '@/components/lite/PWAInstallButton';
+import { PageTransition } from '@/components/ui/animations/page-transitions';
+import { IOSSpinner } from '@/components/ui/animations/loading-states';
+
 export const DashboardLite = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { profile, user, hasPermission } = useAuth();
@@ -73,44 +77,68 @@ export const DashboardLite = () => {
 
   // Otimização para iOS: não renderizar nada até dados estarem prontos
   if (!isReady) {
-    return <div className="h-[100dvh] bg-background flex items-center justify-center" style={{
-      WebkitOverflowScrolling: 'touch',
-      overscrollBehavior: 'none'
-    }}>
-        <div className="text-center space-y-2">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-sm text-muted-foreground">Carregando...</p>
+    return (
+      <div 
+        className="h-[100dvh] bg-background flex items-center justify-center" 
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'none'
+        }}
+      >
+        <div className="text-center space-y-4">
+          <IOSSpinner size="lg" />
+          <p className="text-sm text-muted-foreground font-medium">Carregando...</p>
         </div>
-      </div>;
+      </div>
+    );
   }
 
   // Memoização do conteúdo principal para evitar re-renders desnecessários
-  const dashboardContent = useMemo(() => <div className="p-4 space-y-4">
-      <DashboardLiteStats profile={profile} userId={user?.id} />
-      <DashboardLiteQuickAccess onTabChange={setActiveTab} hasPermission={hasPermission} />
-      <DashboardLiteLicenseStatus profile={profile} />
-      <DashboardLiteHelpSupport />
-      
-      {/* Botão de instalação PWA */}
-      <div className="flex justify-center">
-        <PWAInstallButton />
+  const dashboardContent = useMemo(() => (
+    <PageTransition type="fadeScale">
+      <div className="p-4 space-y-6">
+        <DashboardLiteStatsEnhanced profile={profile} userId={user?.id} />
+        <DashboardLiteQuickAccessEnhanced onTabChange={setActiveTab} hasPermission={hasPermission} />
+        <DashboardLiteLicenseStatus profile={profile} />
+        <DashboardLiteHelpSupport />
+        
+        {/* Botão de instalação PWA */}
+        <div className="flex justify-center">
+          <PWAInstallButton />
+        </div>
       </div>
-      
-      {/* Preview recente de orçamentos otimizado */}
-      
-    </div>, [profile, user?.id, hasPermission, loading, refreshing, budgets]);
+    </PageTransition>
+  ), [profile, user?.id, hasPermission]);
+
   const renderContent = useCallback(() => {
     if (activeTab !== 'dashboard') {
-      return <DashboardLiteContent budgets={budgets} loading={loading} error={error} onRefresh={handleRefresh} profile={profile} activeView={activeTab} userId={user.id} hasPermission={hasPermission} onNavigateBack={() => setActiveTab('dashboard')} onNavigateTo={(view, budgetId) => {
-        if (budgetId) {
-          console.log('Navigate to budget detail:', budgetId);
-        } else {
-          setActiveTab(view);
-        }
-      }} isiOSDevice={isiOSDevice} />;
+      return (
+        <PageTransition type="slideLeft" key={activeTab}>
+          <DashboardLiteContent 
+            budgets={budgets} 
+            loading={loading} 
+            error={error} 
+            onRefresh={handleRefresh} 
+            profile={profile} 
+            activeView={activeTab} 
+            userId={user.id} 
+            hasPermission={hasPermission} 
+            onNavigateBack={() => setActiveTab('dashboard')} 
+            onNavigateTo={(view, budgetId) => {
+              if (budgetId) {
+                console.log('Navigate to budget detail:', budgetId);
+              } else {
+                setActiveTab(view);
+              }
+            }} 
+            isiOSDevice={isiOSDevice} 
+          />
+        </PageTransition>
+      );
     }
     return dashboardContent;
   }, [activeTab, budgets, loading, error, handleRefresh, profile, user.id, hasPermission, isiOSDevice, dashboardContent]);
+
   return (
     <AuthErrorBoundary>
       <AuthGuard>

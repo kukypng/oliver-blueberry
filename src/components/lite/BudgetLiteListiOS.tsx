@@ -7,6 +7,11 @@ import { useToast } from '@/hooks/use-toast';
 import { generateWhatsAppMessage, shareViaWhatsApp } from '@/utils/whatsappUtils';
 import { RefreshCw, Filter, Plus } from 'lucide-react';
 import { SecureRedirect } from '@/utils/secureRedirect';
+import { IOSContextualHeaderEnhanced } from './enhanced/IOSContextualHeaderEnhanced';
+import { GlassCard } from '@/components/ui/animations/micro-interactions';
+import { StaggerContainer } from '@/components/ui/animations/page-transitions';
+import { AdvancedSkeleton, IOSSpinner } from '@/components/ui/animations/loading-states';
+
 interface Budget {
   id: string;
   client_name?: string;
@@ -35,10 +40,12 @@ interface Budget {
   delivery_date?: string;
   notes?: string;
 }
+
 interface BudgetLiteListiOSProps {
   userId: string;
   profile: any;
 }
+
 export const BudgetLiteListiOS = ({
   userId,
   profile
@@ -51,6 +58,7 @@ export const BudgetLiteListiOS = ({
   const [refreshing, setRefreshing] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [updating, setUpdating] = useState<string | null>(null);
+  const [searchActive, setSearchActive] = useState(false);
   const { toast } = useToast();
 
   // Fetch otimizado para iOS usando supabase simplificado
@@ -63,12 +71,15 @@ export const BudgetLiteListiOS = ({
         setLoading(true);
       }
       setError(null);
-      const {
-        data,
-        error: fetchError
-      } = await supabase.from('budgets').select('*').eq('owner_id', userId).is('deleted_at', null).order('created_at', {
-        ascending: false
-      }).limit(100);
+      
+      const { data, error: fetchError } = await supabase
+        .from('budgets')
+        .select('*')
+        .eq('owner_id', userId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(100);
+      
       if (fetchError) throw fetchError;
       setBudgets(data || []);
     } catch (err: any) {
@@ -93,25 +104,27 @@ export const BudgetLiteListiOS = ({
     let subscription: any = null;
     let debounceTimer: NodeJS.Timeout | null = null;
     
-    subscription = supabase.channel(`budget_changes_ios_${userId}`).on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'budgets',
-      filter: `owner_id=eq.${userId}`
-    }, payload => {
-      console.log('Budget change detected:', payload);
-      
-      // Clear previous timer
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
-      }
-      
-      // Debounce para evitar múltiplas atualizações
-      debounceTimer = setTimeout(() => {
-        fetchBudgets();
-        debounceTimer = null;
-      }, 500);
-    }).subscribe();
+    subscription = supabase.channel(`budget_changes_ios_${userId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'budgets',
+        filter: `owner_id=eq.${userId}`
+      }, payload => {
+        console.log('Budget change detected:', payload);
+        
+        // Clear previous timer
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+        }
+        
+        // Debounce para evitar múltiplas atualizações
+        debounceTimer = setTimeout(() => {
+          fetchBudgets();
+          debounceTimer = null;
+        }, 500);
+      })
+      .subscribe();
     
     return () => {
       // Clear debounce timer
@@ -133,7 +146,11 @@ export const BudgetLiteListiOS = ({
     // Filtro por termo de busca
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(budget => budget.client_name?.toLowerCase().includes(searchLower) || budget.device_model?.toLowerCase().includes(searchLower) || budget.device_type?.toLowerCase().includes(searchLower));
+      filtered = filtered.filter(budget => 
+        budget.client_name?.toLowerCase().includes(searchLower) ||
+        budget.device_model?.toLowerCase().includes(searchLower) ||
+        budget.device_type?.toLowerCase().includes(searchLower)
+      );
     }
 
     // Filtro por status - apenas se funcionalidades avançadas estão habilitadas
@@ -170,8 +187,10 @@ export const BudgetLiteListiOS = ({
     if (refreshing) return;
     await fetchBudgets(true);
   }, [fetchBudgets, refreshing]);
+
   const handleClearSearch = useCallback(() => {
     setSearchTerm('');
+    setSearchActive(false);
   }, []);
 
   // Compartilhamento WhatsApp usando utilitário original
@@ -191,7 +210,6 @@ export const BudgetLiteListiOS = ({
           id: budget.id,
           device_model: budget.device_model || 'Dispositivo',
           device_type: budget.device_type || 'Smartphone',
-          
           part_type: budget.part_type || 'Serviço',
           part_quality: budget.part_type || 'Reparo geral',
           cash_price: budget.cash_price || budget.total_price || 0,
@@ -311,10 +329,9 @@ export const BudgetLiteListiOS = ({
 
   // Callback para atualização de orçamento
   const handleBudgetUpdate = useCallback((budgetId: string, updates: Partial<Budget>) => {
-    setBudgets(prev => prev.map(budget => budget.id === budgetId ? {
-      ...budget,
-      ...updates
-    } : budget));
+    setBudgets(prev => prev.map(budget => 
+      budget.id === budgetId ? { ...budget, ...updates } : budget
+    ));
 
     // Acionar refresh automaticamente após update
     setTimeout(() => {
@@ -324,68 +341,49 @@ export const BudgetLiteListiOS = ({
 
   // Estados de loading e erro
   if (loading) {
-    return <div className="min-h-[100dvh] bg-background text-foreground">
+    return (
+      <div className="min-h-[100dvh] bg-background text-foreground">
         <div className="p-4 space-y-4">
-          {[1, 2, 3].map(i => <div key={i} className="bg-card border border-border rounded-xl p-4">
-              <div className="animate-pulse space-y-3">
-                <div className="h-5 bg-muted rounded w-3/4"></div>
-                <div className="h-4 bg-muted rounded w-1/2"></div>
-                <div className="h-6 bg-muted rounded w-1/3"></div>
-              </div>
-            </div>)}
+          {[1, 2, 3].map(i => (
+            <GlassCard key={i} className="p-4">
+              <AdvancedSkeleton lines={3} avatar />
+            </GlassCard>
+          ))}
         </div>
-      </div>;
+      </div>
+    );
   }
+
   if (error) {
-    return <div className="min-h-[100dvh] bg-background text-foreground flex items-center justify-center p-4">
+    return (
+      <div className="min-h-[100dvh] bg-background text-foreground flex items-center justify-center p-4">
         <div className="text-center space-y-4 max-w-sm">
           <div className="text-destructive text-6xl">⚠️</div>
           <p className="text-destructive text-lg">{error}</p>
-          <button onClick={handleRefresh} className="bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-6 rounded-lg font-medium transition-colors w-full" style={{
-          touchAction: 'manipulation'
-        }}>
+          <button 
+            onClick={handleRefresh} 
+            className="bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-6 rounded-lg font-medium transition-colors w-full"
+            style={{ touchAction: 'manipulation' }}
+          >
             Tentar Novamente
           </button>
         </div>
-      </div>;
-  }
-  return <div className="min-h-[100dvh] bg-background text-foreground">
-      {/* Header Contextual Otimizado */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/50">
-        <div className="px-4 py-3" style={{ paddingTop: 'env(safe-area-inset-top, 8px)' }}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-foreground">Orçamentos</h1>
-              <p className="text-sm text-muted-foreground">
-                {filteredAndSortedBudgets.length} {filteredAndSortedBudgets.length === 1 ? 'item' : 'itens'}
-                {searchTerm && ` • "${searchTerm}"`}
-              </p>
-            </div>
-            <button 
-              onClick={handleRefresh} 
-              disabled={refreshing} 
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/50 hover:bg-muted transition-colors disabled:opacity-50" 
-              style={{
-                touchAction: 'manipulation',
-                WebkitTapHighlightColor: 'transparent'
-              }}
-            >
-              <RefreshCw className={`h-5 w-5 text-foreground ${refreshing ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
-          
-          <BudgetLiteSearchiOS 
-            searchTerm={searchTerm} 
-            onSearchChange={setSearchTerm} 
-            onClearSearch={handleClearSearch} 
-          />
-        </div>
       </div>
+    );
+  }
 
-      {/* Pull to refresh indicator */}
-      {refreshing && <div className="bg-primary/20 text-primary text-center py-2 text-sm">
-          Atualizando...
-        </div>}
+  return (
+    <div className="min-h-[100dvh] bg-background text-foreground">
+      {/* Header Contextual Otimizado */}
+      <IOSContextualHeaderEnhanced
+        title="Orçamentos"
+        subtitle={`${filteredAndSortedBudgets.length} ${filteredAndSortedBudgets.length === 1 ? 'item' : 'itens'}${searchTerm ? ` • "${searchTerm}"` : ''}`}
+        onRefresh={handleRefresh}
+        isRefreshing={refreshing}
+        showSearch={true}
+        onSearchToggle={() => setSearchActive(!searchActive)}
+        searchActive={searchActive}
+      />
 
       {/* Content com scroll otimizado para iOS */}
       <div 
@@ -395,25 +393,9 @@ export const BudgetLiteListiOS = ({
           height: 'calc(100dvh - 140px)',
           overscrollBehavior: 'none',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)'
-        }} 
-        onTouchStart={e => {
-          // Detect pull to refresh gesture
-          if (e.currentTarget.scrollTop === 0) {
-            e.currentTarget.dataset.pullStart = e.touches[0].clientY.toString();
-          }
-        }} 
-        onTouchMove={e => {
-          const pullStart = e.currentTarget.dataset.pullStart;
-          if (pullStart && e.currentTarget.scrollTop === 0) {
-            const pullDistance = e.touches[0].clientY - parseInt(pullStart);
-            if (pullDistance > 120 && !refreshing) {
-              handleRefresh();
-            }
-          }
         }}
       >
-        <div className="px-4 py-3">
-
+        <div className="px-4 py-6">
           {/* Empty state otimizado */}
           {filteredAndSortedBudgets.length === 0 ? (
             <div className="text-center py-20">
@@ -452,14 +434,13 @@ export const BudgetLiteListiOS = ({
             </div>
           ) : (
             /* Lista de orçamentos com performance otimizada */
-            <div className="space-y-3">
+            <StaggerContainer className="space-y-4">
               {filteredAndSortedBudgets.map((budget, index) => (
                 <div 
                   key={budget.id} 
                   className={`transition-opacity duration-200 ${updating === budget.id ? 'opacity-50' : 'opacity-100'}`}
                   style={{
                     transform: 'translateZ(0)', // Force GPU acceleration
-                    animationDelay: `${Math.min(index * 50, 300)}ms`,
                     willChange: 'transform'
                   }}
                 >
@@ -472,12 +453,10 @@ export const BudgetLiteListiOS = ({
                   />
                 </div>
               ))}
-              
-              {/* Spacing para iOS safe area */}
-              <div className="h-6"></div>
-            </div>
+            </StaggerContainer>
           )}
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
