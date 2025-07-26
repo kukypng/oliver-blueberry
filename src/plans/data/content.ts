@@ -103,10 +103,6 @@ export const PLANS_CONTENT = {
     
     lista: [
       {
-        pergunta: "Como funciona o período de teste?",
-        resposta: "Você tem 2 dias para testar todas as funcionalidades gratuitamente."
-      },
-      {
         pergunta: "Posso cancelar a qualquer momento?", 
         resposta: "Sim! Não há fidelidade. Cancele quando quiser pelo WhatsApp."
       },
