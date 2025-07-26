@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { BudgetLiteSearchiOS } from './BudgetLiteSearchiOS';
 import { BudgetLiteCardiOS } from './BudgetLiteCardiOS';
-import { BudgetLiteStatusBadge } from './BudgetLiteStatusBadge';
 import { useToast } from '@/hooks/use-toast';
 import { generateWhatsAppMessage, shareViaWhatsApp } from '@/utils/whatsappUtils';
-import { RefreshCw, Filter, Plus } from 'lucide-react';
 import { SecureRedirect } from '@/utils/secureRedirect';
 import { IOSContextualHeaderEnhanced } from './enhanced/IOSContextualHeaderEnhanced';
 import { GlassCard } from '@/components/ui/animations/micro-interactions';
 import { StaggerContainer } from '@/components/ui/animations/page-transitions';
-import { AdvancedSkeleton, IOSSpinner } from '@/components/ui/animations/loading-states';
+import { AdvancedSkeleton } from '@/components/ui/animations/loading-states';
+import { useIOSBudgetSearch } from '@/hooks/useIOSBudgetSearch';
 
 interface Budget {
   id: string;
@@ -50,148 +48,28 @@ export const BudgetLiteListiOS = ({
   userId,
   profile
 }: BudgetLiteListiOSProps) => {
-  const [budgets, setBudgets] = useState<Budget[]>([]);
-  const [filteredBudgets, setFilteredBudgets] = useState<Budget[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<string>('all');
   const [updating, setUpdating] = useState<string | null>(null);
-  const [searchActive, setSearchActive] = useState(false);
   const { toast } = useToast();
+  
+  // Hook unificado para pesquisa e dados
+  const {
+    budgets,
+    searchTerm,
+    actualSearchTerm,
+    isSearchActive,
+    isSearching,
+    isLoading,
+    error,
+    searchSubtitle,
+    hasActiveSearch,
+    handleSearchChange,
+    handleSearchSubmit,
+    handleSearchClear,
+    handleSearchToggle,
+    handleRefresh,
+    handleDelete: deleteFromHook
+  } = useIOSBudgetSearch(userId);
 
-  // Fetch otimizado para iOS usando supabase simplificado
-  const fetchBudgets = useCallback(async (showRefreshing = false) => {
-    if (!userId) return;
-    try {
-      if (showRefreshing) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-      setError(null);
-      
-      const { data, error: fetchError } = await supabase
-        .from('budgets')
-        .select('*')
-        .eq('owner_id', userId)
-        .is('deleted_at', null)
-        .order('created_at', { ascending: false })
-        .limit(100);
-      
-      if (fetchError) throw fetchError;
-      setBudgets(data || []);
-    } catch (err: any) {
-      console.error('Error fetching budgets:', err);
-      setError('Erro ao carregar orçamentos');
-      toast({
-        title: 'Erro ao carregar',
-        description: 'Não foi possível carregar os orçamentos.',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [userId, toast]);
-
-  // Real-time subscription otimizada para iOS
-  useEffect(() => {
-    if (!userId) return;
-    fetchBudgets();
-    
-    let subscription: any = null;
-    let debounceTimer: NodeJS.Timeout | null = null;
-    
-    subscription = supabase.channel(`budget_changes_ios_${userId}`)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'budgets',
-        filter: `owner_id=eq.${userId}`
-      }, payload => {
-        console.log('Budget change detected:', payload);
-        
-        // Clear previous timer
-        if (debounceTimer) {
-          clearTimeout(debounceTimer);
-        }
-        
-        // Debounce para evitar múltiplas atualizações
-        debounceTimer = setTimeout(() => {
-          fetchBudgets();
-          debounceTimer = null;
-        }, 500);
-      })
-      .subscribe();
-    
-    return () => {
-      // Clear debounce timer
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
-      }
-      
-      // Remove subscription properly
-      if (subscription) {
-        supabase.removeChannel(subscription);
-      }
-    };
-  }, [userId, fetchBudgets]);
-
-  // Filtro avançado otimizado para iOS
-  const filteredAndSortedBudgets = useMemo(() => {
-    let filtered = budgets;
-
-    // Filtro por termo de busca
-    if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(budget => 
-        budget.client_name?.toLowerCase().includes(searchLower) ||
-        budget.device_model?.toLowerCase().includes(searchLower) ||
-        budget.device_type?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Filtro por status - apenas se funcionalidades avançadas estão habilitadas
-    if (profile?.advanced_features_enabled && filterStatus !== 'all') {
-      switch (filterStatus) {
-        case 'pending':
-          filtered = filtered.filter(b => b.workflow_status === 'pending');
-          break;
-        case 'approved':
-          filtered = filtered.filter(b => b.workflow_status === 'approved');
-          break;
-        case 'paid':
-          filtered = filtered.filter(b => b.is_paid === true);
-          break;
-        case 'delivered':
-          filtered = filtered.filter(b => b.is_delivered === true);
-          break;
-        case 'completed':
-          filtered = filtered.filter(b => b.workflow_status === 'completed');
-          break;
-        case 'expired':
-          filtered = filtered.filter(b => {
-            if (!b.expires_at) return false;
-            return new Date(b.expires_at) < new Date();
-          });
-          break;
-      }
-    }
-    return filtered;
-  }, [budgets, searchTerm, filterStatus, profile?.advanced_features_enabled]);
-
-  // Pull to refresh para iOS
-  const handleRefresh = useCallback(async () => {
-    if (refreshing) return;
-    await fetchBudgets(true);
-  }, [fetchBudgets, refreshing]);
-
-  const handleClearSearch = useCallback(() => {
-    setSearchTerm('');
-    setSearchActive(false);
-  }, []);
 
   // Compartilhamento WhatsApp usando utilitário original
   const handleShareWhatsApp = useCallback(async (budget: Budget) => {
@@ -290,31 +168,21 @@ export const BudgetLiteListiOS = ({
     }
   }, [toast]);
 
-  // Exclusão (move para lixeira)
+  // Exclusão usando hook unificado
   const handleDelete = useCallback(async (budgetId: string) => {
     try {
       setUpdating(budgetId);
       
-      // Usar a função RPC segura para exclusão
-      const { data, error } = await supabase.rpc('soft_delete_budget_with_audit', {
-        p_budget_id: budgetId,
-        p_deletion_reason: 'Exclusão via interface mobile'
-      });
+      const result = await deleteFromHook(budgetId);
       
-      if (error) throw error;
-      
-      const response = data as any;
-      if (!response?.success) {
-        throw new Error(response?.error || 'Falha na exclusão do orçamento');
+      if (result.success) {
+        toast({
+          title: "Orçamento removido",
+          description: "O orçamento foi movido para a lixeira."
+        });
+      } else {
+        throw new Error(result.error || 'Falha na exclusão do orçamento');
       }
-      
-      toast({
-        title: "Orçamento removido",
-        description: "O orçamento foi movido para a lixeira."
-      });
-
-      // Atualização local otimista
-      setBudgets(prev => prev.filter(b => b.id !== budgetId));
     } catch (error) {
       console.error('Error deleting budget:', error);
       toast({
@@ -325,22 +193,18 @@ export const BudgetLiteListiOS = ({
     } finally {
       setUpdating(null);
     }
-  }, [toast]);
+  }, [deleteFromHook, toast]);
 
-  // Callback para atualização de orçamento
+  // Callback para atualização de orçamento  
   const handleBudgetUpdate = useCallback((budgetId: string, updates: Partial<Budget>) => {
-    setBudgets(prev => prev.map(budget => 
-      budget.id === budgetId ? { ...budget, ...updates } : budget
-    ));
-
-    // Acionar refresh automaticamente após update
+    // Trigger refresh after update
     setTimeout(() => {
-      fetchBudgets(true);
+      handleRefresh();
     }, 500);
-  }, [fetchBudgets]);
+  }, [handleRefresh]);
 
   // Estados de loading e erro
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-[100dvh] bg-background text-foreground">
         <div className="p-4 space-y-4">
@@ -359,7 +223,7 @@ export const BudgetLiteListiOS = ({
       <div className="min-h-[100dvh] bg-background text-foreground flex items-center justify-center p-4">
         <div className="text-center space-y-4 max-w-sm">
           <div className="text-destructive text-6xl">⚠️</div>
-          <p className="text-destructive text-lg">{error}</p>
+          <p className="text-destructive text-lg">{error instanceof Error ? error.message : 'Erro inesperado'}</p>
           <button 
             onClick={handleRefresh} 
             className="bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-6 rounded-lg font-medium transition-colors w-full"
@@ -374,15 +238,21 @@ export const BudgetLiteListiOS = ({
 
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
-      {/* Header Contextual Otimizado */}
+      {/* Header Contextual Unificado */}
       <IOSContextualHeaderEnhanced
         title="Orçamentos"
-        subtitle={`${filteredAndSortedBudgets.length} ${filteredAndSortedBudgets.length === 1 ? 'item' : 'itens'}${searchTerm ? ` • "${searchTerm}"` : ''}`}
+        subtitle={searchSubtitle}
         onRefresh={handleRefresh}
-        isRefreshing={refreshing}
+        isRefreshing={isLoading}
         showSearch={true}
-        onSearchToggle={() => setSearchActive(!searchActive)}
-        searchActive={searchActive}
+        onSearchToggle={handleSearchToggle}
+        searchActive={isSearchActive}
+        searchValue={searchTerm}
+        onSearchChange={handleSearchChange}
+        onSearchSubmit={handleSearchSubmit}
+        onSearchClear={handleSearchClear}
+        searchPlaceholder="Buscar cliente ou dispositivo..."
+        isSearching={isSearching}
       />
 
       {/* Content com scroll otimizado para iOS */}
@@ -397,45 +267,34 @@ export const BudgetLiteListiOS = ({
       >
         <div className="px-4 py-6">
           {/* Empty state otimizado */}
-          {filteredAndSortedBudgets.length === 0 ? (
+          {budgets.length === 0 ? (
             <div className="text-center py-20">
               <div className="text-7xl mb-6">📋</div>
               <h3 className="text-lg font-medium text-foreground mb-2">
-                {searchTerm || filterStatus !== 'all' ? 'Nenhum resultado' : 'Nenhum orçamento'}
+                {hasActiveSearch ? 'Nenhum resultado' : 'Nenhum orçamento'}
               </h3>
               <p className="text-muted-foreground mb-6">
-                {searchTerm || filterStatus !== 'all' 
-                  ? 'Tente ajustar sua busca ou filtros' 
+                {hasActiveSearch 
+                  ? 'Tente ajustar sua busca' 
                   : 'Comece criando seu primeiro orçamento'
                 }
               </p>
-              {(searchTerm || filterStatus !== 'all') && (
+              {hasActiveSearch && (
                 <div className="flex gap-3 justify-center">
-                  {searchTerm && (
-                    <button 
-                      onClick={handleClearSearch} 
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium" 
-                      style={{ touchAction: 'manipulation' }}
-                    >
-                      Limpar busca
-                    </button>
-                  )}
-                  {filterStatus !== 'all' && (
-                    <button 
-                      onClick={() => setFilterStatus('all')} 
-                      className="px-4 py-2 bg-muted text-foreground rounded-lg text-sm font-medium" 
-                      style={{ touchAction: 'manipulation' }}
-                    >
-                      Remover filtros
-                    </button>
-                  )}
+                  <button 
+                    onClick={handleSearchClear} 
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium" 
+                    style={{ touchAction: 'manipulation' }}
+                  >
+                    Limpar busca
+                  </button>
                 </div>
               )}
             </div>
           ) : (
             /* Lista de orçamentos com performance otimizada */
             <StaggerContainer className="space-y-4">
-              {filteredAndSortedBudgets.map((budget, index) => (
+              {budgets.map((budget, index) => (
                 <div 
                   key={budget.id} 
                   className={`transition-opacity duration-200 ${updating === budget.id ? 'opacity-50' : 'opacity-100'}`}
