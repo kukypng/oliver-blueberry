@@ -202,7 +202,7 @@ export const EditBudgetModal = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="device_model">Modelo do Aparelho/Serviço</Label>
+              <Label htmlFor="device_model">Serviço/Aparelho</Label>
               <Input id="device_model" value={formData.device_model} onChange={e => handleInputChange('device_model', e.target.value)} placeholder="Ex: iPhone 12, Redmi Note 8" required />
             </div>
             
