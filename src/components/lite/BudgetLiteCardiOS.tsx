@@ -156,8 +156,8 @@ export const BudgetLiteCardiOS = ({
           id: budget.id,
           device_model: budget.device_model || 'Dispositivo',
           device_type: budget.device_type || 'Smartphone',
-        part_type: budget.part_type || 'Reparo',
-        part_quality: budget.part_quality || 'Reparo geral',
+          part_type: budget.part_type || 'Reparo',
+          part_quality: budget.part_quality || 'Reparo geral',
           cash_price: budget.total_price || 0,
           installment_price: budget.total_price || 0,
           installments: budget.installments || 1,
@@ -318,7 +318,7 @@ export const BudgetLiteCardiOS = ({
       <div className="space-y-3 mb-5">
         {/* Serviço/Problema */}
         <div className="bg-muted/30 rounded-lg p-3">
-          <p className="text-xs text-muted-foreground font-medium mb-1">DISPOSITIVO:</p>
+          <p className="text-xs text-muted-foreground font-medium mb-1">Serviço/Dispositivo:</p>
           <p className="text-card-foreground leading-relaxed font-medium">
             {budget.device_model || 'Dispositivo não informado'}
           </p>
