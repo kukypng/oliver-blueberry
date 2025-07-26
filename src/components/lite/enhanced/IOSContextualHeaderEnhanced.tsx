@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { ArrowLeft, RefreshCw, Search, MoreHorizontal } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { ArrowLeft, RefreshCw, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { RippleButton } from '@/components/ui/animations/micro-interactions';
@@ -18,6 +18,13 @@ interface IOSContextualHeaderEnhancedProps {
   searchActive?: boolean;
   safeAreaTop?: number;
   blur?: boolean;
+  // Search functionality
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  onSearchSubmit?: (value: string) => void;
+  onSearchClear?: () => void;
+  searchPlaceholder?: string;
+  isSearching?: boolean;
 }
 
 export const IOSContextualHeaderEnhanced = ({
@@ -32,8 +39,64 @@ export const IOSContextualHeaderEnhanced = ({
   onSearchToggle,
   searchActive = false,
   safeAreaTop = 0,
-  blur = true
+  blur = true,
+  // Search props
+  searchValue = '',
+  onSearchChange,
+  onSearchSubmit,
+  onSearchClear,
+  searchPlaceholder = 'Buscar...',
+  isSearching = false
 }: IOSContextualHeaderEnhancedProps) => {
+  const [internalSearchValue, setInternalSearchValue] = useState(searchValue);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle internal search state
+  const currentSearchValue = onSearchChange ? searchValue : internalSearchValue;
+  
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (onSearchChange) {
+      onSearchChange(value);
+    } else {
+      setInternalSearchValue(value);
+    }
+  };
+
+  const handleSearchSubmit = () => {
+    const value = currentSearchValue.trim();
+    if (value && onSearchSubmit) {
+      onSearchSubmit(value);
+    }
+  };
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSearchSubmit();
+    }
+  };
+
+  const handleClearSearch = () => {
+    if (onSearchChange) {
+      onSearchChange('');
+    } else {
+      setInternalSearchValue('');
+    }
+    if (onSearchClear) {
+      onSearchClear();
+    }
+    searchInputRef.current?.focus();
+  };
+
+  // Focus input when search becomes active
+  React.useEffect(() => {
+    if (searchActive && searchInputRef.current) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  }, [searchActive]);
   return (
     <motion.div 
       className={cn(
@@ -106,30 +169,63 @@ export const IOSContextualHeaderEnhanced = ({
                   transition={{ duration: 0.2 }}
                 >
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Search className={cn(
+                      "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors",
+                      isSearching ? "text-primary animate-pulse" : "text-muted-foreground"
+                    )} />
                     <input
+                      ref={searchInputRef}
                       type="search"
                       inputMode="search"
-                      placeholder="Buscar..."
-                      className="w-full pl-10 pr-12 py-2 bg-muted/30 border border-border/50 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          // Trigger search
-                          console.log('Search triggered:', e.currentTarget.value);
-                        }
-                      }}
+                      placeholder={searchPlaceholder}
+                      value={currentSearchValue}
+                      onChange={handleSearchInputChange}
+                      onKeyPress={handleSearchKeyPress}
+                      className={cn(
+                        "w-full pl-10 py-2 bg-muted/30 border border-border/50 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all",
+                        currentSearchValue.trim() ? "pr-20" : "pr-12"
+                      )}
+                      disabled={isSearching}
                     />
+                    
+                    {/* Clear button - shows when there's text */}
+                    <AnimatePresence>
+                      {currentSearchValue.trim() && (
+                        <motion.button
+                          type="button"
+                          className="absolute right-12 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted/50 hover:bg-muted/70 flex items-center justify-center transition-colors"
+                          onClick={handleClearSearch}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <X className="h-3 w-3 text-muted-foreground" />
+                        </motion.button>
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Search button */}
                     <button
                       type="button"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors"
-                      onClick={(e) => {
-                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                        if (input?.value.trim()) {
-                          console.log('Search triggered:', input.value);
-                        }
-                      }}
+                      className={cn(
+                        "absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200",
+                        currentSearchValue.trim() && !isSearching
+                          ? "bg-primary/20 hover:bg-primary/30 border border-primary/30"
+                          : "bg-muted/30 hover:bg-muted/50 border border-border/50",
+                        isSearching && "opacity-75 cursor-not-allowed"
+                      )}
+                      onClick={handleSearchSubmit}
+                      disabled={!currentSearchValue.trim() || isSearching}
                     >
-                      <Search className="h-4 w-4 text-primary" />
+                      {isSearching ? (
+                        <RefreshCw className="h-4 w-4 text-primary animate-spin" />
+                      ) : (
+                        <Search className={cn(
+                          "h-4 w-4 transition-colors",
+                          currentSearchValue.trim() ? "text-primary" : "text-muted-foreground"
+                        )} />
+                      )}
                     </button>
                   </div>
                 </motion.div>
