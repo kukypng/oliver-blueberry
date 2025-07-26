@@ -1,28 +1,27 @@
 import React from 'react';
 import { HeartCrack, AlertTriangle, MessageCircle, Key, Calendar, Clock, Shield } from 'lucide-react';
 import { useEnhancedLicenseValidation } from '@/hooks/useEnhancedLicenseValidation';
-
 interface DashboardLiteLicenseStatusProps {
   profile: any;
 }
-
-export const DashboardLiteLicenseStatus = ({ profile }: DashboardLiteLicenseStatusProps) => {
-  const { data: licenseData, isLoading } = useEnhancedLicenseValidation();
-  
+export const DashboardLiteLicenseStatus = ({
+  profile
+}: DashboardLiteLicenseStatusProps) => {
+  const {
+    data: licenseData,
+    isLoading
+  } = useEnhancedLicenseValidation();
   if (!profile?.expiration_date) {
     return null;
   }
-
   const expirationDate = new Date(profile.expiration_date);
   const today = new Date();
   const remainingDays = Math.ceil((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
   const handleWhatsAppContact = () => {
     const message = encodeURIComponent('Olá! Gostaria de renovar minha licença do sistema.');
     const whatsappUrl = `https://wa.me/5564996028022?text=${message}`;
     window.open(whatsappUrl, '_blank');
   };
-
   const getStatus = () => {
     if (remainingDays < 0) {
       return {
@@ -33,7 +32,6 @@ export const DashboardLiteLicenseStatus = ({ profile }: DashboardLiteLicenseStat
         showRenew: true
       };
     }
-    
     if (remainingDays <= 1) {
       const dayText = remainingDays === 1 ? 'amanhã' : 'hoje';
       return {
@@ -44,7 +42,6 @@ export const DashboardLiteLicenseStatus = ({ profile }: DashboardLiteLicenseStat
         showRenew: true
       };
     }
-    
     if (remainingDays <= 5) {
       return {
         title: "Atenção: Licença Expirando",
@@ -54,7 +51,6 @@ export const DashboardLiteLicenseStatus = ({ profile }: DashboardLiteLicenseStat
         showRenew: true
       };
     }
-    
     if (remainingDays <= 10) {
       return {
         title: "Atenção: Licença Expirando",
@@ -64,7 +60,6 @@ export const DashboardLiteLicenseStatus = ({ profile }: DashboardLiteLicenseStat
         showRenew: true
       };
     }
-
     return {
       title: "Licença Ativa",
       description: `Sua licença expira em ${remainingDays} dias.`,
@@ -73,11 +68,8 @@ export const DashboardLiteLicenseStatus = ({ profile }: DashboardLiteLicenseStat
       showRenew: false
     };
   };
-
   const status = getStatus();
-
-  return (
-    <div className={`bg-card border rounded-lg p-4 mb-4 ${status.cardClass}`}>
+  return <div className={`bg-card border rounded-lg p-4 mb-4 ${status.cardClass}`}>
       <div className="flex items-center gap-3 mb-3">
         {status.icon}
         <h3 className="text-lg font-semibold text-foreground">
@@ -97,29 +89,21 @@ export const DashboardLiteLicenseStatus = ({ profile }: DashboardLiteLicenseStat
             <span>Expira: {expirationDate.toLocaleDateString('pt-BR')}</span>
           </div>
           
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Clock className="h-4 w-4" />
-            <span>{remainingDays > 0 ? `${remainingDays} dias restantes` : 'Expirada'}</span>
-          </div>
+          
 
-          {licenseData?.license_code && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground sm:col-span-2">
+          {licenseData?.license_code && <div className="flex items-center gap-2 text-xs text-muted-foreground sm:col-span-2">
               <Key className="h-4 w-4" />
               <span>Código: {licenseData.license_code}</span>
-            </div>
-          )}
+            </div>}
 
-          {licenseData?.activated_at && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground sm:col-span-2">
+          {licenseData?.activated_at && <div className="flex items-center gap-2 text-xs text-muted-foreground sm:col-span-2">
               <Shield className="h-4 w-4" />
               <span>Ativada em: {new Date(licenseData.activated_at).toLocaleDateString('pt-BR')}</span>
-            </div>
-          )}
+            </div>}
         </div>
 
         {/* Status da validação da licença */}
-        {!isLoading && licenseData && (
-          <div className="p-3 rounded-md bg-muted/50 border">
+        {!isLoading && licenseData && <div className="p-3 rounded-md bg-muted/50 border">
             <div className="flex items-center gap-2 text-xs">
               <div className={`w-2 h-2 rounded-full ${licenseData.is_valid ? 'bg-green-500' : 'bg-red-500'}`} />
               <span className="font-medium">Status da Licença:</span>
@@ -127,19 +111,12 @@ export const DashboardLiteLicenseStatus = ({ profile }: DashboardLiteLicenseStat
                 {licenseData.message}
               </span>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
       
-      {status.showRenew && (
-        <button
-          onClick={handleWhatsAppContact}
-          className="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md text-sm font-medium flex items-center justify-center gap-2"
-        >
+      {status.showRenew && <button onClick={handleWhatsAppContact} className="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md text-sm font-medium flex items-center justify-center gap-2">
           <MessageCircle className="h-4 w-4" />
           Renovar via WhatsApp
-        </button>
-      )}
-    </div>
-  );
+        </button>}
+    </div>;
 };
