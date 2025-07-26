@@ -3,6 +3,7 @@ import { PlusCircle, List, Settings, Shield, Database, Users } from 'lucide-reac
 import { motion } from 'framer-motion';
 import { GlassCard, RippleButton } from '@/components/ui/animations/micro-interactions';
 import { StaggerContainer } from '@/components/ui/animations/page-transitions';
+import { PWAInstallButton } from '@/components/lite/PWAInstallButton';
 interface DashboardLiteQuickAccessEnhancedProps {
   onTabChange: (tab: string) => void;
   hasPermission: (permission: string) => boolean;
@@ -88,13 +89,7 @@ export const DashboardLiteQuickAccessEnhanced = ({
           <h3 className="text-xl font-semibold text-foreground">
             Acesso Rápido
           </h3>
-          <motion.div animate={{
-          rotate: 360
-        }} transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: 'linear'
-        }} className="w-6 h-6 bg-gradient-to-r from-primary to-primary/60 rounded-full" />
+          <PWAInstallButton />
         </div>
         
         <StaggerContainer className="grid grid-cols-2 gap-4">
