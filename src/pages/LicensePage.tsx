@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
+import { useEnhancedLicenseValidation } from '@/hooks/useEnhancedLicenseValidation';
+
 export const LicensePage = () => {
   const [licenseCode, setLicenseCode] = useState('');
   const [isActivating, setIsActivating] = useState(false);
@@ -21,6 +23,7 @@ export const LicensePage = () => {
     showError
   } = useToast();
   const navigate = useNavigate();
+  const { data: licenseData, isLoading: licenseLoading } = useEnhancedLicenseValidation();
   const handleActivateLicense = async () => {
     if (!licenseCode.trim()) {
       showError({
@@ -106,8 +109,15 @@ export const LicensePage = () => {
           <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
             <Shield className="h-8 w-8 text-blue-600" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Ativação de Licença</h1>
-          <p className="text-muted-foreground">Ative sua licença para ter acesso completo ao OneDrip</p>
+          <h1 className="text-3xl font-bold text-foreground">
+            {licenseData?.has_license && !licenseData?.is_valid ? 'Licença Expirada' : 'Ativação de Licença'}
+          </h1>
+          <p className="text-muted-foreground">
+            {licenseData?.has_license && !licenseData?.is_valid 
+              ? 'Sua licença expirou. Entre em contato pelo WhatsApp para renovar ou ative um novo código abaixo.' 
+              : 'Ative sua licença para ter acesso completo ao OneDrip'
+            }
+          </p>
         </div>
 
         {/* License Activation Card */}
@@ -211,7 +221,12 @@ export const LicensePage = () => {
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription className="text-sm">
-                <strong>Precisa de uma licença?</strong> Entre em contato via WhatsApp para adquirir ou renovar sua licença.
+                <strong>
+                  {licenseData?.has_license && !licenseData?.is_valid 
+                    ? 'Sua licença expirou!' 
+                    : 'Precisa de uma licença?'
+                  }
+                </strong> Entre em contato via WhatsApp para {licenseData?.has_license && !licenseData?.is_valid ? 'renovar' : 'adquirir'} sua licença.
               </AlertDescription>
             </Alert>
           </CardContent>

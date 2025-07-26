@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Shield, User } from 'lucide-react';
 import { DashboardSkeleton } from '@/components/ui/loading-states';
 import { useLicenseValidation } from '@/hooks/useLicenseValidation';
-import { LicenseExpiredPage } from '@/pages/LicenseExpiredPage';
+import { useNavigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -22,6 +22,7 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { user, profile, loading, hasRole, hasPermission } = useAuth();
   const { data: isLicenseValid, isLoading: licenseLoading } = useLicenseValidation();
+  const navigate = useNavigate();
 
   if (loading || licenseLoading) {
     return <DashboardSkeleton />;
@@ -64,7 +65,8 @@ export const ProtectedRoute = ({
 
   // Check license validity
   if (isLicenseValid === false) {
-    return <LicenseExpiredPage />;
+    navigate('/licenca');
+    return null;
   }
 
   // Explicit role checking for admin routes
