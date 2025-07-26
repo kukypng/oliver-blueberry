@@ -109,10 +109,28 @@ export const IOSContextualHeaderEnhanced = ({
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       type="search"
+                      inputMode="search"
                       placeholder="Buscar..."
-                      className="w-full pl-10 pr-4 py-2 bg-muted/30 border border-border/50 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
-                      autoFocus
+                      className="w-full pl-10 pr-12 py-2 bg-muted/30 border border-border/50 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          // Trigger search
+                          console.log('Search triggered:', e.currentTarget.value);
+                        }
+                      }}
                     />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors"
+                      onClick={(e) => {
+                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                        if (input?.value.trim()) {
+                          console.log('Search triggered:', input.value);
+                        }
+                      }}
+                    >
+                      <Search className="h-4 w-4 text-primary" />
+                    </button>
                   </div>
                 </motion.div>
               )}
