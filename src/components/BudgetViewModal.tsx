@@ -93,7 +93,7 @@ export const BudgetViewModal = ({
                 </div>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Modelo/Serviço</p>
+                <p className="text-sm text-muted-foreground">Aparelho/Serviço</p>
                 <p className="font-medium">{budget.device_model || 'Não informado'}</p>
               </div>
               {budget.issue && <div>
