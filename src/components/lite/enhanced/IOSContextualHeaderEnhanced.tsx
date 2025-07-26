@@ -1,10 +1,8 @@
-
 import React, { useState, useRef } from 'react';
 import { ArrowLeft, RefreshCw, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { RippleButton } from '@/components/ui/animations/micro-interactions';
-
 interface IOSContextualHeaderEnhancedProps {
   title: string;
   subtitle?: string;
@@ -26,7 +24,6 @@ interface IOSContextualHeaderEnhancedProps {
   searchPlaceholder?: string;
   isSearching?: boolean;
 }
-
 export const IOSContextualHeaderEnhanced = ({
   title,
   subtitle,
@@ -53,7 +50,6 @@ export const IOSContextualHeaderEnhanced = ({
 
   // Handle internal search state
   const currentSearchValue = onSearchChange ? searchValue : internalSearchValue;
-  
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (onSearchChange) {
@@ -62,21 +58,18 @@ export const IOSContextualHeaderEnhanced = ({
       setInternalSearchValue(value);
     }
   };
-
   const handleSearchSubmit = () => {
     const value = currentSearchValue.trim();
     if (value && onSearchSubmit) {
       onSearchSubmit(value);
     }
   };
-
   const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSearchSubmit();
     }
   };
-
   const handleClearSearch = () => {
     if (onSearchChange) {
       onSearchChange('');
@@ -97,188 +90,117 @@ export const IOSContextualHeaderEnhanced = ({
       }, 100);
     }
   }, [searchActive]);
-  return (
-    <motion.div 
-      className={cn(
-        "sticky top-0 z-30 border-b border-border/30 transition-all duration-300",
-        blur 
-          ? "bg-background/80 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/60" 
-          : "bg-background"
-      )}
-      style={{ paddingTop: `max(${safeAreaTop}px, 12px)` }}
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
+  return <motion.div className={cn("sticky top-0 z-30 border-b border-border/30 transition-all duration-300", blur ? "bg-background/80 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/60" : "bg-background")} style={{
+    paddingTop: `max(${safeAreaTop}px, 12px)`
+  }} initial={{
+    opacity: 0,
+    y: -20
+  }} animate={{
+    opacity: 1,
+    y: 0
+  }} transition={{
+    duration: 0.3
+  }}>
       {/* Main header content */}
       <div className="px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Left Section */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <AnimatePresence mode="wait">
-              {showBackButton && onBack && (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <RippleButton
-                    onClick={onBack}
-                    className="w-10 h-10 rounded-full bg-muted/30 hover:bg-muted/50 border border-border/50 flex items-center justify-center"
-                    variant="ghost"
-                  >
+              {showBackButton && onBack && <motion.div initial={{
+              opacity: 0,
+              x: -20
+            }} animate={{
+              opacity: 1,
+              x: 0
+            }} exit={{
+              opacity: 0,
+              x: -20
+            }} transition={{
+              duration: 0.2
+            }}>
+                  <RippleButton onClick={onBack} className="w-10 h-10 rounded-full bg-muted/30 hover:bg-muted/50 border border-border/50 flex items-center justify-center" variant="ghost">
                     <ArrowLeft className="h-5 w-5 text-foreground" />
                   </RippleButton>
-                </motion.div>
-              )}
+                </motion.div>}
             </AnimatePresence>
             
             <AnimatePresence mode="wait">
-              {!searchActive ? (
-                <motion.div 
-                  className="flex-1 min-w-0"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <motion.h1 
-                    className="text-xl font-bold text-foreground truncate"
-                    layoutId="header-title"
-                  >
+              {!searchActive ? <motion.div className="flex-1 min-w-0" initial={{
+              opacity: 0,
+              x: 20
+            }} animate={{
+              opacity: 1,
+              x: 0
+            }} exit={{
+              opacity: 0,
+              x: -20
+            }} transition={{
+              duration: 0.2
+            }}>
+                  <motion.h1 className="text-xl font-bold text-foreground truncate" layoutId="header-title">
                     {title}
                   </motion.h1>
-                  {subtitle && (
-                    <motion.p 
-                      className="text-sm text-muted-foreground truncate"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.1 }}
-                    >
+                  {subtitle && <motion.p className="text-sm text-muted-foreground truncate" initial={{
+                opacity: 0
+              }} animate={{
+                opacity: 1
+              }} transition={{
+                delay: 0.1
+              }}>
                       {subtitle}
-                    </motion.p>
-                  )}
-                </motion.div>
-              ) : (
-                <motion.div 
-                  className="flex-1"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.2 }}
-                >
+                    </motion.p>}
+                </motion.div> : <motion.div className="flex-1" initial={{
+              opacity: 0,
+              scale: 0.9
+            }} animate={{
+              opacity: 1,
+              scale: 1
+            }} exit={{
+              opacity: 0,
+              scale: 0.9
+            }} transition={{
+              duration: 0.2
+            }}>
                   <div className="relative">
-                    <Search className={cn(
-                      "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors",
-                      isSearching ? "text-primary animate-pulse" : "text-muted-foreground"
-                    )} />
-                    <input
-                      ref={searchInputRef}
-                      type="search"
-                      inputMode="search"
-                      placeholder={searchPlaceholder}
-                      value={currentSearchValue}
-                      onChange={handleSearchInputChange}
-                      onKeyPress={handleSearchKeyPress}
-                      className={cn(
-                        "w-full pl-10 py-2 bg-muted/30 border border-border/50 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all",
-                        currentSearchValue.trim() ? "pr-20" : "pr-12"
-                      )}
-                      disabled={isSearching}
-                    />
+                    <Search className={cn("absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-colors", isSearching ? "text-primary animate-pulse" : "text-muted-foreground")} />
+                    <input ref={searchInputRef} type="search" inputMode="search" placeholder={searchPlaceholder} value={currentSearchValue} onChange={handleSearchInputChange} onKeyPress={handleSearchKeyPress} className={cn("w-full pl-10 py-2 bg-muted/30 border border-border/50 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all", currentSearchValue.trim() ? "pr-20" : "pr-12")} disabled={isSearching} />
                     
                     {/* Clear button - shows when there's text */}
                     <AnimatePresence>
-                      {currentSearchValue.trim() && (
-                        <motion.button
-                          type="button"
-                          className="absolute right-12 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-muted/50 hover:bg-muted/70 flex items-center justify-center transition-colors"
-                          onClick={handleClearSearch}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          transition={{ duration: 0.15 }}
-                        >
-                          <X className="h-3 w-3 text-muted-foreground" />
-                        </motion.button>
-                      )}
+                      {currentSearchValue.trim()}
                     </AnimatePresence>
                     
                     {/* Search button */}
-                    <button
-                      type="button"
-                      className={cn(
-                        "absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200",
-                        currentSearchValue.trim() && !isSearching
-                          ? "bg-primary/20 hover:bg-primary/30 border border-primary/30"
-                          : "bg-muted/30 hover:bg-muted/50 border border-border/50",
-                        isSearching && "opacity-75 cursor-not-allowed"
-                      )}
-                      onClick={handleSearchSubmit}
-                      disabled={!currentSearchValue.trim() || isSearching}
-                    >
-                      {isSearching ? (
-                        <RefreshCw className="h-4 w-4 text-primary animate-spin" />
-                      ) : (
-                        <Search className={cn(
-                          "h-4 w-4 transition-colors",
-                          currentSearchValue.trim() ? "text-primary" : "text-muted-foreground"
-                        )} />
-                      )}
+                    <button type="button" className={cn("absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200", currentSearchValue.trim() && !isSearching ? "bg-primary/20 hover:bg-primary/30 border border-primary/30" : "bg-muted/30 hover:bg-muted/50 border border-border/50", isSearching && "opacity-75 cursor-not-allowed")} onClick={handleSearchSubmit} disabled={!currentSearchValue.trim() || isSearching}>
+                      {isSearching ? <RefreshCw className="h-4 w-4 text-primary animate-spin" /> : <Search className={cn("h-4 w-4 transition-colors", currentSearchValue.trim() ? "text-primary" : "text-muted-foreground")} />}
                     </button>
                   </div>
-                </motion.div>
-              )}
+                </motion.div>}
             </AnimatePresence>
           </div>
 
           {/* Right Section */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            {showSearch && (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <RippleButton
-                  onClick={onSearchToggle}
-                  className={cn(
-                    "w-10 h-10 rounded-full border border-border/50 flex items-center justify-center transition-all duration-200",
-                    searchActive 
-                      ? "bg-primary/20 border-primary/30" 
-                      : "bg-muted/30 hover:bg-muted/50"
-                  )}
-                  variant="ghost"
-                >
-                  <Search className={cn(
-                    "h-5 w-5 transition-colors",
-                    searchActive ? "text-primary" : "text-foreground"
-                  )} />
+            {showSearch && <motion.div whileHover={{
+            scale: 1.05
+          }} whileTap={{
+            scale: 0.95
+          }}>
+                <RippleButton onClick={onSearchToggle} className={cn("w-10 h-10 rounded-full border border-border/50 flex items-center justify-center transition-all duration-200", searchActive ? "bg-primary/20 border-primary/30" : "bg-muted/30 hover:bg-muted/50")} variant="ghost">
+                  <Search className={cn("h-5 w-5 transition-colors", searchActive ? "text-primary" : "text-foreground")} />
                 </RippleButton>
-              </motion.div>
-            )}
+              </motion.div>}
             
-            {onRefresh && (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <RippleButton
-                  onClick={onRefresh}
-                  disabled={isRefreshing}
-                  className={cn(
-                    "w-10 h-10 rounded-full bg-muted/30 hover:bg-muted/50 border border-border/50 flex items-center justify-center transition-all duration-200",
-                    isRefreshing && "opacity-75 cursor-not-allowed"
-                  )}
-                  variant="ghost"
-                >
-                  <RefreshCw className={cn(
-                    "h-5 w-5 text-foreground transition-transform duration-200",
-                    isRefreshing && "animate-spin"
-                  )} />
+            {onRefresh && <motion.div whileHover={{
+            scale: 1.05
+          }} whileTap={{
+            scale: 0.95
+          }}>
+                <RippleButton onClick={onRefresh} disabled={isRefreshing} className={cn("w-10 h-10 rounded-full bg-muted/30 hover:bg-muted/50 border border-border/50 flex items-center justify-center transition-all duration-200", isRefreshing && "opacity-75 cursor-not-allowed")} variant="ghost">
+                  <RefreshCw className={cn("h-5 w-5 text-foreground transition-transform duration-200", isRefreshing && "animate-spin")} />
                 </RippleButton>
-              </motion.div>
-            )}
+              </motion.div>}
             
             {rightAction}
           </div>
@@ -287,26 +209,23 @@ export const IOSContextualHeaderEnhanced = ({
       
       {/* Progress bar for loading states */}
       <AnimatePresence>
-        {isRefreshing && (
-          <motion.div
-            className="absolute bottom-0 left-0 right-0 h-1 bg-primary/20"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            exit={{ scaleX: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <motion.div
-              className="h-full bg-primary rounded-full"
-              animate={{ x: ['-100%', '100%'] }}
-              transition={{ 
-                duration: 1.5, 
-                repeat: Infinity, 
-                ease: 'easeInOut' 
-              }}
-            />
-          </motion.div>
-        )}
+        {isRefreshing && <motion.div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/20" initial={{
+        scaleX: 0
+      }} animate={{
+        scaleX: 1
+      }} exit={{
+        scaleX: 0
+      }} transition={{
+        duration: 0.3
+      }}>
+            <motion.div className="h-full bg-primary rounded-full" animate={{
+          x: ['-100%', '100%']
+        }} transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: 'easeInOut'
+        }} />
+          </motion.div>}
       </AnimatePresence>
-    </motion.div>
-  );
+    </motion.div>;
 };
