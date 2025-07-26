@@ -1,7 +1,6 @@
 
-
-import React, { useState } from 'react';
-import { ArrowLeft, RefreshCw, Search, MoreHorizontal, X } from 'lucide-react';
+import React from 'react';
+import { ArrowLeft, RefreshCw, Search, MoreHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { RippleButton } from '@/components/ui/animations/micro-interactions';
@@ -16,8 +15,6 @@ interface IOSContextualHeaderEnhancedProps {
   rightAction?: React.ReactNode;
   showSearch?: boolean;
   onSearchToggle?: () => void;
-  onSearchSubmit?: (query: string) => void;
-  onSearchClear?: () => void;
   searchActive?: boolean;
   safeAreaTop?: number;
   blur?: boolean;
@@ -33,45 +30,10 @@ export const IOSContextualHeaderEnhanced = ({
   rightAction,
   showSearch = false,
   onSearchToggle,
-  onSearchSubmit,
-  onSearchClear,
   searchActive = false,
   safeAreaTop = 0,
   blur = true
 }: IOSContextualHeaderEnhancedProps) => {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearchSubmit = () => {
-    if (searchQuery.trim() && onSearchSubmit) {
-      onSearchSubmit(searchQuery.trim());
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearchSubmit();
-    }
-  };
-
-  const handleClearSearch = () => {
-    setSearchQuery('');
-    if (onSearchClear) {
-      onSearchClear();
-    }
-  };
-
-  const handleSearchToggle = () => {
-    if (searchActive) {
-      setSearchQuery('');
-      if (onSearchClear) {
-        onSearchClear();
-      }
-    }
-    if (onSearchToggle) {
-      onSearchToggle();
-    }
-  };
-
   return (
     <motion.div 
       className={cn(
@@ -137,61 +99,21 @@ export const IOSContextualHeaderEnhanced = ({
                 </motion.div>
               ) : (
                 <motion.div 
-                  className="flex-1 flex items-center gap-2"
+                  className="flex-1"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       type="search"
-                      inputMode="search"
                       placeholder="Buscar..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      className="w-full pl-10 pr-10 py-2 bg-muted/30 border border-border/50 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
-                      style={{
-                        fontSize: '16px',
-                        WebkitAppearance: 'none',
-                        WebkitTapHighlightColor: 'transparent'
-                      }}
+                      className="w-full pl-10 pr-4 py-2 bg-muted/30 border border-border/50 rounded-2xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
+                      autoFocus
                     />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={handleClearSearch}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted/50 rounded-full transition-colors"
-                        style={{ touchAction: 'manipulation' }}
-                      >
-                        <X className="h-3 w-3 text-muted-foreground" />
-                      </button>
-                    )}
                   </div>
-                  
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <RippleButton
-                      onClick={handleSearchSubmit}
-                      disabled={!searchQuery.trim()}
-                      className={cn(
-                        "w-10 h-10 rounded-full border border-border/50 flex items-center justify-center transition-all duration-200",
-                        searchQuery.trim() 
-                          ? "bg-primary/20 border-primary/30 hover:bg-primary/30" 
-                          : "bg-muted/30 hover:bg-muted/50 opacity-50 cursor-not-allowed"
-                      )}
-                      variant="ghost"
-                    >
-                      <Search className={cn(
-                        "h-4 w-4 transition-colors",
-                        searchQuery.trim() ? "text-primary" : "text-muted-foreground"
-                      )} />
-                    </RippleButton>
-                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -205,7 +127,7 @@ export const IOSContextualHeaderEnhanced = ({
                 whileTap={{ scale: 0.95 }}
               >
                 <RippleButton
-                  onClick={handleSearchToggle}
+                  onClick={onSearchToggle}
                   className={cn(
                     "w-10 h-10 rounded-full border border-border/50 flex items-center justify-center transition-all duration-200",
                     searchActive 
@@ -274,4 +196,3 @@ export const IOSContextualHeaderEnhanced = ({
     </motion.div>
   );
 };
-
