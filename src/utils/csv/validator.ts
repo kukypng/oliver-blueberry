@@ -1,4 +1,5 @@
 import { CsvBudgetData, CsvError } from '@/types/csv';
+import { CsvNumberUtils } from './numberUtils';
 
 export class CsvValidator {
   /**
@@ -167,7 +168,7 @@ export class CsvValidator {
       }
     }
 
-    // Correção de valores negativos
+    // Correção de valores negativos usando a utility
     if (data.preco_vista < 0) {
       suggestions.preco_vista = Math.abs(data.preco_vista);
     }
@@ -179,6 +180,11 @@ export class CsvValidator {
     }
     if (data.validade_dias < 0) {
       suggestions.validade_dias = Math.abs(data.validade_dias);
+    }
+
+    // Validar se os valores numéricos fazem sentido
+    if (!CsvNumberUtils.isValidNumber(data.preco_vista.toString())) {
+      suggestions.preco_vista = 0;
     }
 
     return suggestions;

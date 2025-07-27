@@ -1,4 +1,5 @@
 import { CsvBudgetData, CsvError, CsvImportResult } from '@/types/csv';
+import { CsvNumberUtils } from './numberUtils';
 
 export class CsvParser {
   private static readonly REQUIRED_HEADERS = [
@@ -148,7 +149,9 @@ export class CsvParser {
 
     const getNumericValue = (header: string): number => {
       const value = getValue(header);
-      const parsed = parseFloat(value.replace(',', '.'));
+      if (!value) return 0;
+      
+      const parsed = CsvNumberUtils.parseNumber(value);
       
       if (isNaN(parsed)) {
         errors.push({
@@ -179,7 +182,11 @@ export class CsvParser {
 
     const getIntegerValue = (header: string): number => {
       const value = getValue(header);
-      const parsed = parseInt(value);
+      if (!value) return 0;
+      
+      // Limpar o valor: remover espaços e caracteres não numéricos
+      const cleanValue = value.trim().replace(/[^\d]/g, '');
+      const parsed = parseInt(cleanValue);
       
       if (isNaN(parsed)) {
         errors.push({

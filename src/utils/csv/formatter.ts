@@ -1,4 +1,5 @@
 import { CsvBudgetData, CsvExportFilters } from '@/types/csv';
+import { CsvNumberUtils } from './numberUtils';
 
 export class CsvFormatter {
   private static readonly HEADERS = [
@@ -35,8 +36,8 @@ export class CsvFormatter {
       this.escapeValue(data.servico_aparelho),
       this.escapeValue(data.qualidade || ''),
       this.escapeValue(data.observacoes || ''),
-      data.preco_vista.toString().replace('.', ','),
-      data.preco_parcelado.toString().replace('.', ','),
+      this.formatNumber(data.preco_vista),
+      this.formatNumber(data.preco_parcelado),
       data.parcelas.toString(),
       this.escapeValue(data.metodo_pagamento),
       data.garantia_meses.toString(),
@@ -46,6 +47,10 @@ export class CsvFormatter {
     ];
 
     return values.join(';');
+  }
+
+  private static formatNumber(value: number): string {
+    return CsvNumberUtils.formatNumber(value);
   }
 
   private static escapeValue(value: string): string {
@@ -115,8 +120,8 @@ export class CsvFormatter {
       servico_aparelho: 'Tela iPhone 11',
       qualidade: 'Gold',
       observacoes: 'Com mensagem de peça não genuína',
-      preco_vista: 750,
-      preco_parcelado: 800,
+      preco_vista: 750.00,
+      preco_parcelado: 800.00,
       parcelas: 10,
       metodo_pagamento: 'Cartão de Crédito',
       garantia_meses: 6,
