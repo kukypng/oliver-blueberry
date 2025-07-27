@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import { GlassCard, RippleButton } from '@/components/ui/animations/micro-interactions';
 import { StaggerContainer } from '@/components/ui/animations/page-transitions';
 import { PWAInstallButton } from '@/components/lite/PWAInstallButton';
+
 interface DashboardLiteQuickAccessEnhancedProps {
   onTabChange: (tab: string) => void;
   hasPermission: (permission: string) => boolean;
 }
+
 interface QuickAccessAction {
   id: string;
   label: string;
@@ -17,6 +19,7 @@ interface QuickAccessAction {
   gradient: string;
   iconColor: string;
 }
+
 const quickAccessActions: QuickAccessAction[] = [{
   id: 'new-budget',
   label: 'Novo Orçamento',
@@ -43,12 +46,20 @@ const quickAccessActions: QuickAccessAction[] = [{
   iconColor: 'text-purple-600'
 }, {
   id: 'data-management',
-  label: 'Gestão de Dados',
+  label: 'Lixeira',
   icon: Database,
   tab: 'data-management',
   permission: null,
   gradient: 'from-orange-500 to-red-500',
   iconColor: 'text-orange-600'
+}, {
+  id: 'import-export',
+  label: 'Dados CSV',
+  icon: Database,
+  tab: 'import-export',
+  permission: null,
+  gradient: 'from-emerald-500 to-teal-500',
+  iconColor: 'text-emerald-600'
 }, {
   id: 'settings',
   label: 'Configurações',
@@ -66,6 +77,7 @@ const quickAccessActions: QuickAccessAction[] = [{
   gradient: 'from-red-500 to-pink-500',
   iconColor: 'text-red-600'
 }];
+
 export const DashboardLiteQuickAccessEnhanced = ({
   onTabChange,
   hasPermission
@@ -73,18 +85,18 @@ export const DashboardLiteQuickAccessEnhanced = ({
   const handleActionClick = (action: QuickAccessAction) => {
     onTabChange(action.tab);
   };
-  const availableActions = quickAccessActions.filter(action => !action.permission || hasPermission(action.permission));
-  return <GlassCard className="p-6 mb-6">
-      <motion.div initial={{
-      opacity: 0,
-      y: 20
-    }} animate={{
-      opacity: 1,
-      y: 0
-    }} transition={{
-      duration: 0.5,
-      delay: 0.1
-    }}>
+
+  const availableActions = quickAccessActions.filter(action => 
+    !action.permission || hasPermission(action.permission)
+  );
+
+  return (
+    <GlassCard className="p-6 mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-semibold text-foreground">
             Acesso Rápido
@@ -94,13 +106,18 @@ export const DashboardLiteQuickAccessEnhanced = ({
         
         <StaggerContainer className="grid grid-cols-2 gap-4">
           {availableActions.map((action, index) => {
-          const Icon = action.icon;
-          return <motion.div key={action.id} whileHover={{
-            scale: 1.02
-          }} whileTap={{
-            scale: 0.98
-          }}>
-                <RippleButton onClick={() => handleActionClick(action)} className="w-full h-24 bg-gradient-to-br from-background/50 to-background/20 border border-border/50 rounded-2xl hover:border-border/80 transition-all duration-300 relative overflow-hidden group" variant="ghost">
+            const Icon = action.icon;
+            return (
+              <motion.div
+                key={action.id}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <RippleButton
+                  onClick={() => handleActionClick(action)}
+                  className="w-full h-24 bg-gradient-to-br from-background/50 to-background/20 border border-border/50 rounded-2xl hover:border-border/80 transition-all duration-300 relative overflow-hidden group"
+                  variant="ghost"
+                >
                   {/* Background gradient effect */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${action.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
                   
@@ -115,20 +132,18 @@ export const DashboardLiteQuickAccessEnhanced = ({
                   </div>
                   
                   {/* Subtle shine effect */}
-                  <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" initial={{
-                x: '-100%'
-              }} whileHover={{
-                x: '100%'
-              }} transition={{
-                duration: 0.6
-              }} />
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+                    initial={{ x: '-100%' }}
+                    whileHover={{ x: '100%' }}
+                    transition={{ duration: 0.6 }}
+                  />
                 </RippleButton>
-              </motion.div>;
-        })}
+              </motion.div>
+            );
+          })}
         </StaggerContainer>
-        
-        {/* Quick stats preview */}
-        
       </motion.div>
-    </GlassCard>;
+    </GlassCard>
+  );
 };
