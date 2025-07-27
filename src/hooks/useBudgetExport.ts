@@ -135,9 +135,22 @@ export const useBudgetExport = () => {
         return;
       }
 
+      // Log dos dados originais do banco
+      console.log('🗄️ Primeiros dados do banco:', {
+        count: filteredBudgets.length,
+        firstBudget: filteredBudgets[0] ? {
+          id: filteredBudgets[0].id,
+          total_price: filteredBudgets[0].total_price,
+          cash_price: filteredBudgets[0].cash_price,
+          installment_price: filteredBudgets[0].installment_price,
+          device_type: filteredBudgets[0].device_type,
+          device_model: filteredBudgets[0].device_model
+        } : null
+      });
+
       // Converter orçamentos para formato CSV
       const csvData = filteredBudgets.map(budget => {
-        return BudgetMapper.budgetToCsv({
+        const mappedBudget = BudgetMapper.budgetToCsv({
           id: budget.id,
           client_name: budget.client_name || 'Cliente não informado',
           client_phone: budget.client_phone,
@@ -157,6 +170,18 @@ export const useBudgetExport = () => {
           created_at: budget.created_at ? new Date(budget.created_at) : new Date(),
           updated_at: budget.updated_at ? new Date(budget.updated_at) : new Date(),
         });
+        
+        // Log do primeiro mapeamento para debug
+        if (budget.id === filteredBudgets[0]?.id) {
+          console.log('🔄 Mapeamento CSV:', {
+            original_cash_price: budget.cash_price,
+            original_total_price: budget.total_price,
+            mapped_preco_vista: mappedBudget.preco_vista,
+            mapped_preco_parcelado: mappedBudget.preco_parcelado
+          });
+        }
+        
+        return mappedBudget;
       });
 
       // Gerar conteúdo CSV

@@ -48,8 +48,8 @@ export const CsvImportPreview: React.FC<CsvImportPreviewProps> = ({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                           <div><strong>Tipo:</strong> {item.tipo_aparelho}</div>
                           <div><strong>Serviço:</strong> {item.servico_aparelho}</div>
-                          <div><strong>Preço à Vista:</strong> R$ {item.preco_vista.toFixed(2)}</div>
-                          <div><strong>Preço Parcelado:</strong> R$ {item.preco_parcelado.toFixed(2)}</div>
+                           <div><strong>Preço à Vista:</strong> R$ {Number.isInteger(item.preco_vista) ? item.preco_vista : item.preco_vista.toFixed(2)}</div>
+                           <div><strong>Preço Parcelado:</strong> R$ {Number.isInteger(item.preco_parcelado) ? item.preco_parcelado : item.preco_parcelado.toFixed(2)}</div>
                           <div><strong>Parcelas:</strong> {item.parcelas}x</div>
                           <div><strong>Garantia:</strong> {item.garantia_meses} meses</div>
                           {item.qualidade && (

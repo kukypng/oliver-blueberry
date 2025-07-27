@@ -29,6 +29,25 @@ export class CsvFormatter {
     const detection = NumberDetector.analyzeData(filteredData);
     const useIntegerMode = detection.isIntegerMode;
     
+    // Log para debug
+    console.log('🔍 Detecção de números:', {
+      totalItems: filteredData.length,
+      integerCount: detection.integerCount,
+      decimalCount: detection.decimalCount,
+      isIntegerMode: useIntegerMode,
+      confidence: detection.confidence,
+      recommendations: detection.recommendations
+    });
+
+    // Log dos primeiros valores para debug
+    if (filteredData.length > 0) {
+      console.log('💰 Primeiros valores:', {
+        preco_vista: filteredData[0].preco_vista,
+        preco_parcelado: filteredData[0].preco_parcelado,
+        useIntegerMode
+      });
+    }
+    
     const headerLine = this.HEADERS.join(';');
     const dataLines = filteredData.map(item => this.formatRow(item, useIntegerMode));
     
@@ -36,13 +55,16 @@ export class CsvFormatter {
   }
 
   private static formatRow(data: CsvBudgetData, forceInteger: boolean = false): string {
+    const formattedPriceVista = NumberUtils.formatForCsv(data.preco_vista, forceInteger);
+    const formattedPriceParcelado = NumberUtils.formatForCsv(data.preco_parcelado, forceInteger);
+    
     const values = [
       this.escapeValue(data.tipo_aparelho),
       this.escapeValue(data.servico_aparelho),
       this.escapeValue(data.qualidade || ''),
       this.escapeValue(data.observacoes || ''),
-      NumberUtils.formatForCsv(data.preco_vista, forceInteger),
-      NumberUtils.formatForCsv(data.preco_parcelado, forceInteger),
+      formattedPriceVista,
+      formattedPriceParcelado,
       data.parcelas.toString(),
       this.escapeValue(data.metodo_pagamento),
       data.garantia_meses.toString(),
@@ -50,6 +72,18 @@ export class CsvFormatter {
       data.inclui_entrega ? 'sim' : 'não',
       data.inclui_pelicula ? 'sim' : 'não'
     ];
+
+    // Log para debug da primeira linha
+    if (data.tipo_aparelho === 'celular' || Math.random() < 0.1) {
+      console.log('📄 Formatando linha:', {
+        tipo: data.tipo_aparelho,
+        preco_vista_original: data.preco_vista,
+        preco_vista_formatado: formattedPriceVista,
+        preco_parcelado_original: data.preco_parcelado,
+        preco_parcelado_formatado: formattedPriceParcelado,
+        forceInteger
+      });
+    }
 
     return values.join(';');
   }

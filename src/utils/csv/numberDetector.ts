@@ -10,7 +10,7 @@ export interface NumberDetectionResult {
 }
 
 export class NumberDetector {
-  private static readonly INTEGER_THRESHOLD = 0.9; // 90% dos valores devem ser inteiros
+  private static readonly INTEGER_THRESHOLD = 0.95; // 95% dos valores devem ser inteiros
 
   static analyzeData(data: CsvBudgetData[]): NumberDetectionResult {
     if (data.length === 0) {
