@@ -24,19 +24,32 @@ export interface BudgetData {
 export class BudgetMapper {
   /**
    * Converte dados CSV para formato de orçamento do sistema
+   * CORREÇÃO: Converte valores do CSV (reais) para banco (centavos)
    */
   static csvToBudget(csvData: CsvBudgetData): BudgetData {
     const validUntil = new Date();
     validUntil.setDate(validUntil.getDate() + csvData.validade_dias);
+
+    // CORREÇÃO CRÍTICA: Converter reais para centavos
+    // Valores no CSV estão em reais (2589), banco deve ter centavos (258900)
+    const cashPriceCentavos = Math.round(csvData.preco_vista * 100);
+    const installmentPriceCentavos = Math.round(csvData.preco_parcelado * 100);
+
+    console.log(`BudgetMapper.csvToBudget: Convertendo preços:`, {
+      original_cash: csvData.preco_vista,
+      converted_cash: cashPriceCentavos,
+      original_installment: csvData.preco_parcelado,
+      converted_installment: installmentPriceCentavos
+    });
 
     return {
       client_name: 'Cliente Importado CSV',
       client_phone: undefined,
       device_type: csvData.tipo_aparelho,
       device_model: csvData.servico_aparelho,
-      total_price: csvData.preco_vista,
-      cash_price: csvData.preco_vista,
-      installment_price: csvData.preco_parcelado,
+      total_price: cashPriceCentavos,
+      cash_price: cashPriceCentavos,
+      installment_price: installmentPriceCentavos,
       installments: csvData.parcelas,
       payment_condition: csvData.metodo_pagamento,
       warranty_months: csvData.garantia_meses,
@@ -50,19 +63,32 @@ export class BudgetMapper {
 
   /**
    * Converte orçamento do sistema para formato CSV
+   * CORREÇÃO: Converte valores do banco (centavos) para CSV (reais)
    */
   static budgetToCsv(budgetData: BudgetData): CsvBudgetData {
     const validityDays = budgetData.valid_until 
       ? Math.ceil((budgetData.valid_until.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
       : 15;
 
+    // CORREÇÃO CRÍTICA: Converter centavos para reais
+    // Valores no banco estão em centavos (258900), CSV deve ter reais (2589)
+    const cashPriceReais = Math.round((budgetData.cash_price || budgetData.total_price) / 100);
+    const installmentPriceReais = Math.round((budgetData.installment_price || budgetData.total_price) / 100);
+
+    console.log(`BudgetMapper.budgetToCsv: Convertendo preços:`, {
+      original_cash: budgetData.cash_price,
+      converted_cash: cashPriceReais,
+      original_installment: budgetData.installment_price,
+      converted_installment: installmentPriceReais
+    });
+
     return {
       tipo_aparelho: budgetData.device_type,
       servico_aparelho: budgetData.device_model,
       qualidade: budgetData.part_quality,
       observacoes: budgetData.notes,
-      preco_vista: budgetData.cash_price || budgetData.total_price,
-      preco_parcelado: budgetData.installment_price || budgetData.total_price,
+      preco_vista: cashPriceReais,
+      preco_parcelado: installmentPriceReais,
       parcelas: budgetData.installments || 1,
       metodo_pagamento: budgetData.payment_condition,
       garantia_meses: budgetData.warranty_months,
