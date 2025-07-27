@@ -148,23 +148,28 @@ export const useBudgetExport = () => {
         } : null
       });
 
-      // Converter orçamentos para formato CSV
+      // Converter orçamentos para formato CSV com todos os campos importantes
       const csvData = filteredBudgets.map(budget => {
+        // Garantir que installment_price seja diferente de cash_price quando há mais de 1 parcela
+        const defaultCashPrice = budget.cash_price || budget.total_price;
+        const defaultInstallmentPrice = budget.installment_price || 
+          (budget.installments > 1 ? defaultCashPrice * 1.05 : defaultCashPrice);
+
         const mappedBudget = BudgetMapper.budgetToCsv({
           id: budget.id,
           client_name: budget.client_name || 'Cliente não informado',
-          client_phone: budget.client_phone,
+          client_phone: budget.client_phone || '',
           device_type: budget.device_type,
           device_model: budget.device_model,
           total_price: budget.total_price,
-          cash_price: budget.cash_price || budget.total_price,
-          installment_price: budget.installment_price || budget.total_price,
+          cash_price: defaultCashPrice,
+          installment_price: defaultInstallmentPrice,
           installments: budget.installments || 1,
           payment_condition: budget.payment_condition || 'À Vista',
           warranty_months: budget.warranty_months || 3,
           valid_until: budget.valid_until ? new Date(budget.valid_until) : new Date(),
-          part_quality: budget.part_quality,
-          notes: budget.notes,
+          part_quality: budget.part_quality || '',
+          notes: budget.notes || '',
           includes_delivery: budget.includes_delivery || false,
           includes_screen_protector: budget.includes_screen_protector || false,
           created_at: budget.created_at ? new Date(budget.created_at) : new Date(),

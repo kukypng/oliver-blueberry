@@ -928,6 +928,10 @@ export type Database = {
         Args: { input_text: string }
         Returns: boolean
       }
+      fix_budget_data_for_export: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       fix_orphaned_budgets: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -939,6 +943,22 @@ export type Database = {
       get_allowed_redirect_domains: {
         Args: Record<PropertyKey, never>
         Returns: string[]
+      }
+      get_budget_export_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_budgets: number
+          with_cash_price: number
+          with_installment_price: number
+          with_client_name: number
+          with_phone: number
+          with_part_quality: number
+          with_notes: number
+          avg_cash_price: number
+          avg_installment_price: number
+          min_cash_price: number
+          max_cash_price: number
+        }[]
       }
       get_budgets_with_part_quality: {
         Args: { p_user_id: string }
@@ -1163,6 +1183,14 @@ export type Database = {
       validate_user_license: {
         Args: { p_user_id: string }
         Returns: Json
+      }
+      verify_budget_data_integrity: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          issue_type: string
+          count_affected: number
+          description: string
+        }[]
       }
     }
     Enums: {
