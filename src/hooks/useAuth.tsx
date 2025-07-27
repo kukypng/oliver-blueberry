@@ -26,6 +26,8 @@ interface AuthContextType {
   session: Session | null;
   profile: UserProfile | null;
   loading: boolean;
+  isInitialized: boolean;
+  licenseData: {is_valid: boolean; message?: string} | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, userData: { name: string; role?: string }) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -50,6 +52,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [licenseData, setLicenseData] = useState<{is_valid: boolean; message?: string} | null>(null);
   const { showSuccess, showError, showLoading } = useToast();
   const navigate = useNavigate();
 
@@ -65,53 +69,96 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .maybeSingle();
 
       if (error) {
+        console.error('Erro ao buscar perfil:', error);
         return null;
       }
       return data as UserProfile;
     },
-    enabled: !!user?.id,
-    staleTime: 1000 * 60 * 5, // Cache profile for 5 minutes
-    gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
+    enabled: !!user?.id && isInitialized,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 
-  useEffect(() => {
-    let isInitialized = false;
+  // Validação de licença consolidada
+  const validateLicense = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.rpc('is_license_valid', {
+        p_user_id: userId
+      });
+      
+      if (error) {
+        console.error('Erro ao validar licença:', error);
+        setLicenseData({ is_valid: false, message: 'Erro ao validar licença' });
+      } else {
+        setLicenseData({ 
+          is_valid: Boolean(data), 
+          message: data ? 'Licença válida' : 'Licença inválida'
+        });
+      }
+    } catch (error) {
+      console.error('Erro interno na validação de licença:', error);
+      setLicenseData({ is_valid: false, message: 'Erro interno' });
+    }
+  };
 
-    // Primeiro, verificar sessão existente
+  useEffect(() => {
+    let mounted = true;
+
+    // Inicialização sequencial para evitar race conditions
     const initializeAuth = async () => {
       try {
+        console.log('Iniciando verificação de sessão...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (!error) {
+        if (!mounted) return;
+        
+        if (!error && session) {
+          console.log('Sessão encontrada:', session.user.id);
           setSession(session);
-          setUser(session?.user ?? null);
+          setUser(session.user);
+          
+          // Validar licença após autenticação
+          await validateLicense(session.user.id);
+        } else {
+          console.log('Nenhuma sessão encontrada');
+          setSession(null);
+          setUser(null);
+          setLicenseData(null);
         }
       } catch (error) {
-        console.error('Erro ao verificar sessão existente:', error);
-        setSession(null);
-        setUser(null);
+        console.error('Erro ao verificar sessão:', error);
+        if (mounted) {
+          setSession(null);
+          setUser(null);
+          setLicenseData(null);
+        }
       } finally {
-        isInitialized = true;
-        setLoading(false);
+        if (mounted) {
+          setIsInitialized(true);
+          setLoading(false);
+        }
       }
     };
 
-    // Configurar listener de mudanças de estado
+    // Configurar listener APÓS inicialização
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        // Só atualizar se já foi inicializado ou se é um evento importante
-        if (isInitialized || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          // Se não foi inicializado ainda, marca como tal
-          if (!isInitialized) {
-            isInitialized = true;
-            setLoading(false);
-          }
+        if (!mounted) return;
+        
+        console.log('Auth state change:', event, session?.user?.id);
+        
+        // Atualizar estado imediatamente
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Validar licença se usuário logado
+        if (session?.user) {
+          await validateLicense(session.user.id);
+        } else {
+          setLicenseData(null);
         }
 
-        // Trata redirecionamentos e notificações com base no evento, especialmente da página /verify
+        // Lidar com redirecionamentos específicos
         if (window.location.pathname === '/verify') {
           switch (event) {
             case 'PASSWORD_RECOVERY':
@@ -136,7 +183,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
 
-        // Esta parte é executada para logins iniciais ou se não vier da página /verify
+        // Criar perfil se necessário
         if (event === 'SIGNED_IN' && session?.user) {
           setTimeout(async () => {
             try {
@@ -157,17 +204,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     });
               }
             } catch (error) {
-              // Silent error handling
+              console.error('Erro ao criar perfil:', error);
             }
-          }, 0);
+          }, 100);
         }
       }
     );
 
-    // Inicializar autenticação
+    // Inicializar
     initializeAuth();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate, showSuccess]);
 
   const signIn = async (email: string, password: string) => {
@@ -411,6 +461,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session,
     profile,
     loading,
+    isInitialized,
+    licenseData,
     signIn,
     signUp,
     signOut,

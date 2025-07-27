@@ -11,10 +11,9 @@ interface AuthGuardProps {
 }
 
 export const AuthGuard = ({ children }: AuthGuardProps) => {
-  const { user, loading, profile } = useAuth();
-  const { data: licenseData, isLoading: licenseLoading } = useEnhancedLicenseValidation();
+  const { user, loading, isInitialized, licenseData } = useAuth();
 
-  if (loading || licenseLoading) {
+  if (loading || !isInitialized) {
     return <MobileLoading message="Verificando autenticação..." />;
   }
 
@@ -39,7 +38,10 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
           </div>
           <div className="flex justify-center">
             <button 
-              onClick={() => window.location.reload()} 
+              onClick={() => {
+                // Forçar uma nova verificação de sessão sem recarregar a página
+                window.location.href = window.location.href;
+              }}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
             >
               Já confirmei
