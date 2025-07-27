@@ -11,10 +11,18 @@ interface AuthGuardProps {
 }
 
 export const AuthGuard = ({ children }: AuthGuardProps) => {
-  const { user, loading, profile } = useAuth();
+  const { user, loading, profile, isInitialized } = useAuth();
   const { data: licenseData, isLoading: licenseLoading } = useEnhancedLicenseValidation();
 
-  if (loading || licenseLoading) {
+  console.log('🛡️ AuthGuard - Estado:', { 
+    user: !!user, 
+    loading, 
+    isInitialized, 
+    emailConfirmed: !!user?.email_confirmed_at,
+    licenseValid: licenseData?.is_valid 
+  });
+
+  if (loading || !isInitialized || licenseLoading) {
     return <MobileLoading message="Verificando autenticação..." />;
   }
 
@@ -39,7 +47,10 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
           </div>
           <div className="flex justify-center">
             <button 
-              onClick={() => window.location.reload()} 
+              onClick={() => {
+                console.log('🔄 Recarregando para verificar confirmação...');
+                window.location.reload();
+              }} 
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
             >
               Já confirmei

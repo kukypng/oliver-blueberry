@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { SecureRedirect } from '@/utils/secureRedirect';
 import { SecurityValidation } from '@/utils/securityValidation';
 import { AuthErrorBoundary } from '@/components/ErrorBoundaries';
+import { useDevicePersistence } from '@/hooks/useDevicePersistence';
 
 export type UserRole = 'admin' | 'manager' | 'user';
 
@@ -26,6 +27,7 @@ interface AuthContextType {
   session: Session | null;
   profile: UserProfile | null;
   loading: boolean;
+  isInitialized: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, userData: { name: string; role?: string }) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -50,8 +52,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
   const { showSuccess, showError, showLoading } = useToast();
   const navigate = useNavigate();
+  const { 
+    isTrustedDevice, 
+    trustDevice, 
+    shouldMaintainLogin, 
+    updateDeviceActivity,
+    checkTrustedDevice 
+  } = useDevicePersistence();
+
+  // Função para salvar estado de login persistente
+  const saveLoginState = (session: Session | null) => {
+    if (session) {
+      localStorage.setItem('supabase_session_timestamp', Date.now().toString());
+      localStorage.setItem('supabase_user_preference', 'stay_logged_in');
+      updateDeviceActivity();
+      
+      // Marcar dispositivo como confiável após login bem-sucedido
+      if (!isTrustedDevice) {
+        trustDevice();
+      }
+    } else {
+      localStorage.removeItem('supabase_session_timestamp');
+      localStorage.removeItem('supabase_user_preference');
+    }
+  };
 
   const { data: profile } = useQuery({
     queryKey: ['user-profile', user?.id],
@@ -75,14 +102,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
+    let initializationTimeout: NodeJS.Timeout;
+    
+    console.log('🔐 Iniciando AuthProvider...');
+    
+    // Configurar listener de mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        // Sempre atualiza o estado da sessão
+        console.log('🔄 Auth state change:', event, !!session);
+        
+        // Salvar estado de persistência
+        saveLoginState(session);
+        
+        // Atualizar estado da sessão
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Marcar como carregamento concluído
+        if (!isInitialized) {
+          setIsInitialized(true);
+        }
         setLoading(false);
 
-        // Trata redirecionamentos e notificações com base no evento, especialmente da página /verify
+        // Tratar eventos específicos baseados na página atual
         if (window.location.pathname === '/verify') {
           switch (event) {
             case 'PASSWORD_RECOVERY':
@@ -107,8 +149,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
 
-        // Esta parte é executada para logins iniciais ou se não vier da página /verify
-        if (event === 'SIGNED_IN' && session?.user) {
+        // Criar perfil se necessário (apenas para novos usuários)
+        if (event === 'SIGNED_IN' && session?.user && window.location.pathname !== '/verify') {
+          console.log('👤 Criando perfil para novo usuário...');
           setTimeout(async () => {
             try {
               const { data: existingProfile } = await supabase
@@ -118,41 +161,92 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 .maybeSingle();
 
               if (!existingProfile) {
-                  await supabase
-                    .from('user_profiles')
-                    .insert({
-                      id: session.user.id,
-                      name: session.user.user_metadata?.name || session.user.email || 'Usuário',
-                      role: 'user',
-                      expiration_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
-                    });
+                console.log('📝 Inserindo novo perfil...');
+                await supabase
+                  .from('user_profiles')
+                  .insert({
+                    id: session.user.id,
+                    name: session.user.user_metadata?.name || session.user.email || 'Usuário',
+                    role: 'user',
+                    expiration_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+                  });
               }
             } catch (error) {
-              // Silent error handling
+              console.error('❌ Erro ao criar perfil:', error);
             }
           }, 0);
         }
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Verificar sessão existente com timeout de segurança
+    const initializeAuth = async () => {
+      try {
+        console.log('🔍 Verificando sessão existente...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ Erro ao obter sessão:', error);
+        }
+        
+        console.log('✅ Sessão obtida:', !!session);
+        console.log('📱 Dispositivo confiável:', isTrustedDevice);
+        console.log('🔄 Deve manter login:', shouldMaintainLogin());
+        
+        // Se tem sessão ou deve manter login baseado no dispositivo
+        if (session || (shouldMaintainLogin() && session)) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          saveLoginState(session);
+          
+          if (session?.user) {
+            console.log('🎉 Usuário já logado, mantendo sessão');
+            console.log('👤 Usuário:', session.user.email);
+            
+            // Verificar se dispositivo é confiável para o usuário
+            await checkTrustedDevice(session.user.id);
+          }
+        } else {
+          console.log('❌ Nenhuma sessão válida encontrada');
+          setSession(null);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('❌ Erro na inicialização de auth:', error);
+      } finally {
+        setLoading(false);
+        setIsInitialized(true);
+      }
+    };
 
-    return () => subscription.unsubscribe();
-  }, [navigate, showSuccess]);
+    // Timeout de segurança para marcação como inicializado
+    initializationTimeout = setTimeout(() => {
+      if (!isInitialized) {
+        console.log('⏰ Timeout de inicialização atingido');
+        setIsInitialized(true);
+        setLoading(false);
+      }
+    }, 3000);
+
+    initializeAuth();
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(initializationTimeout);
+    };
+  }, []); // Remover dependências para evitar re-inicializações
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('🔑 Tentando fazer login...');
+      
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
+        console.error('❌ Erro no login:', signInError);
         const errorMessage = signInError.message === 'Invalid login credentials' 
           ? 'Email ou senha incorretos'
           : signInError.message;
@@ -165,7 +259,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (signInData.user) {
-        // Check user profile existence
+        console.log('✅ Login bem-sucedido, verificando perfil...');
+        
+        // Salvar preferência de persistência
+        localStorage.setItem('supabase_user_preference', 'stay_logged_in');
+        
+        // Verificar existência do perfil
         const { data: profileData, error: profileError } = await supabase
           .from('user_profiles')
           .select('id')
@@ -173,6 +272,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .maybeSingle();
 
         if (profileError || !profileData) {
+          console.error('❌ Perfil não encontrado, fazendo logout...');
           await supabase.auth.signOut();
           showError({
             title: 'Erro no login',
@@ -181,19 +281,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return { error: profileError || new Error('Profile not found') };
         }
 
+        console.log('🎉 Login completo, redirecionando...');
         showSuccess({
           title: 'Login realizado com sucesso!',
-          description: 'Redirecionando...'
+          description: 'Bem-vindo de volta!'
         });
         
-        // Use React Router navigation instead of window.location.href
-        setTimeout(() => {
-          navigate('/dashboard', { replace: true });
-        }, 500);
+        // Navegação imediata para evitar delay
+        navigate('/dashboard', { replace: true });
       }
       
       return { error: null };
     } catch (error) {
+      console.error('❌ Erro inesperado no login:', error);
       showError({
         title: 'Erro inesperado',
         description: 'Ocorreu um erro durante o login. Tente novamente.'
@@ -336,12 +436,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
+      console.log('🚪 Fazendo logout...');
+      
+      // Limpar dados de persistência
+      localStorage.removeItem('supabase_session_timestamp');
+      localStorage.removeItem('supabase_user_preference');
+      
       const { error } = await supabase.auth.signOut();
       if (error) {
         throw error;
       }
+      
+      console.log('✅ Logout realizado com sucesso');
       navigate('/auth', { replace: true });
     } catch (error) {
+      console.error('❌ Erro no logout:', error);
       showError({
         title: 'Erro no logout',
         description: 'Ocorreu um erro ao desconectar. Tente novamente.'
@@ -386,6 +495,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     session,
     profile,
     loading,
+    isInitialized,
     signIn,
     signUp,
     signOut,
