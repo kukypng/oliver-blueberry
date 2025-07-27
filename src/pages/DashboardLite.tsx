@@ -17,18 +17,18 @@ import { IOSSpinner } from '@/components/ui/animations/loading-states';
 
 export const DashboardLite = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const { profile, user, hasPermission } = useAuth();
+  const { profile, user, hasPermission, isInitialized, loading: authLoading } = useAuth();
   
   // Memoização da verificação de iOS para evitar recálculos
   const isiOSDevice = useMemo(() => {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) || navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
   }, []);
 
-  // Aguardar user e profile estarem disponíveis
-  const isReady = useMemo(() => Boolean(user?.id && profile), [user?.id, profile]);
+  // Aguardar user estar disponível e sistema inicializado
+  const isReady = useMemo(() => Boolean(user?.id && isInitialized), [user?.id, isInitialized]);
 
   // Hook para gerenciar dados dos orçamentos
-  const { budgets, loading, error, refreshing, handleRefresh } = useBudgetData(user?.id || '');
+  const { budgets, loading: budgetsLoading, error, refreshing, handleRefresh } = useBudgetData(user?.id || '');
 
   // Real-time subscription otimizada
   useEffect(() => {
@@ -74,8 +74,17 @@ export const DashboardLite = () => {
     };
   }, [isReady, user?.id, handleRefresh]);
 
+  // Debug para entender o estado atual
+  console.log('DashboardLite state:', { 
+    user: !!user?.id, 
+    isInitialized, 
+    authLoading, 
+    isReady,
+    profile: !!profile 
+  });
+
   // Otimização para iOS: não renderizar nada até dados estarem prontos
-  if (!isReady) {
+  if (authLoading || !isInitialized) {
     return (
       <div 
         className="h-[100dvh] bg-background flex items-center justify-center" 
@@ -86,7 +95,9 @@ export const DashboardLite = () => {
       >
         <div className="text-center space-y-4">
           <IOSSpinner size="lg" />
-          <p className="text-sm text-muted-foreground font-medium">Carregando...</p>
+          <p className="text-sm text-muted-foreground font-medium">
+            {authLoading ? 'Verificando autenticação...' : 'Inicializando...'}
+          </p>
         </div>
       </div>
     );
@@ -111,7 +122,7 @@ export const DashboardLite = () => {
         <PageTransition type="slideLeft" key={activeTab}>
           <DashboardLiteContent 
             budgets={budgets} 
-            loading={loading} 
+            loading={budgetsLoading} 
             error={error} 
             onRefresh={handleRefresh} 
             profile={profile} 
@@ -132,7 +143,7 @@ export const DashboardLite = () => {
       );
     }
     return dashboardContent;
-  }, [activeTab, budgets, loading, error, handleRefresh, profile, user.id, hasPermission, isiOSDevice, dashboardContent]);
+  }, [activeTab, budgets, budgetsLoading, error, handleRefresh, profile, user.id, hasPermission, isiOSDevice, dashboardContent]);
 
   return (
     <AuthErrorBoundary>
