@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { SecureRedirect } from '@/utils/secureRedirect';
 import { SecurityValidation } from '@/utils/securityValidation';
 import { AuthErrorBoundary } from '@/components/ErrorBoundaries';
-import { useDevicePersistence } from '@/hooks/useDevicePersistence';
 
 export type UserRole = 'admin' | 'manager' | 'user';
 
@@ -55,13 +54,111 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const { showSuccess, showError, showLoading } = useToast();
   const navigate = useNavigate();
-  const { 
-    isTrustedDevice, 
-    trustDevice, 
-    shouldMaintainLogin, 
-    updateDeviceActivity,
-    checkTrustedDevice 
-  } = useDevicePersistence();
+  
+  // Inicializar device persistence sem dependências circulares
+  const [deviceState, setDeviceState] = useState({
+    deviceId: '',
+    isTrustedDevice: false,
+    isInitialized: false
+  });
+
+  // Funções de device persistence integradas
+  const generateDeviceId = () => {
+    let savedDeviceId = localStorage.getItem('device_fingerprint');
+    
+    if (!savedDeviceId) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx?.fillText('DeviceFingerprint', 10, 10);
+      const canvasFingerprint = canvas.toDataURL();
+      
+      const deviceData = {
+        screen: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
+        platform: navigator.platform,
+        canvas: canvasFingerprint.slice(-50),
+        timestamp: Date.now()
+      };
+      
+      savedDeviceId = btoa(JSON.stringify(deviceData)).slice(0, 32);
+      localStorage.setItem('device_fingerprint', savedDeviceId);
+    }
+    
+    return savedDeviceId;
+  };
+
+  const checkTrustedDevice = () => {
+    const deviceFingerprint = generateDeviceId();
+    const trustedDevices = localStorage.getItem('trusted_devices');
+    
+    if (trustedDevices) {
+      const devices = JSON.parse(trustedDevices);
+      return devices.includes(deviceFingerprint);
+    }
+    
+    return false;
+  };
+
+  const trustDevice = () => {
+    const deviceFingerprint = generateDeviceId();
+    const trustedDevices = localStorage.getItem('trusted_devices');
+    
+    let devices: string[] = [];
+    if (trustedDevices) {
+      devices = JSON.parse(trustedDevices);
+    }
+    
+    if (!devices.includes(deviceFingerprint)) {
+      devices.push(deviceFingerprint);
+      localStorage.setItem('trusted_devices', JSON.stringify(devices));
+      setDeviceState(prev => ({ ...prev, isTrustedDevice: true }));
+      console.log('✅ Dispositivo marcado como confiável');
+    }
+  };
+
+  const updateDeviceActivity = () => {
+    const lastActivity = {
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    };
+    
+    localStorage.setItem('last_device_activity', JSON.stringify(lastActivity));
+  };
+
+  const shouldMaintainLogin = (): boolean => {
+    const userPreference = localStorage.getItem('supabase_user_preference');
+    const sessionTimestamp = localStorage.getItem('supabase_session_timestamp');
+    const lastActivity = localStorage.getItem('last_device_activity');
+    
+    console.log('🔍 Verificando manutenção de login:', {
+      userPreference,
+      hasSessionTimestamp: !!sessionTimestamp,
+      hasLastActivity: !!lastActivity,
+      isTrustedDevice: deviceState.isTrustedDevice
+    });
+    
+    if (userPreference === 'stay_logged_in' && sessionTimestamp && deviceState.isTrustedDevice) {
+      const sessionAge = (Date.now() - parseInt(sessionTimestamp)) / (1000 * 60 * 60 * 24);
+      
+      if (lastActivity) {
+        const activity = JSON.parse(lastActivity);
+        const daysSinceLastActivity = (Date.now() - activity.timestamp) / (1000 * 60 * 60 * 24);
+        
+        const shouldMaintain = sessionAge < 30 && daysSinceLastActivity < 30;
+        console.log('📊 Análise de manutenção:', {
+          sessionAge: sessionAge.toFixed(1),
+          daysSinceLastActivity: daysSinceLastActivity.toFixed(1),
+          shouldMaintain
+        });
+        
+        return shouldMaintain;
+      }
+    }
+    
+    return false;
+  };
 
   // Função para salvar estado de login persistente
   const saveLoginState = (session: Session | null) => {
@@ -71,7 +168,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       updateDeviceActivity();
       
       // Marcar dispositivo como confiável após login bem-sucedido
-      if (!isTrustedDevice) {
+      if (!deviceState.isTrustedDevice) {
         trustDevice();
       }
     } else {
@@ -101,7 +198,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
   });
 
+  // Inicializar device state
   useEffect(() => {
+    const deviceId = generateDeviceId();
+    const isTrusted = checkTrustedDevice();
+    
+    setDeviceState({
+      deviceId,
+      isTrustedDevice: isTrusted,
+      isInitialized: true
+    });
+    
+    console.log('📱 Device state inicializado:', { deviceId, isTrusted });
+  }, []);
+
+  useEffect(() => {
+    // Só inicializar auth após device state estar pronto
+    if (!deviceState.isInitialized) return;
+    
     let initializationTimeout: NodeJS.Timeout;
     
     console.log('🔐 Iniciando AuthProvider...');
@@ -190,47 +304,64 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
         
         console.log('✅ Sessão obtida:', !!session);
-        console.log('📱 Dispositivo confiável:', isTrustedDevice);
+        console.log('📱 Dispositivo confiável:', deviceState.isTrustedDevice);
         console.log('🔄 Deve manter login:', shouldMaintainLogin());
         
-        // Se tem sessão ativa ou deve manter login baseado no dispositivo
+        // Primeiro: tentar usar sessão atual se existir
         if (session) {
+          console.log('🎉 Sessão ativa encontrada, mantendo login');
           setSession(session);
-          setUser(session?.user ?? null);
+          setUser(session.user);
           saveLoginState(session);
-        } else if (shouldMaintainLogin()) {
+          return;
+        }
+        
+        // Segundo: tentar recuperar sessão se dispositivo é confiável
+        if (shouldMaintainLogin()) {
           console.log('🔄 Tentando restaurar sessão em dispositivo confiável...');
-          // Tentar restaurar sessão silenciosamente
           try {
             const { data: refreshedSession } = await supabase.auth.refreshSession();
             if (refreshedSession?.session) {
-              console.log('✅ Sessão restaurada com sucesso');
+              console.log('✅ Sessão restaurada com sucesso via refresh');
               setSession(refreshedSession.session);
               setUser(refreshedSession.session.user);
               saveLoginState(refreshedSession.session);
-            } else {
-              console.log('❌ Não foi possível restaurar sessão');
-              setSession(null);
-              setUser(null);
+              return;
             }
           } catch (refreshError) {
             console.error('❌ Erro ao restaurar sessão:', refreshError);
-            setSession(null);
-            setUser(null);
           }
-          
-          if (session?.user) {
-            console.log('🎉 Usuário já logado, mantendo sessão');
-            console.log('👤 Usuário:', session.user.email);
-            
-            // Verificar se dispositivo é confiável para o usuário
-            await checkTrustedDevice(session.user.id);
-          }
-        } else {
-          console.log('❌ Nenhuma sessão válida encontrada');
-          setSession(null);
-          setUser(null);
         }
+        
+        // Terceiro: verificar se há tokens residuais que possam ser utilizados
+        const storedAuthData = localStorage.getItem(`sb-oghjlypdnmqecaavekyr-auth-token`);
+        if (storedAuthData && deviceState.isTrustedDevice) {
+          console.log('🔄 Tentando recuperar de token armazenado...');
+          try {
+            const authData = JSON.parse(storedAuthData);
+            if (authData?.access_token) {
+              const { data: userFromToken, error: tokenError } = await supabase.auth.getUser(authData.access_token);
+              if (userFromToken?.user && !tokenError) {
+                console.log('✅ Usuário recuperado de token armazenado');
+                // Criar sessão manual se possível
+                const session = {
+                  ...authData,
+                  user: userFromToken.user
+                };
+                setSession(session as Session);
+                setUser(userFromToken.user);
+                saveLoginState(session as Session);
+                return;
+              }
+            }
+          } catch (tokenError) {
+            console.error('❌ Erro ao recuperar de token:', tokenError);
+          }
+        }
+        
+        console.log('❌ Nenhuma sessão válida encontrada');
+        setSession(null);
+        setUser(null);
       } catch (error) {
         console.error('❌ Erro na inicialização de auth:', error);
       } finally {
@@ -254,7 +385,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       subscription.unsubscribe();
       clearTimeout(initializationTimeout);
     };
-  }, []); // Remover dependências para evitar re-inicializações
+  }, [deviceState.isInitialized]); // Dependência no device state
 
   const signIn = async (email: string, password: string) => {
     try {
