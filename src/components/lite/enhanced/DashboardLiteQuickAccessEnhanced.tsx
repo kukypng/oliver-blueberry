@@ -53,14 +53,6 @@ const quickAccessActions: QuickAccessAction[] = [{
   gradient: 'from-orange-500 to-red-500',
   iconColor: 'text-orange-600'
 }, {
-  id: 'import-export',
-  label: 'Dados CSV',
-  icon: Database,
-  tab: 'import-export',
-  permission: null,
-  gradient: 'from-emerald-500 to-teal-500',
-  iconColor: 'text-emerald-600'
-}, {
   id: 'settings',
   label: 'Configurações',
   icon: Settings,

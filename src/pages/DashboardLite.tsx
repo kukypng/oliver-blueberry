@@ -8,7 +8,7 @@ import { DashboardLiteStatsEnhanced } from '@/components/lite/enhanced/Dashboard
 import { DashboardLiteQuickAccessEnhanced } from '@/components/lite/enhanced/DashboardLiteQuickAccessEnhanced';
 import { DashboardLiteLicenseStatus } from '@/components/lite/DashboardLiteLicenseStatus';
 import { DashboardLiteHelpSupport } from '@/components/lite/DashboardLiteHelpSupport';
-import { DataImportExport } from '@/components/lite/DataImportExport';
+
 import { BudgetErrorBoundary, AuthErrorBoundary } from '@/components/ErrorBoundaries';
 import { LayoutProvider } from '@/contexts/LayoutContext';
 import { useBudgetData } from '@/hooks/useBudgetData';
@@ -105,13 +105,6 @@ export const DashboardLite = () => {
   ), [profile, user?.id, hasPermission]);
 
   const renderContent = useCallback(() => {
-    if (activeTab === 'import-export') {
-      return (
-        <PageTransition type="slideLeft" key={activeTab}>
-          <DataImportExport onBack={() => setActiveTab('dashboard')} />
-        </PageTransition>
-      );
-    }
     
     if (activeTab !== 'dashboard') {
       return (

@@ -181,7 +181,7 @@ export const getBrandFiles = () => {
     'LICENSE',
     'SECURITY.md',
     'DESIGN_IMPROVEMENTS_SUMMARY.md',
-    'CSV_IMPORT_EXPORT_FIX.md',
+    
     
     // Componentes principais
     'src/components/adaptive/TabletHeaderNav.tsx',
@@ -196,7 +196,7 @@ export const getBrandFiles = () => {
     // Hooks e utilitários
     'src/hooks/usePWA.ts',
     'src/utils/localStorageManager.ts',
-    'src/hooks/useCsvDataUnified.ts',
+    
     
     // Componentes de planos
     'src/components/plans/BenefitsSection.tsx',
