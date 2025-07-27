@@ -194,7 +194,7 @@ export class CsvParser {
       return parsed;
     };
 
-    // Validate required fields
+    // Validate required fields (excluding optional ones)
     for (const required of this.REQUIRED_HEADERS) {
       const value = getValue(required);
       if (!value) {
@@ -206,6 +206,9 @@ export class CsvParser {
         });
       }
     }
+
+    // Optional fields should not generate errors if empty
+    // Qualidade and Observações are truly optional
 
     return {
       tipo_aparelho: getValue('Tipo Aparelho'),

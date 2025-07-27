@@ -2,6 +2,9 @@ import { useState, useCallback } from 'react';
 import { CsvBudgetData, CsvImportResult, CsvExportFilters, CsvPreviewData } from '@/types/csv';
 import { CsvParser } from '@/utils/csv/parser';
 import { CsvFormatter } from '@/utils/csv/formatter';
+import { CsvValidator } from '@/utils/csv/validator';
+import { useBudgetImport } from '@/hooks/useBudgetImport';
+import { useBudgetExport } from '@/hooks/useBudgetExport';
 import { useToast } from '@/hooks/use-toast';
 
 export const useCsvData = () => {
@@ -9,6 +12,10 @@ export const useCsvData = () => {
   const [previewData, setPreviewData] = useState<CsvPreviewData | null>(null);
   const [importResult, setImportResult] = useState<CsvImportResult | null>(null);
   const { toast } = useToast();
+  
+  // Integrar com os novos hooks
+  const budgetImport = useBudgetImport();
+  const budgetExport = useBudgetExport();
 
   const parseFile = useCallback(async (file: File): Promise<void> => {
     setIsLoading(true);
@@ -17,7 +24,13 @@ export const useCsvData = () => {
       const content = await file.text();
       const result = CsvParser.parse(content);
       
-      setImportResult(result);
+      // Enhanced validation with the new validator
+      if (result.success && result.data.length > 0) {
+        const enhancedResult = budgetImport.validateImportData(result.data);
+        setImportResult(enhancedResult);
+      } else {
+        setImportResult(result);
+      }
       
       // Create preview data
       const lines = content.trim().split('\n');
@@ -56,37 +69,43 @@ export const useCsvData = () => {
   }, [toast]);
 
   const exportData = useCallback((data: CsvBudgetData[], filters?: CsvExportFilters): void => {
-    try {
-      const csvContent = CsvFormatter.format(data, filters);
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      
-      const filename = `onedrip-export-${new Date().toISOString().split('T')[0]}.csv`;
-      
-      if ((navigator as any).msSaveBlob) {
-        (navigator as any).msSaveBlob(blob, filename);
-      } else {
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+    // Use the new budget export hook for real data export
+    if (budgetExport.hasData) {
+      budgetExport.exportBudgets({ filters });
+    } else {
+      // Fallback to sample data export
+      try {
+        const csvContent = CsvFormatter.format(data, filters);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        
+        const filename = `onedrip-export-${new Date().toISOString().split('T')[0]}.csv`;
+        
+        if ((navigator as any).msSaveBlob) {
+          (navigator as any).msSaveBlob(blob, filename);
+        } else {
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
 
-      toast({
-        title: "Exportação concluída",
-        description: `Arquivo ${filename} baixado com sucesso`,
-      });
-      
-    } catch (error) {
-      toast({
-        title: "Erro na exportação",
-        description: "Não foi possível gerar o arquivo CSV",
-        variant: "destructive",
-      });
+        toast({
+          title: "Exportação concluída",
+          description: `Arquivo ${filename} baixado com sucesso`,
+        });
+        
+      } catch (error) {
+        toast({
+          title: "Erro na exportação",
+          description: "Não foi possível gerar o arquivo CSV",
+          variant: "destructive",
+        });
+      }
     }
-  }, [toast]);
+  }, [toast, budgetExport]);
 
   const downloadTemplate = useCallback((): void => {
     try {
@@ -127,6 +146,9 @@ export const useCsvData = () => {
     parseFile,
     exportData,
     downloadTemplate,
-    clearData
+    clearData,
+    // Export new hooks functionality
+    budgetImport,
+    budgetExport
   };
 };

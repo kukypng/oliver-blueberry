@@ -8,6 +8,8 @@ import { useCsvData } from '@/hooks/useCsvData';
 import { CsvImportPreview } from './CsvImportPreview';
 import { CsvExportFilters } from './CsvExportFilters';
 import { CsvDropZone } from './CsvDropZone';
+import { CsvProgressIndicator } from './CsvProgressIndicator';
+import { CsvErrorHandler } from './CsvErrorHandler';
 
 interface DataImportExportProps {
   onBack: () => void;
@@ -22,18 +24,21 @@ export const DataImportExport: React.FC<DataImportExportProps> = ({ onBack }) =>
     parseFile, 
     exportData, 
     downloadTemplate, 
-    clearData 
+    clearData,
+    budgetImport,
+    budgetExport
   } = useCsvData();
 
   const handleFileSelect = async (file: File) => {
     await parseFile(file);
   };
 
-  const handleConfirmImport = () => {
+  const handleConfirmImport = async () => {
     if (importResult?.data) {
-      // TODO: Integrate with budget creation logic
-      console.log('Importing data:', importResult.data);
-      clearData();
+      const stats = await budgetImport.importBudgets(importResult.data);
+      if (stats.successful > 0) {
+        clearData();
+      }
     }
   };
 
@@ -116,8 +121,70 @@ export const DataImportExport: React.FC<DataImportExportProps> = ({ onBack }) =>
             </CardContent>
           </Card>
 
+          {/* Import Progress */}
+          {budgetImport.isImporting && budgetImport.progress && (
+            <CsvProgressIndicator 
+              progress={budgetImport.progress}
+              isImporting={budgetImport.isImporting}
+            />
+          )}
+
+          {/* Import Stats */}
+          {budgetImport.importStats && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Relatório de Importação</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">
+                      {budgetImport.importStats.successful}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Sucessos</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-destructive">
+                      {budgetImport.importStats.failed}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Falhas</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {budgetImport.importStats.skipped}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Ignorados</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {budgetImport.importStats.totalProcessed}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Total</div>
+                  </div>
+                </div>
+                
+                {budgetImport.importStats.errors.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Erros de Importação:</h4>
+                    <div className="max-h-32 overflow-y-auto space-y-1">
+                      {budgetImport.importStats.errors.map((error, index) => (
+                        <div key={index} className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                          {error}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <Button variant="outline" onClick={budgetImport.clearImportStats}>
+                  Fechar Relatório
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Preview and Results */}
-          {importResult && (
+          {importResult && !budgetImport.isImporting && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -145,30 +212,9 @@ export const DataImportExport: React.FC<DataImportExportProps> = ({ onBack }) =>
                   )}
                 </div>
 
-                {/* Errors */}
+                {/* Enhanced Error Handling */}
                 {importResult.errors.length > 0 && (
-                  <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      <details>
-                        <summary className="cursor-pointer font-medium">
-                          {importResult.errors.length} erro(s) encontrado(s)
-                        </summary>
-                        <div className="mt-2 space-y-1">
-                          {importResult.errors.slice(0, 5).map((error, index) => (
-                            <div key={index} className="text-xs">
-                              Linha {error.row}, campo "{error.field}": {error.message}
-                            </div>
-                          ))}
-                          {importResult.errors.length > 5 && (
-                            <div className="text-xs italic">
-                              ... e mais {importResult.errors.length - 5} erro(s)
-                            </div>
-                          )}
-                        </div>
-                      </details>
-                    </AlertDescription>
-                  </Alert>
+                  <CsvErrorHandler errors={importResult.errors} />
                 )}
 
                 {/* Preview */}
@@ -180,10 +226,13 @@ export const DataImportExport: React.FC<DataImportExportProps> = ({ onBack }) =>
                 )}
 
                 {/* Actions */}
-                {importResult.success && importResult.validRows > 0 && (
+                {importResult.success && importResult.validRows > 0 && !budgetImport.isImporting && (
                   <div className="flex gap-2">
-                    <Button onClick={handleConfirmImport}>
-                      Confirmar Importação ({importResult.validRows} orçamentos)
+                    <Button 
+                      onClick={handleConfirmImport}
+                      disabled={budgetImport.isImporting}
+                    >
+                      {budgetImport.isImporting ? 'Importando...' : `Confirmar Importação (${importResult.validRows} orçamentos)`}
                     </Button>
                     <Button variant="outline" onClick={clearData}>
                       Cancelar
@@ -199,6 +248,47 @@ export const DataImportExport: React.FC<DataImportExportProps> = ({ onBack }) =>
       {/* Export Tab */}
       {activeTab === 'export' && (
         <div className="space-y-6">
+          {/* Export Stats */}
+          {budgetExport.exportStats && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Estatísticas da Exportação</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">
+                      {budgetExport.exportStats.totalBudgets}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Total de Orçamentos</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {budgetExport.exportStats.exportedCount}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Exportados</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {budgetExport.exportStats.filteredOut}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Filtrados</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {budgetExport.exportStats.fileSize}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Tamanho do Arquivo</div>
+                  </div>
+                </div>
+                
+                <Button variant="outline" onClick={budgetExport.clearExportStats}>
+                  Fechar Estatísticas
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           <CsvExportFilters onExport={exportData} />
         </div>
       )}

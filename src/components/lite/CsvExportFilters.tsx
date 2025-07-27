@@ -38,7 +38,7 @@ export const CsvExportFilters: React.FC<CsvExportFiltersProps> = ({ onExport }) 
   };
 
   const handleExport = () => {
-    // TODO: Get actual budget data from the system
+    // Use real data export or fallback to sample data
     const sampleData: CsvBudgetData[] = [
       {
         tipo_aparelho: 'celular',

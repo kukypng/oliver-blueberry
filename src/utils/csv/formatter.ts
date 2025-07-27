@@ -19,6 +19,10 @@ export class CsvFormatter {
   static format(data: CsvBudgetData[], filters?: CsvExportFilters): string {
     const filteredData = filters ? this.applyFilters(data, filters) : data;
     
+    if (filteredData.length === 0) {
+      return this.HEADERS.join(';') + '\n'; // Return just headers if no data
+    }
+    
     const headerLine = this.HEADERS.join(';');
     const dataLines = filteredData.map(item => this.formatRow(item));
     
