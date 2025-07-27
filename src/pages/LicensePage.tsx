@@ -67,9 +67,9 @@ export const LicensePage = () => {
           description: result.message || 'Sua licença foi ativada com sucesso.'
         });
 
-        // Recarregar o site após ativação
+        // Navegar para dashboard após ativação
         setTimeout(() => {
-          window.location.reload();
+          window.location.href = '/dashboard';
         }, 2000);
       } else {
         const errorMessages = {

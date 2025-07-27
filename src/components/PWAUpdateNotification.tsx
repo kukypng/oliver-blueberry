@@ -46,9 +46,9 @@ export const PWAUpdateNotification: React.FC = () => {
     if (registration && registration.waiting) {
       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       
-      // Aguardar o controllerchange e recarregar
+      // Aguardar o controllerchange e navegar
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload();
+        window.location.href = '/';
       });
       
       toast({

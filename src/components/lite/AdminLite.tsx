@@ -125,7 +125,7 @@ const AdminLiteComponent = ({
               <p className="text-muted-foreground mb-4">
                 Ocorreu um erro ao carregar os dados dos usuários.
               </p>
-              <Button onClick={() => window.location.reload()}>
+              <Button onClick={() => window.location.href = '/admin'}>
                 Tentar Novamente
               </Button>
             </CardContent>
@@ -295,7 +295,7 @@ const AdminLiteComponent = ({
                                 { p_user_id: user.id }
                               );
                               if (error) throw error;
-                              window.location.reload();
+                              window.location.href = '/admin';
                             } catch (error) {
                               console.error('Erro ao alterar licença:', error);
                             }

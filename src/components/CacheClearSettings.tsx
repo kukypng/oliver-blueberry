@@ -66,9 +66,9 @@ export const CacheClearSettings = () => {
         description: "Dados desnecessários removidos. Configurações importantes preservadas.",
       });
 
-      // Reload page after successful cache clear
+      // Navigate instead of reloading
       setTimeout(() => {
-        window.location.reload();
+        window.location.href = '/';
       }, 1500);
     } catch (error) {
       console.error('Error clearing cache:', error);

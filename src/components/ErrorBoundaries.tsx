@@ -85,11 +85,11 @@ export class EnhancedErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
                 
                 <Button 
                   variant="outline" 
-                  onClick={() => window.location.reload()} 
+                  onClick={() => window.location.href = '/'} 
                   className="w-full" 
                   size="lg"
                 >
-                  Recarregar Página
+                  Ir para Início
                 </Button>
               </div>
 

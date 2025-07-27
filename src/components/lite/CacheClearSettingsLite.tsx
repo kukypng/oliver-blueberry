@@ -121,9 +121,9 @@ export const CacheClearSettingsLite = () => {
         description: "Cache removido. Dados de login preservados.",
       });
 
-      // Reload page after successful cache clear
+      // Navigate instead of reloading
       setTimeout(() => {
-        window.location.reload();
+        window.location.href = '/';
       }, 2000);
       
     } catch (error) {

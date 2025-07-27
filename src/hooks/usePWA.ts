@@ -145,9 +145,9 @@ export const usePWA = (): PWAState & PWAActions => {
       if (registration && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
         
-        // Recarregar página após update
+        // Navegar para home após update
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-          window.location.reload();
+          window.location.href = '/';
         });
       }
     } catch (error) {
@@ -179,7 +179,7 @@ export const usePWA = (): PWAState & PWAActions => {
   };
 
   const refreshApp = (): void => {
-    window.location.reload();
+    window.location.href = '/';
   };
 
   return {

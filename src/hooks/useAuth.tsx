@@ -309,11 +309,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         // Primeiro: tentar usar sessão atual se existir
         if (session) {
-          console.log('🎉 Sessão ativa encontrada, mantendo login');
-          setSession(session);
-          setUser(session.user);
-          saveLoginState(session);
-          return;
+          console.log('🎉 Sessão ativa encontrada, verificando validade...');
+          
+          // Verificar com sistema de sessão persistente do Supabase
+          try {
+            const deviceFingerprint = generateDeviceId();
+            const { data: shouldMaintain, error: maintainError } = await supabase.rpc('should_maintain_login', {
+              p_device_fingerprint: deviceFingerprint
+            });
+            
+            if (!maintainError && (shouldMaintain as any)?.should_maintain) {
+              console.log('✅ Sessão validada pelo sistema persistente');
+              setSession(session);
+              setUser(session.user);
+              saveLoginState(session);
+              return;
+            } else {
+              console.log('❌ Sessão invalidada pelo sistema persistente:', (shouldMaintain as any)?.reason);
+            }
+          } catch (maintainError) {
+            console.warn('⚠️ Erro ao verificar manutenção de login:', maintainError);
+            // Fallback para verificação local
+            setSession(session);
+            setUser(session.user);
+            saveLoginState(session);
+            return;
+          }
         }
         
         // Segundo: tentar recuperar sessão se dispositivo é confiável
@@ -323,6 +344,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const { data: refreshedSession } = await supabase.auth.refreshSession();
             if (refreshedSession?.session) {
               console.log('✅ Sessão restaurada com sucesso via refresh');
+              
+              // Reintegrar com sistema persistente
+              const deviceFingerprint = generateDeviceId();
+              await supabase.rpc('manage_persistent_session', {
+                p_device_fingerprint: deviceFingerprint,
+                p_device_name: navigator.platform || 'Unknown Device',
+                p_device_type: /Mobile|iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                p_user_agent: navigator.userAgent,
+                p_ip_address: null
+              });
+              
               setSession(refreshedSession.session);
               setUser(refreshedSession.session.user);
               saveLoginState(refreshedSession.session);
@@ -409,11 +441,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { error: signInError };
       }
 
-      if (signInData.user) {
-        console.log('✅ Login bem-sucedido, verificando perfil...');
+      if (signInData.user && signInData.session) {
+        console.log('✅ Login bem-sucedido, integrando com sistema persistente...');
         
-        // Salvar preferência de persistência
-        localStorage.setItem('supabase_user_preference', 'stay_logged_in');
+        // Integrar com sistema de sessão persistente do Supabase
+        try {
+          const deviceFingerprint = generateDeviceId();
+          const { data: sessionData, error: sessionError } = await supabase.rpc('manage_persistent_session', {
+            p_device_fingerprint: deviceFingerprint,
+            p_device_name: navigator.platform || 'Unknown Device',
+            p_device_type: /Mobile|iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+            p_user_agent: navigator.userAgent,
+            p_ip_address: null // Will be set server-side
+          });
+          
+          if (!sessionError && (sessionData as any)?.success) {
+            console.log('✅ Sessão persistente configurada:', sessionData);
+            
+            // Marcar dispositivo como confiável
+            const { data: trustData } = await supabase.rpc('trust_device', {
+              p_device_fingerprint: deviceFingerprint
+            });
+            
+            if ((trustData as any)?.success) {
+              console.log('✅ Dispositivo marcado como confiável');
+              trustDevice(); // Atualizar estado local também
+            }
+          }
+        } catch (persistError) {
+          console.warn('⚠️ Erro ao configurar sessão persistente:', persistError);
+          // Continuar mesmo com erro na persistência
+        }
         
         // Verificar existência do perfil
         const { data: profileData, error: profileError } = await supabase

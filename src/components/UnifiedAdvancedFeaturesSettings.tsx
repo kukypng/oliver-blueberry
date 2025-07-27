@@ -50,7 +50,7 @@ export const UnifiedAdvancedFeaturesSettings = ({
       
       if (isLite) {
         alert(message);
-        window.location.reload();
+        window.location.href = '/settings';
       } else {
         toast({
           title: enabled ? 'Funcionalidades avançadas ativadas!' : 'Funcionalidades avançadas desativadas',

@@ -53,8 +53,8 @@ export class ErrorBoundary extends Component<Props, State> {
                   Tentar Novamente
                 </Button>
                 
-                <Button variant="outline" onClick={() => window.location.reload()} className="w-full" size="lg">
-                  Recarregar Página
+                <Button variant="outline" onClick={() => window.location.href = '/'} className="w-full" size="lg">
+                  Ir para Início
                 </Button>
                 
                 <Button 

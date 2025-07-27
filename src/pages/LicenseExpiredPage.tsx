@@ -49,8 +49,8 @@ export const LicenseExpiredPage = () => {
           title: 'Licença Ativada!',
           description: (data as any).message || 'Sua licença foi ativada com sucesso.'
         });
-        // Reload to refresh auth state
-        window.location.reload();
+        // Navigate to dashboard to refresh auth state
+        window.location.href = '/dashboard';
       } else {
         showError({
           title: 'Erro na Ativação',
