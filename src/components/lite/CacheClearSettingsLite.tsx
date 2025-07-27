@@ -17,10 +17,12 @@ export const CacheClearSettingsLite = () => {
       const preserveKeys = [
         'supabase.auth.token',
         'sb-oghjlypdnmqecaavekyr-auth-token',
+        'sb-oghjlypdnmqecaavekyr-auth-token-code-verifier',
         'device_fingerprint',
         'trusted_devices',
         'supabase_user_preference',
-        'supabase_session_timestamp'
+        'supabase_session_timestamp',
+        'onedrip_app_data'
       ];
       
       localStorageKeys.forEach(key => {
