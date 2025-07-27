@@ -1,4 +1,5 @@
 import { CsvBudgetData, CsvError, CsvImportResult } from '@/types/csv';
+import { NumberUtils } from './numberUtils';
 
 export class CsvParser {
   private static readonly REQUIRED_HEADERS = [
@@ -52,6 +53,23 @@ export class CsvParser {
         };
       }
 
+      // Detecta automaticamente se deve usar modo inteiro
+      const priceValues: string[] = [];
+      for (let i = 1; i < Math.min(lines.length, 11); i++) { // Analisa primeiras 10 linhas
+        const rowData = this.parseRow(lines[i]);
+        const precoVistaIndex = headers.indexOf('Preço à vista');
+        const precoParceladoIndex = headers.indexOf('Preço Parcelado');
+        
+        if (precoVistaIndex >= 0 && rowData[precoVistaIndex]) {
+          priceValues.push(rowData[precoVistaIndex]);
+        }
+        if (precoParceladoIndex >= 0 && rowData[precoParceladoIndex]) {
+          priceValues.push(rowData[precoParceladoIndex]);
+        }
+      }
+      
+      const forceInteger = NumberUtils.detectIntegerMode(priceValues);
+
       // Parse data rows
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
@@ -61,7 +79,7 @@ export class CsvParser {
         const rowErrors: CsvError[] = [];
         
         try {
-          const budgetData = this.parseRowData(rowData, headers, i + 1, rowErrors);
+          const budgetData = this.parseRowData(rowData, headers, i + 1, rowErrors, forceInteger);
           if (rowErrors.length === 0) {
             data.push(budgetData);
           }
@@ -139,7 +157,8 @@ export class CsvParser {
     rowData: string[], 
     headers: string[], 
     rowNumber: number,
-    errors: CsvError[]
+    errors: CsvError[],
+    forceInteger: boolean = false
   ): CsvBudgetData {
     const getValue = (header: string): string => {
       const index = headers.indexOf(header);
@@ -148,13 +167,26 @@ export class CsvParser {
 
     const getNumericValue = (header: string): number => {
       const value = getValue(header);
-      const parsed = parseFloat(value.replace(',', '.'));
+      if (!value) return 0;
       
-      if (isNaN(parsed)) {
+      const validation = NumberUtils.validateNumber(value);
+      if (!validation.isValid) {
         errors.push({
           row: rowNumber,
           field: header,
-          message: `Valor numérico inválido: ${value}`,
+          message: validation.message || `Valor numérico inválido: ${value}`,
+          value
+        });
+        return 0;
+      }
+      
+      const parsed = NumberUtils.parseFromCsv(value, forceInteger);
+      
+      if (parsed < 0) {
+        errors.push({
+          row: rowNumber,
+          field: header,
+          message: `Valor deve ser positivo: ${value}`,
           value
         });
         return 0;

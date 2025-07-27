@@ -1,4 +1,6 @@
 import { CsvBudgetData, CsvExportFilters } from '@/types/csv';
+import { NumberUtils } from './numberUtils';
+import { NumberDetector } from './numberDetector';
 
 export class CsvFormatter {
   private static readonly HEADERS = [
@@ -22,21 +24,25 @@ export class CsvFormatter {
     if (filteredData.length === 0) {
       return this.HEADERS.join(';') + '\n'; // Return just headers if no data
     }
+
+    // Detecta automaticamente se deve usar modo inteiro
+    const detection = NumberDetector.analyzeData(filteredData);
+    const useIntegerMode = detection.isIntegerMode;
     
     const headerLine = this.HEADERS.join(';');
-    const dataLines = filteredData.map(item => this.formatRow(item));
+    const dataLines = filteredData.map(item => this.formatRow(item, useIntegerMode));
     
     return [headerLine, ...dataLines].join('\n');
   }
 
-  private static formatRow(data: CsvBudgetData): string {
+  private static formatRow(data: CsvBudgetData, forceInteger: boolean = false): string {
     const values = [
       this.escapeValue(data.tipo_aparelho),
       this.escapeValue(data.servico_aparelho),
       this.escapeValue(data.qualidade || ''),
       this.escapeValue(data.observacoes || ''),
-      data.preco_vista.toString().replace('.', ','),
-      data.preco_parcelado.toString().replace('.', ','),
+      NumberUtils.formatForCsv(data.preco_vista, forceInteger),
+      NumberUtils.formatForCsv(data.preco_parcelado, forceInteger),
       data.parcelas.toString(),
       this.escapeValue(data.metodo_pagamento),
       data.garantia_meses.toString(),
@@ -125,6 +131,9 @@ export class CsvFormatter {
       inclui_pelicula: true
     };
 
-    return this.format([templateData]);
+    // Template sempre usa modo inteiro para simplicidade
+    const headerLine = this.HEADERS.join(';');
+    const dataLine = this.formatRow(templateData, true);
+    return [headerLine, dataLine].join('\n');
   }
 }
