@@ -463,6 +463,51 @@ export type Database = {
         }
         Relationships: []
       }
+      persistent_sessions: {
+        Row: {
+          created_at: string
+          device_fingerprint: string
+          device_name: string | null
+          device_type: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          is_trusted: boolean
+          last_activity: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_fingerprint: string
+          device_name?: string | null
+          device_type?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          is_trusted?: boolean
+          last_activity?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_fingerprint?: string
+          device_name?: string | null
+          device_type?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          is_trusted?: boolean
+          last_activity?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ranking_invaders: {
         Row: {
           created_at: string
@@ -663,6 +708,39 @@ export type Database = {
           testimonials_section_title?: string | null
           updated_at?: string
           whatsapp_number?: string
+        }
+        Relationships: []
+      }
+      user_activity_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          metric_type: string
+          metric_value: number
+          recorded_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          metric_value?: number
+          recorded_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number
+          recorded_at?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -890,6 +968,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: boolean
       }
+      cleanup_expired_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       cleanup_old_deleted_budgets: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -1080,6 +1162,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      manage_persistent_session: {
+        Args: {
+          p_device_fingerprint: string
+          p_device_name?: string
+          p_device_type?: string
+          p_user_agent?: string
+          p_ip_address?: string
+        }
+        Returns: Json
+      }
       restore_deleted_budget: {
         Args: { p_budget_id: string }
         Returns: Json
@@ -1096,6 +1188,10 @@ export type Database = {
       set_user_budget_limit: {
         Args: { p_user_id: string; p_budget_limit: number }
         Returns: boolean
+      }
+      should_maintain_login: {
+        Args: { p_device_fingerprint: string }
+        Returns: Json
       }
       soft_delete_all_user_budgets: {
         Args: { p_deletion_reason?: string }
@@ -1120,6 +1216,10 @@ export type Database = {
           result: boolean
           description: string
         }[]
+      }
+      trust_device: {
+        Args: { p_device_fingerprint: string }
+        Returns: Json
       }
       update_shop_profile: {
         Args: {
