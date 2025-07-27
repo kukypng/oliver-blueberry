@@ -104,14 +104,33 @@ export const useDevicePersistence = () => {
   // Verificar se deve manter login baseado na preferência do usuário
   const shouldMaintainLogin = (): boolean => {
     const userPreference = localStorage.getItem('supabase_user_preference');
+    const sessionTimestamp = localStorage.getItem('supabase_session_timestamp');
     const lastActivity = localStorage.getItem('last_device_activity');
     
-    if (userPreference === 'stay_logged_in' && lastActivity) {
-      const activity = JSON.parse(lastActivity);
-      const daysSinceLastActivity = (Date.now() - activity.timestamp) / (1000 * 60 * 60 * 24);
+    console.log('🔍 Verificando manutenção de login:', {
+      userPreference,
+      hasSessionTimestamp: !!sessionTimestamp,
+      hasLastActivity: !!lastActivity,
+      isTrustedDevice
+    });
+    
+    if (userPreference === 'stay_logged_in' && sessionTimestamp && isTrustedDevice) {
+      const sessionAge = (Date.now() - parseInt(sessionTimestamp)) / (1000 * 60 * 60 * 24);
       
-      // Manter login por até 30 dias se dispositivo for confiável
-      return daysSinceLastActivity < 30 && isTrustedDevice;
+      if (lastActivity) {
+        const activity = JSON.parse(lastActivity);
+        const daysSinceLastActivity = (Date.now() - activity.timestamp) / (1000 * 60 * 60 * 24);
+        
+        // Manter login por até 30 dias se dispositivo for confiável e sessão não muito antiga
+        const shouldMaintain = sessionAge < 30 && daysSinceLastActivity < 30;
+        console.log('📊 Análise de manutenção:', {
+          sessionAge: sessionAge.toFixed(1),
+          daysSinceLastActivity: daysSinceLastActivity.toFixed(1),
+          shouldMaintain
+        });
+        
+        return shouldMaintain;
+      }
     }
     
     return false;

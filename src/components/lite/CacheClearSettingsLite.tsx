@@ -12,10 +12,21 @@ export const CacheClearSettingsLite = () => {
   const clearSiteCache = async (): Promise<void> => {
     setIsClearing(true);
     try {
-      // 1. LIMPAR COMPLETAMENTE O localStorage
+      // 1. LIMPAR localStorage PRESERVANDO dados essenciais de autenticação
       const localStorageKeys = Object.keys(localStorage);
+      const preserveKeys = [
+        'supabase.auth.token',
+        'sb-oghjlypdnmqecaavekyr-auth-token',
+        'device_fingerprint',
+        'trusted_devices',
+        'supabase_user_preference',
+        'supabase_session_timestamp'
+      ];
+      
       localStorageKeys.forEach(key => {
-        localStorage.removeItem(key);
+        if (!preserveKeys.some(preserve => key.includes(preserve))) {
+          localStorage.removeItem(key);
+        }
       });
       
       // 2. LIMPAR COMPLETAMENTE O sessionStorage
@@ -103,11 +114,11 @@ export const CacheClearSettingsLite = () => {
         }
       }
 
-      console.log('🧹 LIMPEZA COMPLETA: Todos os dados locais foram removidos');
+      console.log('🧹 LIMPEZA INTELIGENTE: Cache removido preservando autenticação');
 
       toast({
-        title: "Limpeza total concluída! 🧹",
-        description: "TODOS os dados locais foram completamente removidos.",
+        title: "Limpeza concluída! 🧹",
+        description: "Cache removido. Dados de login preservados.",
       });
 
       // Reload page after successful cache clear

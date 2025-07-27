@@ -193,11 +193,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('📱 Dispositivo confiável:', isTrustedDevice);
         console.log('🔄 Deve manter login:', shouldMaintainLogin());
         
-        // Se tem sessão ou deve manter login baseado no dispositivo
-        if (session || (shouldMaintainLogin() && session)) {
+        // Se tem sessão ativa ou deve manter login baseado no dispositivo
+        if (session) {
           setSession(session);
           setUser(session?.user ?? null);
           saveLoginState(session);
+        } else if (shouldMaintainLogin()) {
+          console.log('🔄 Tentando restaurar sessão em dispositivo confiável...');
+          // Tentar restaurar sessão silenciosamente
+          try {
+            const { data: refreshedSession } = await supabase.auth.refreshSession();
+            if (refreshedSession?.session) {
+              console.log('✅ Sessão restaurada com sucesso');
+              setSession(refreshedSession.session);
+              setUser(refreshedSession.session.user);
+              saveLoginState(refreshedSession.session);
+            } else {
+              console.log('❌ Não foi possível restaurar sessão');
+              setSession(null);
+              setUser(null);
+            }
+          } catch (refreshError) {
+            console.error('❌ Erro ao restaurar sessão:', refreshError);
+            setSession(null);
+            setUser(null);
+          }
           
           if (session?.user) {
             console.log('🎉 Usuário já logado, mantendo sessão');

@@ -5,6 +5,7 @@ import { LicensePage } from '@/pages/LicensePage';
 import { useEnhancedLicenseValidation } from '@/hooks/useEnhancedLicenseValidation';
 import { MobileLoading } from '@/components/ui/mobile-loading';
 import { SecurityValidation } from '@/utils/securityValidation';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -47,9 +48,19 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
           </div>
           <div className="flex justify-center">
             <button 
-              onClick={() => {
-                console.log('🔄 Recarregando para verificar confirmação...');
-                window.location.reload();
+              onClick={async () => {
+                console.log('🔄 Verificando confirmação de email...');
+                try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  if (session?.user?.email_confirmed_at) {
+                    console.log('✅ Email confirmado, redirecionando...');
+                    window.location.href = '/dashboard';
+                  } else {
+                    console.log('❌ Email ainda não confirmado');
+                  }
+                } catch (error) {
+                  console.error('❌ Erro ao verificar confirmação:', error);
+                }
               }} 
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
             >
