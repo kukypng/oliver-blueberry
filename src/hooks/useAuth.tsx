@@ -75,12 +75,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        // Sempre atualiza o estado da sessão
-        setSession(session);
-        setUser(session?.user ?? null);
+    let isInitialized = false;
+
+    // Primeiro, verificar sessão existente
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!error) {
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar sessão existente:', error);
+        setSession(null);
+        setUser(null);
+      } finally {
+        isInitialized = true;
         setLoading(false);
+      }
+    };
+
+    // Configurar listener de mudanças de estado
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        // Só atualizar se já foi inicializado ou se é um evento importante
+        if (isInitialized || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          // Se não foi inicializado ainda, marca como tal
+          if (!isInitialized) {
+            isInitialized = true;
+            setLoading(false);
+          }
+        }
 
         // Trata redirecionamentos e notificações com base no evento, especialmente da página /verify
         if (window.location.pathname === '/verify') {
@@ -135,12 +164,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Inicializar autenticação
+    initializeAuth();
 
     return () => subscription.unsubscribe();
   }, [navigate, showSuccess]);
