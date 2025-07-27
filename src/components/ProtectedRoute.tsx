@@ -4,7 +4,7 @@ import { useAuth, UserRole } from '@/hooks/useAuth';
 import { EmptyState } from '@/components/EmptyState';
 import { Shield, User } from 'lucide-react';
 import { DashboardSkeleton } from '@/components/ui/loading-states';
-import { useLicenseValidation } from '@/hooks/useLicenseValidation';
+
 import { useNavigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
@@ -21,10 +21,9 @@ export const ProtectedRoute = ({
   fallback 
 }: ProtectedRouteProps) => {
   const { user, profile, loading, hasRole, hasPermission } = useAuth();
-  const { data: isLicenseValid, isLoading: licenseLoading } = useLicenseValidation();
   const navigate = useNavigate();
 
-  if (loading || licenseLoading) {
+  if (loading) {
     return <DashboardSkeleton />;
   }
 
@@ -36,7 +35,7 @@ export const ProtectedRoute = ({
         description="Você precisa estar logado para acessar esta página."
         action={{
           label: "Fazer Login",
-          onClick: () => window.location.href = '/auth'
+          onClick: () => navigate('/auth')
         }}
       />
     );
@@ -63,11 +62,8 @@ export const ProtectedRoute = ({
     );
   }
 
-  // Check license validity
-  if (isLicenseValid === false) {
-    navigate('/licenca');
-    return null;
-  }
+  // Check license validity - removido para evitar conflito com AuthGuard
+  // A validação de licença é feita no AuthGuard
 
   // Explicit role checking for admin routes
   if (requiredRole && !hasRole(requiredRole)) {
@@ -78,7 +74,7 @@ export const ProtectedRoute = ({
         description={`Você precisa ter o nível de acesso "${requiredRole}" ou superior para acessar esta página.`}
         action={{
           label: "Voltar ao Dashboard",
-          onClick: () => window.location.href = '/dashboard'
+          onClick: () => navigate('/dashboard')
         }}
       />
     );
@@ -92,7 +88,7 @@ export const ProtectedRoute = ({
         description="Você não tem permissão para acessar esta funcionalidade."
         action={{
           label: "Voltar ao Dashboard",
-          onClick: () => window.location.href = '/dashboard'
+          onClick: () => navigate('/dashboard')
         }}
       />
     );
