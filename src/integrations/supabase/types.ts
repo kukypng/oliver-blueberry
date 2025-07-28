@@ -1125,7 +1125,7 @@ export type Database = {
         Returns: boolean
       }
       is_license_valid: {
-        Args: { p_user_id?: string }
+        Args: { p_user_id: string }
         Returns: boolean
       }
       is_user_admin: {
