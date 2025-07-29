@@ -115,20 +115,57 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Inicialização simplificada do auth
+  // Inicialização otimizada do auth
   useEffect(() => {
     console.log('🔐 Iniciando AuthProvider...');
     
-    // DEBUG: Verificar localStorage do Supabase
-    const supabaseKeys = Object.keys(localStorage).filter(key => key.includes('supabase') || key.includes('sb-'));
-    console.log('🔍 Chaves Supabase no localStorage:', supabaseKeys);
-    
-    supabaseKeys.forEach(key => {
-      const value = localStorage.getItem(key);
-      console.log(`📦 ${key}:`, value ? 'EXISTE' : 'VAZIO');
-    });
+    const initializeAuth = async () => {
+      try {
+        console.log('🔍 Verificando sessão existente...');
+        
+        // DEBUG: Verificar se localStorage tem tokens
+        const authToken = localStorage.getItem('sb-oghjlypdnmqecaavekyr-auth-token');
+        console.log('🔑 Token do Supabase existe?', authToken ? 'SIM' : 'NÃO');
+        
+        if (authToken) {
+          try {
+            const tokenData = JSON.parse(authToken);
+            console.log('📊 Dados do token:', {
+              hasAccessToken: !!tokenData?.access_token,
+              hasRefreshToken: !!tokenData?.refresh_token,
+              expiresAt: tokenData?.expires_at,
+              isExpired: tokenData?.expires_at ? new Date(tokenData.expires_at * 1000) < new Date() : 'UNKNOWN'
+            });
+          } catch (parseError) {
+            console.warn('⚠️ Erro ao parsear token:', parseError);
+          }
+        }
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ Erro ao obter sessão:', error);
+        } else {
+          console.log('📋 Resultado getSession:', {
+            hasSession: !!session,
+            sessionUserId: session?.user?.id,
+            sessionExpiresAt: session?.expires_at
+          });
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
+      } catch (error) {
+        console.error('❌ Erro na inicialização:', error);
+      } finally {
+        setLoading(false);
+        setIsInitialized(true);
+      }
+    };
 
-    // Configurar listener de mudanças de autenticação
+    // Chamar a inicialização imediatamente
+    initializeAuth();
+
+    // Configurar listener de mudanças de autenticação (após a inicialização inicial)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔄 Auth state change:', event, !!session);
@@ -141,12 +178,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
-        setIsInitialized(true);
 
         // Integrar com sistema persistente apenas em login
         if (event === 'SIGNED_IN' && session) {
-          await manageSessionPersistence(session);
+          setTimeout(() => {
+            manageSessionPersistence(session);
+          }, 0);
         }
 
         // Tratar eventos específicos da página de verificação
@@ -201,49 +238,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     );
-
-    // Verificar sessão existente (o Supabase cuida da persistência)
-    const initializeAuth = async () => {
-      try {
-        console.log('🔍 Verificando sessão existente...');
-        
-        // DEBUG: Verificar se localStorage tem tokens
-        const authToken = localStorage.getItem('sb-oghjlypdnmqecaavekyr-auth-token');
-        console.log('🔑 Token do Supabase existe?', authToken ? 'SIM' : 'NÃO');
-        
-        if (authToken) {
-          try {
-            const tokenData = JSON.parse(authToken);
-            console.log('📊 Dados do token:', {
-              hasAccessToken: !!tokenData?.access_token,
-              hasRefreshToken: !!tokenData?.refresh_token,
-              expiresAt: tokenData?.expires_at,
-              isExpired: tokenData?.expires_at ? new Date(tokenData.expires_at * 1000) < new Date() : 'UNKNOWN'
-            });
-          } catch (parseError) {
-            console.warn('⚠️ Erro ao parsear token:', parseError);
-          }
-        }
-        
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('❌ Erro ao obter sessão:', error);
-        } else {
-          console.log('📋 Resultado getSession:', {
-            hasSession: !!session,
-            sessionUserId: session?.user?.id,
-            sessionExpiresAt: session?.expires_at
-          });
-        }
-        
-        console.log('✅ Inicialização de auth concluída:', !!session);
-      } catch (error) {
-        console.error('❌ Erro na inicialização:', error);
-      }
-    };
-
-    initializeAuth();
 
     return () => subscription.unsubscribe();
   }, []);
