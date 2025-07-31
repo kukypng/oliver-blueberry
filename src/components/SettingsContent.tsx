@@ -6,6 +6,7 @@ import { BudgetWarningSettings } from './BudgetWarningSettings';
 import { AdvancedFeaturesSettings } from './AdvancedFeaturesSettings';
 import { BetaFeaturesSettings } from './BetaFeaturesSettings';
 import { CacheClearSettings } from './CacheClearSettings';
+import { BudgetImportExport } from './BudgetImportExport';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,6 +62,14 @@ export const SettingsContent = () => {
           <Separator />
           <div className="pt-6">
             <BetaFeaturesSettings />
+          </div>
+        </section>
+        
+        <section id="data-management">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground pb-4">Gerenciamento de Dados</h2>
+          <Separator />
+          <div className="pt-6">
+            <BudgetImportExport />
           </div>
         </section>
         

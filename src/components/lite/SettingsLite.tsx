@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, User, Building2, Shield, Settings, Save, Star } from 'lucide-react';
+import { ArrowLeft, User, Building2, Shield, Settings, Save, Star, Database } from 'lucide-react';
 import { useIOSDetection } from '@/hooks/useIOSDetection';
 import { ProfileSettingsLite } from '@/components/lite/ProfileSettingsLite';
 import { SecuritySettingsLite } from '@/components/lite/SecuritySettingsLite';
@@ -9,6 +9,7 @@ import { CompanySettingsLite } from '@/components/lite/CompanySettingsLite';
 import { BudgetWarningSettingsLite } from '@/components/lite/BudgetWarningSettingsLite';
 import { AdvancedFeaturesSettingsLite } from '@/components/lite/AdvancedFeaturesSettingsLite';
 import { CacheClearSettingsLite } from '@/components/lite/CacheClearSettingsLite';
+import { BudgetImportExportLite } from '@/components/lite/BudgetImportExportLite';
 interface SettingsLiteProps {
   userId: string;
   profile: any;
@@ -30,6 +31,10 @@ export const SettingsLite = ({
     id: 'app',
     name: 'Preferências da Aplicação',
     icon: Settings
+  }, {
+    id: 'data',
+    name: 'Gerenciamento de Dados',
+    icon: Database
   }
   // Seção "Recursos Avançados" removida da navegação mas funcionalidade mantida
   ];
@@ -45,6 +50,10 @@ export const SettingsLite = ({
             <BudgetWarningSettingsLite userId={userId} profile={profile} />
             <CompanySettingsLite userId={userId} profile={profile} />
             <CacheClearSettingsLite />
+          </div>;
+      case 'data':
+        return <div className="space-y-6">
+            <BudgetImportExportLite />
           </div>;
       case 'advanced':
         return <div className="space-y-6">
