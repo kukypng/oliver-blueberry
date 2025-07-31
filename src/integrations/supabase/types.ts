@@ -900,7 +900,7 @@ export type Database = {
         Returns: Json
       }
       admin_get_user_metrics: {
-        Args: { p_user_id?: string }
+        Args: { p_user_id: string }
         Returns: Json
       }
       admin_get_user_real_email: {
@@ -1060,22 +1060,40 @@ export type Database = {
         }[]
       }
       get_optimized_budgets: {
-        Args: {
-          p_user_id: string
-          p_limit?: number
-          p_offset?: number
-          p_search_term?: string
-        }
+        Args:
+          | {
+              p_user_id: string
+              p_limit?: number
+              p_offset?: number
+              p_search_term?: string
+            }
+          | {
+              p_user_id: string
+              p_search_term?: string
+              p_status_filter?: string
+              p_limit?: number
+              p_offset?: number
+            }
         Returns: {
           id: string
           client_name: string
           client_phone: string
           device_type: string
           device_model: string
-          total_price: number
+          issue: string
+          part_quality: string
+          status: string
           workflow_status: string
+          total_price: number
+          cash_price: number
+          installment_price: number
+          delivery_date: string
+          expires_at: string
+          valid_until: string
           created_at: string
           updated_at: string
+          is_paid: boolean
+          is_delivered: boolean
         }[]
       }
       get_secure_user_data: {
