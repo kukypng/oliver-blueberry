@@ -68,11 +68,13 @@ export const SecurityHeaders = () => {
 
     // Configurações de segurança do localStorage
     try {
-      // Limpar dados sensíveis antigos
+      // Limpar dados sensíveis antigos, mas preservar tokens de autenticação do Supabase
       const sensitiveKeys = Object.keys(localStorage).filter(key => 
-        key.includes('password') || 
-        key.includes('token') ||
-        key.includes('secret')
+        (key.includes('password') || 
+         key.includes('token') ||
+         key.includes('secret')) &&
+        !key.includes('sb-') && // Preservar tokens do Supabase
+        !key.includes('supabase') // Preservar dados do Supabase
       );
       
       sensitiveKeys.forEach(key => {

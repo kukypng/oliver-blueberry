@@ -6,6 +6,7 @@ import { useEnhancedLicenseValidation } from '@/hooks/useEnhancedLicenseValidati
 import { MobileLoading } from '@/components/ui/mobile-loading';
 import { SecurityValidation } from '@/utils/securityValidation';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -14,21 +15,30 @@ interface AuthGuardProps {
 export const AuthGuard = ({ children }: AuthGuardProps) => {
   const { user, loading, profile, isInitialized } = useAuth();
   const { data: licenseData, isLoading: licenseLoading } = useEnhancedLicenseValidation();
+  const [emailCheckLoading, setEmailCheckLoading] = useState(false);
 
   console.log('🛡️ AuthGuard - Estado:', { 
     user: !!user, 
     loading, 
     isInitialized, 
     emailConfirmed: !!user?.email_confirmed_at,
-    licenseValid: licenseData?.is_valid 
+    licenseValid: licenseData?.is_valid,
+    licenseLoading
   });
 
-  if (loading || !isInitialized || licenseLoading) {
-    return <MobileLoading message="Verificando autenticação..." />;
+  // Aguardar inicialização completa antes de tomar decisões
+  if (loading || !isInitialized) {
+    return <MobileLoading message="Inicializando aplicação..." />;
   }
 
+  // Se não há usuário, mostrar página de login
   if (!user) {
     return <AuthPage />;
+  }
+
+  // Aguardar validação de licença se ainda estiver carregando
+  if (licenseLoading) {
+    return <MobileLoading message="Verificando licença..." />;
   }
 
   // Check if email is verified com validação adicional de segurança
@@ -49,6 +59,7 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
           <div className="flex justify-center">
             <button 
               onClick={async () => {
+                setEmailCheckLoading(true);
                 console.log('🔄 Verificando confirmação de email...');
                 try {
                   const { data: { session } } = await supabase.auth.getSession();
@@ -60,11 +71,14 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
                   }
                 } catch (error) {
                   console.error('❌ Erro ao verificar confirmação:', error);
+                } finally {
+                  setEmailCheckLoading(false);
                 }
               }} 
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              disabled={emailCheckLoading}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
             >
-              Já confirmei
+              {emailCheckLoading ? 'Verificando...' : 'Já confirmei'}
             </button>
           </div>
         </div>
@@ -73,7 +87,7 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
   }
 
   // Check license validity after user is authenticated
-  if (!licenseData?.is_valid) {
+  if (licenseData && !licenseData.is_valid) {
     return <LicensePage />;
   }
 

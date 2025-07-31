@@ -141,21 +141,63 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
         
+        // Primeiro, tentar recuperar a sessão
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('❌ Erro ao obter sessão:', error);
+          // Se houver erro, tentar refresh da sessão
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError) {
+            console.error('❌ Erro ao fazer refresh da sessão:', refreshError);
+            // Limpar dados inválidos
+            await supabase.auth.signOut();
+          } else if (refreshData.session) {
+            console.log('✅ Sessão recuperada via refresh');
+            setSession(refreshData.session);
+            setUser(refreshData.session.user);
+          }
         } else {
           console.log('📋 Resultado getSession:', {
             hasSession: !!session,
             sessionUserId: session?.user?.id,
-            sessionExpiresAt: session?.expires_at
+            sessionExpiresAt: session?.expires_at,
+            isExpired: session?.expires_at ? new Date(session.expires_at * 1000) < new Date() : false
           });
-          setSession(session);
-          setUser(session?.user ?? null);
+          
+          // Verificar se a sessão não expirou
+          if (session && session.expires_at) {
+            const expirationTime = new Date(session.expires_at * 1000);
+            const now = new Date();
+            
+            if (expirationTime <= now) {
+              console.log('⏰ Sessão expirada, tentando refresh...');
+              const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+              if (refreshError) {
+                console.error('❌ Erro ao fazer refresh da sessão expirada:', refreshError);
+                await supabase.auth.signOut();
+              } else if (refreshData.session) {
+                console.log('✅ Sessão expirada renovada com sucesso');
+                setSession(refreshData.session);
+                setUser(refreshData.session.user);
+              }
+            } else {
+              setSession(session);
+              setUser(session?.user ?? null);
+            }
+          } else {
+            setSession(session);
+            setUser(session?.user ?? null);
+          }
         }
       } catch (error) {
         console.error('❌ Erro na inicialização:', error);
+        // Em caso de erro crítico, limpar tudo
+        try {
+          await supabase.auth.signOut();
+        } catch (signOutError) {
+          console.error('❌ Erro ao fazer signOut de emergência:', signOutError);
+        }
       } finally {
         setLoading(false);
         setIsInitialized(true);
@@ -173,8 +215,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           access_token: session.access_token ? 'EXISTE' : 'AUSENTE',
           refresh_token: session.refresh_token ? 'EXISTE' : 'AUSENTE',
           expires_at: session.expires_at,
-          user_id: session.user?.id
+          user_id: session.user?.id,
+          isExpired: session.expires_at ? new Date(session.expires_at * 1000) < new Date() : false
         } : 'NENHUMA SESSÃO');
+        
+        // Verificar se a sessão é válida antes de definir
+        if (session && session.expires_at) {
+          const expirationTime = new Date(session.expires_at * 1000);
+          const now = new Date();
+          
+          if (expirationTime <= now) {
+            console.log('⏰ Sessão recebida já está expirada, ignorando...');
+            return;
+          }
+        }
         
         setSession(session);
         setUser(session?.user ?? null);
@@ -235,6 +289,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               console.error('❌ Erro ao gerenciar perfil:', error);
             }
           }, 0);
+        }
+
+        // Lidar com TOKEN_REFRESHED para manter a sessão ativa
+        if (event === 'TOKEN_REFRESHED' && session) {
+          console.log('🔄 Token renovado automaticamente');
+        }
+
+        // Lidar com SIGNED_OUT
+        if (event === 'SIGNED_OUT') {
+          console.log('🚪 Usuário desconectado');
+          setSession(null);
+          setUser(null);
         }
       }
     );

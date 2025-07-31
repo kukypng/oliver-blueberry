@@ -4,11 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export const useLicenseValidation = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [data, setData] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Não validar licença se ainda estamos carregando a autenticação
+    if (authLoading) {
+      return;
+    }
+
     const validateLicense = async () => {
       if (!user?.id) {
         setData(false);
@@ -41,7 +46,7 @@ export const useLicenseValidation = () => {
     const interval = setInterval(validateLicense, 1000 * 60 * 5);
     
     return () => clearInterval(interval);
-  }, [user?.id]);
+  }, [user?.id, authLoading]);
 
-  return { data, isLoading };
+  return { data, isLoading: isLoading || authLoading };
 };
