@@ -30,7 +30,7 @@ export const useDebugInvadersGame = () => {
   const [lives, setLives] = useState(5);
   const [bugs, setBugs] = useState<Bug[]>([]);
   const [logs, setLogs] = useState<GameLog[]>([]);
-  const [gameSettings, setGameSettings] = useState({ speed_bug_spawn_rate: 0.02, speed_bug_speed_multiplier: 2.0 });
+  const [gameSettings, setGameSettings] = useState({ speed_bug_spawn_rate: 0.02, speed_bug_speed_multiplier: 2.0, boss_bug_spawn_rate: 0.002, boss_bug_points: 1000, boss_bug_timer: 7000, boss_bug_damage: 5 });
   const [particles, setParticles] = useState<Array<{id: string, x: number, y: number, type: Bug['type']}>>([]);
   
   const gameLoopRef = useRef<NodeJS.Timeout>();
@@ -114,10 +114,10 @@ export const useDebugInvadersGame = () => {
           // Decrease boss timer
           const newTimer = bug.bossTimer - 50;
           if (newTimer <= 0) {
-            // Boss timeout - deal 5 damage
-            addLog('error', 'FALHA CRÍTICA: Sistema comprometido! -5 vidas');
+            // Boss timeout - deal damage
+            addLog('error', `FALHA CRÍTICA: Sistema comprometido! -${gameSettings.boss_bug_damage} vidas`);
             setLives(current => {
-              const newLives = current - 5;
+              const newLives = current - gameSettings.boss_bug_damage;
               if (newLives <= 0) {
                 setGameState('gameOver');
               }
@@ -314,7 +314,11 @@ export const useDebugInvadersGame = () => {
         if (data) {
           setGameSettings({
             speed_bug_spawn_rate: data.speed_bug_spawn_rate,
-            speed_bug_speed_multiplier: data.speed_bug_speed_multiplier
+            speed_bug_speed_multiplier: data.speed_bug_speed_multiplier,
+            boss_bug_spawn_rate: data.boss_bug_spawn_rate || 0.002,
+            boss_bug_points: data.boss_bug_points || 1000,
+            boss_bug_timer: data.boss_bug_timer || 7000,
+            boss_bug_damage: data.boss_bug_damage || 5
           });
         }
       } catch (error) {

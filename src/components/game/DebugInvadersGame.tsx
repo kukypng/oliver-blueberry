@@ -116,7 +116,7 @@ export const DebugInvadersGame = () => {
         {/* Fullscreen Toggle Button */}
         <button
           onClick={toggleFullscreen}
-          className="fixed top-4 left-4 z-50 bg-green-600/80 hover:bg-green-700/80 text-white p-2 rounded-lg font-mono text-sm backdrop-blur-sm border border-green-400/50 transition-all"
+          className="fixed bottom-4 left-4 z-50 bg-green-600/80 hover:bg-green-700/80 text-white p-2 rounded-lg font-mono text-sm backdrop-blur-sm border border-green-400/50 transition-all opacity-50 hover:opacity-100"
           title={isFullscreen ? 'Sair da tela cheia (ESC)' : 'Tela cheia (F11)'}
         >
           {isFullscreen ? '🗗' : '🗖'}

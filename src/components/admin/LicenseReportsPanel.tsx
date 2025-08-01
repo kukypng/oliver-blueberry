@@ -32,7 +32,10 @@ interface LicenseStats {
   timestamp: string;
 }
 
-export const LicenseReportsPanel = () => {
+export const LicenseReportsPanel: React.FC = () => {
+  const [customCode, setCustomCode] = useState('');
+  const [customDays, setCustomDays] = useState(365);
+  const [isCreatingCustom, setIsCreatingCustom] = useState(false);
   const [stats, setStats] = useState<LicenseStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingLicenses, setIsCreatingLicenses] = useState(false);
@@ -287,6 +290,52 @@ export const LicenseReportsPanel = () => {
         </CardContent>
       </Card>
 
+      {/* Custom License Creation */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-5 w-5" />
+            Criar Licença Personalizada
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="custom-code">Código da Licença</Label>
+              <Input
+                id="custom-code"
+                value={customCode}
+                onChange={(e) => setCustomCode(e.target.value)}
+                placeholder="Insira o código desejado"
+              />
+              <p className="text-xs text-muted-foreground">Qualquer combinação de caracteres</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="custom-days">Validade (dias)</Label>
+              <Input
+                id="custom-days"
+                type="number"
+                min="1"
+                max="3650"
+                value={customDays}
+                onChange={(e) => setCustomDays(parseInt(e.target.value) || 365)}
+                placeholder="365"
+              />
+              <p className="text-xs text-muted-foreground">Máximo: 3650 dias (10 anos)</p>
+            </div>
+          </div>
+
+          <Button 
+            onClick={createCustomLicense}
+            disabled={isCreatingCustom}
+            className="w-full md:w-auto"
+          >
+            {isCreatingCustom ? 'Criando...' : 'Criar Licença Personalizada'}
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Summary Alerts */}
       {stats.expiring_soon > 0 && (
         <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
@@ -315,4 +364,49 @@ export const LicenseReportsPanel = () => {
       )}
     </div>
   );
+};
+
+
+const createCustomLicense = async () => {
+  if (!customCode.trim()) {
+    showError({ title: 'Código Inválido', description: 'Por favor, insira um código para a licença.' });
+    return;
+  }
+  if (customDays < 1 || customDays > 3650) {
+    showError({ title: 'Dias Inválidos', description: 'O período deve estar entre 1 e 3650 dias.' });
+    return;
+  }
+  setIsCreatingCustom(true);
+  try {
+    // Check if code exists
+    const { data: existing, error: checkError } = await supabase
+      .from('licenses')
+      .select('id')
+      .eq('license_key', customCode)
+      .single();
+    if (checkError && checkError.code !== 'PGRST116') throw checkError;
+    if (existing) {
+      showError({ title: 'Código Duplicado', description: 'Já existe uma licença com este código.' });
+      return;
+    }
+    // Create license
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + customDays);
+    const { error: insertError } = await supabase
+      .from('licenses')
+      .insert([{
+        license_key: customCode,
+        expires_at: expiresAt.toISOString(),
+        created_by: 'admin'
+      }]);
+    if (insertError) throw insertError;
+    showSuccess({ title: 'Licença Criada!', description: `Licença ${customCode} criada com sucesso.` });
+    setCustomCode('');
+    fetchLicenseStats();
+  } catch (error) {
+    console.error('Error creating custom license:', error);
+    showError({ title: 'Erro ao Criar', description: 'Não foi possível criar a licença personalizada.' });
+  } finally {
+    setIsCreatingCustom(false);
+  }
 };

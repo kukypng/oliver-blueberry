@@ -20,6 +20,10 @@ export const GameSettingsPanel: React.FC = () => {
     bug_damage: settings?.bug_damage || 10.0,
     hit_sound_enabled: settings?.hit_sound_enabled ?? true,
     hit_sound_volume: settings?.hit_sound_volume || 0.5,
+    boss_bug_spawn_rate: settings?.boss_bug_spawn_rate || 0.002,
+    boss_bug_points: settings?.boss_bug_points || 1000,
+    boss_bug_timer: settings?.boss_bug_timer || 7000,
+    boss_bug_damage: settings?.boss_bug_damage || 5,
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -32,6 +36,10 @@ export const GameSettingsPanel: React.FC = () => {
         bug_damage: settings.bug_damage || 10.0,
         hit_sound_enabled: settings.hit_sound_enabled !== undefined ? settings.hit_sound_enabled : true,
         hit_sound_volume: settings.hit_sound_volume || 0.5,
+        boss_bug_spawn_rate: settings.boss_bug_spawn_rate || 0.002,
+        boss_bug_points: settings.boss_bug_points || 1000,
+        boss_bug_timer: settings.boss_bug_timer || 7000,
+        boss_bug_damage: settings.boss_bug_damage || 5,
       });
     }
   }, [settings]);
@@ -308,6 +316,153 @@ export const GameSettingsPanel: React.FC = () => {
               />
               <p className="text-xs text-muted-foreground">
                 Dano causado pelos bugs ao jogador
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Configurações de Boss Bug */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Bug className="w-4 h-4 text-purple-500" />
+            <h3 className="text-lg font-semibold">Configurações de Bugs Boss</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="boss-spawn-rate">
+                Taxa de Spawn (%)
+                <span className="text-xs text-muted-foreground ml-2">
+                  (Digite diretamente em %)
+                </span>
+              </Label>
+              <Input
+                id="boss-spawn-rate"
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={(formData.boss_bug_spawn_rate * 100).toFixed(1)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') return;
+                  const numValue = parseFloat(value);
+                  if (!isNaN(numValue)) {
+                    setFormData(prev => ({
+                      ...prev,
+                      boss_bug_spawn_rate: numValue / 100
+                    }));
+                  }
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '') {
+                    setFormData(prev => ({
+                      ...prev,
+                      boss_bug_spawn_rate: 0.002
+                    }));
+                  }
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Atual: {(formData.boss_bug_spawn_rate * 100).toFixed(1)}% de chance por spawn
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="boss-points">Pontos por Eliminação</Label>
+              <Input
+                id="boss-points"
+                type="number"
+                min="1"
+                value={formData.boss_bug_points}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') return;
+                  const numValue = parseInt(value);
+                  if (!isNaN(numValue)) {
+                    setFormData(prev => ({
+                      ...prev,
+                      boss_bug_points: numValue
+                    }));
+                  }
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '') {
+                    setFormData(prev => ({
+                      ...prev,
+                      boss_bug_points: 1000
+                    }));
+                  }
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Pontos ganhos ao eliminar um boss
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="boss-timer">Tempo para Eliminar (segundos)</Label>
+              <Input
+                id="boss-timer"
+                type="number"
+                min="1"
+                value={Math.round(formData.boss_bug_timer / 1000)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') return;
+                  const numValue = parseInt(value);
+                  if (!isNaN(numValue)) {
+                    setFormData(prev => ({
+                      ...prev,
+                      boss_bug_timer: numValue * 1000
+                    }));
+                  }
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '') {
+                    setFormData(prev => ({
+                      ...prev,
+                      boss_bug_timer: 7000
+                    }));
+                  }
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Tempo em segundos antes do boss causar dano
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="boss-damage">Dano se não Eliminado</Label>
+              <Input
+                id="boss-damage"
+                type="number"
+                min="1"
+                value={formData.boss_bug_damage}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') return;
+                  const numValue = parseInt(value);
+                  if (!isNaN(numValue)) {
+                    setFormData(prev => ({
+                      ...prev,
+                      boss_bug_damage: numValue
+                    }));
+                  }
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === '') {
+                    setFormData(prev => ({
+                      ...prev,
+                      boss_bug_damage: 5
+                    }));
+                  }
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Vidas perdidas se o boss não for eliminado a tempo
               </p>
             </div>
           </div>

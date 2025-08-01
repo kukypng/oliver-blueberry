@@ -26,7 +26,9 @@ export const useGameSounds = () => {
   }, []);
 
   const playBugClick = useCallback(() => {
-    playSound(800, 50);
+    playSound(800, 30, 'sine');
+    setTimeout(() => playSound(600, 30, 'sine'), 20);
+    setTimeout(() => playSound(400, 50, 'sine'), 40);
   }, [playSound]);
 
   const playGameOver = useCallback(() => {
