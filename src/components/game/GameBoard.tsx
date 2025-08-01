@@ -38,7 +38,7 @@ const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClic
   return (
     <motion.button
       onClick={onClick}
-      className={`absolute ${getBugSize(bug.type)} hover:scale-110 transition-transform cursor-pointer select-none ${getBugColor(bug.type)}`}
+      className={`absolute z-10 ${getBugSize(bug.type)} hover:scale-110 transition-transform cursor-pointer select-none ${getBugColor(bug.type)}`}
       style={{
         left: `${bug.x}%`,
         top: `${bug.y}%`,
@@ -85,7 +85,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ bugs, onBugClick, isPlayin
 
       {/* Bugs */}
       <AnimatePresence>
-        {bugs.map(bug => (
+        {isPlaying && bugs.map(bug => (
           <BugComponent
             key={bug.id}
             bug={bug}
