@@ -263,55 +263,17 @@ const AdminLiteComponent = ({
                       </div>
                     </div>
                     <div className="flex gap-1 flex-wrap">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => handleEdit(user)}
-                        className="text-xs"
-                      >
+                      <Button size="sm" variant="outline" onClick={() => handleEdit(user)} className="text-xs">
                         Editar
                       </Button>
                       
-                      {user.expiration_date && new Date(user.expiration_date) <= new Date() && (
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => handleRenew(user)}
-                          className="text-xs border-orange-500 text-orange-700 hover:bg-orange-50"
-                        >
+                      {user.expiration_date && new Date(user.expiration_date) <= new Date() && <Button size="sm" variant="outline" onClick={() => handleRenew(user)} className="text-xs border-orange-500 text-orange-700 hover:bg-orange-50">
                           Renovar
-                        </Button>
-                      )}
+                        </Button>}
                       
-                      <Button 
-                        size="sm" 
-                        variant={user.license_active ? "outline" : "default"}
-                        onClick={async () => {
-                          const action = user.license_active ? 'desativar' : 'ativar';
-                          if (confirm(`Tem certeza que deseja ${action} a licença deste usuário?`)) {
-                            try {
-                              const { error } = await supabase.rpc(
-                                user.license_active ? 'admin_deactivate_user_license' : 'admin_activate_user_license',
-                                { p_user_id: user.id }
-                              );
-                              if (error) throw error;
-                              window.location.href = '/admin';
-                            } catch (error) {
-                              console.error('Erro ao alterar licença:', error);
-                            }
-                          }
-                        }}
-                        className="text-xs"
-                      >
-                        {user.license_active ? 'Desativar' : 'Ativar'}
-                      </Button>
                       
-                      <Button 
-                        size="sm" 
-                        variant="destructive" 
-                        onClick={() => handleDelete(user)}
-                        className="text-xs"
-                      >
+                      
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(user)} className="text-xs">
                         Excluir
                       </Button>
                     </div>
