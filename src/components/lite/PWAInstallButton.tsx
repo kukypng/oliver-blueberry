@@ -13,26 +13,79 @@ export const PWAInstallButton: React.FC = () => {
 
   const handleInstall = async () => {
     if (device.isIOS) {
+      // Instruções para iOS
       toast({
-        title: "Instalar OneDrip",
+        title: "Instalar OneDrip no iPhone/iPad",
         description: (
           <div className="space-y-2">
-            <p>Para instalar no iPhone/iPad:</p>
             <div className="flex items-center gap-2 text-sm">
               <Share className="h-4 w-4" />
-              <span>1. Toque no botão compartilhar</span>
+              <span>1. Toque no botão compartilhar (Safari)</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Plus className="h-4 w-4" />
               <span>2. Selecione "Adicionar à Tela Inicial"</span>
             </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Download className="h-4 w-4" />
+              <span>3. Toque em "Adicionar"</span>
+            </div>
           </div>
         ),
-        duration: 8000,
+        duration: 10000,
       });
-    } else {
+    } else if (device.isAndroid) {
+      // Tentar instalação automática primeiro, senão mostrar instruções
       const success = await installApp();
-      if (success) {
+      if (!success) {
+        toast({
+          title: "Instalar OneDrip no Android",
+          description: (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm">
+                <Download className="h-4 w-4" />
+                <span>1. Abra o menu do Chrome (⋮)</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Plus className="h-4 w-4" />
+                <span>2. Toque em "Instalar app"</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Download className="h-4 w-4" />
+                <span>3. Confirme a instalação</span>
+              </div>
+            </div>
+          ),
+          duration: 10000,
+        });
+      } else {
+        toast({
+          title: "App Instalado!",
+          description: "OneDrip foi instalado com sucesso no seu Android.",
+        });
+      }
+    } else {
+      // Desktop ou outros dispositivos
+      const success = await installApp();
+      if (!success) {
+        toast({
+          title: "Instalar OneDrip",
+          description: (
+            <div className="space-y-2">
+              <p>Para instalar o app:</p>
+              <div className="flex items-center gap-2 text-sm">
+                <Download className="h-4 w-4" />
+                <span>1. Procure o ícone de instalação na barra de endereços</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Plus className="h-4 w-4" />
+                <span>2. Ou use Ctrl+Shift+A (Chrome)</span>
+              </div>
+            </div>
+          ),
+          duration: 8000,
+        });
+      } else {
         toast({
           title: "App Instalado!",
           description: "OneDrip foi instalado com sucesso.",
