@@ -9,16 +9,13 @@ import { useDebugInvadersGame } from '@/hooks/useDebugInvadersGame';
 import { useGameSounds } from '@/hooks/useGameSounds';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useMobileDetection } from '@/hooks/useMobileDetection';
 import { AnimatePresence } from 'framer-motion';
 export const DebugInvadersGame = () => {
   const navigate = useNavigate();
-  const {
-    user
-  } = useAuth();
-  const {
-    playBugClick,
-    playGameOver
-  } = useGameSounds();
+  const { user } = useAuth();
+  const isMobile = useMobileDetection();
+  const { playBugClick, playGameOver } = useGameSounds();
   const {
     gameState,
     score,
@@ -75,7 +72,73 @@ export const DebugInvadersGame = () => {
         </div>
       </div>;
   }
-  return <div className="max-w-6xl mx-auto">
+  if (isMobile) {
+    return (
+      <div className="h-full flex flex-col">
+        {/* Mobile Game Stats - Compacto */}
+        <div className="flex-shrink-0 bg-gray-900/90 border-b border-green-400/30 p-2">
+          <div className="flex justify-between items-center text-xs">
+            <div className="flex gap-4">
+              <span className="text-green-400">Score: <span className="text-white font-bold">{score}</span></span>
+              <span className="text-blue-400">Lvl: <span className="text-white">{level}</span></span>
+              <span className="text-red-400">Lives: <span className="text-white">{lives}</span></span>
+            </div>
+            {bugs.length > 0 && (
+              <span className="text-yellow-400">Bugs: {bugs.length}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Game Board - Tela Cheia */}
+        <div className="flex-1 relative">
+          <GameBoard bugs={bugs} onBugClick={handleBugClick} isPlaying={isPlaying} isMobile={true} />
+          
+          {/* Particle Effects */}
+          <AnimatePresence>
+            {particles.map(particle => (
+              <ParticleEffect
+                key={particle.id}
+                x={particle.x}
+                y={particle.y}
+                type={particle.type}
+                onComplete={() => removeParticle(particle.id)}
+              />
+            ))}
+          </AnimatePresence>
+          
+          {!isPlaying && !isGameOver && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+              <div className="text-center p-4">
+                <div className="text-green-400 text-sm mb-4 font-mono">// Inicializar debug mobile</div>
+                <button 
+                  onClick={startGame} 
+                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-lg transition-colors font-mono"
+                >
+                  🚀 START
+                </button>
+                <div className="text-xs text-green-400/70 mt-2">Toque nos bugs para eliminá-los!</div>
+              </div>
+            </div>
+          )}
+
+          {isGameOver && <GameOver score={score} onRestart={restartGame} />}
+        </div>
+
+        {/* Mobile Quick Logs - Bottom */}
+        {isPlaying && logs.length > 0 && (
+          <div className="flex-shrink-0 bg-gray-900/95 border-t border-green-400/30 p-2 max-h-20 overflow-hidden">
+            <div className="text-xs font-mono text-green-400/80">
+              {logs[0]?.message}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop version
+  return (
+    <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Game Area */}
         <div className="lg:col-span-3 space-y-4">
@@ -98,14 +161,16 @@ export const DebugInvadersGame = () => {
               ))}
             </AnimatePresence>
             
-            {!isPlaying && !isGameOver && <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+            {!isPlaying && !isGameOver && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
                 <div className="text-center">
                   <div className="text-green-400 text-lg mb-4">// Inicializar sistema de debug</div>
                   <button onClick={startGame} className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-xl transition-colors font-mono">
                     ./start_debug_hunter.sh
                   </button>
                 </div>
-              </div>}
+              </div>
+            )}
 
             {isGameOver && <GameOver score={score} onRestart={restartGame} />}
           </div>
@@ -163,5 +228,6 @@ export const DebugInvadersGame = () => {
           <Ranking />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };

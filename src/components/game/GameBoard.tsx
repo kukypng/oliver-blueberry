@@ -6,9 +6,10 @@ interface GameBoardProps {
   bugs: Bug[];
   onBugClick: (bugId: string) => void;
   isPlaying: boolean;
+  isMobile?: boolean;
 }
 
-const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClick }) => {
+const BugComponent: React.FC<{ bug: Bug; onClick: () => void; isMobile?: boolean }> = ({ bug, onClick, isMobile }) => {
   const getBugEmoji = (type: Bug['type']) => {
     switch (type) {
       case 'critical-bug': return '🔥';
@@ -29,7 +30,12 @@ const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClic
     }
   };
 
-  const getBugSize = (type: Bug['type']) => {
+  const getBugSize = (type: Bug['type'], isMobile?: boolean) => {
+    if (isMobile) {
+      if (type === 'boss-bug') return 'text-6xl w-20 h-20';
+      if (type === 'speed-bug') return 'text-4xl w-16 h-16';
+      return 'text-3xl w-14 h-14';
+    }
     if (type === 'boss-bug') return 'text-5xl w-16 h-16';
     if (type === 'speed-bug') return 'text-3xl w-12 h-12';
     return 'text-2xl w-10 h-10';
@@ -45,7 +51,7 @@ const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClic
   return (
     <motion.button
       onClick={onClick}
-      className={`absolute z-10 ${getBugSize(bug.type)} hover:scale-110 transition-transform cursor-pointer select-none ${getBugColor(bug.type)}`}
+      className={`absolute z-10 ${getBugSize(bug.type, isMobile)} hover:scale-110 transition-transform cursor-pointer select-none ${getBugColor(bug.type)} ${isMobile ? 'active:scale-125' : ''}`}
       style={{
         left: `${bug.x}%`,
         top: `${bug.y}%`,
@@ -76,12 +82,12 @@ const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClic
   );
 };
 
-export const GameBoard: React.FC<GameBoardProps> = ({ bugs, onBugClick, isPlaying }) => {
+export const GameBoard: React.FC<GameBoardProps> = ({ bugs, onBugClick, isPlaying, isMobile }) => {
   const bossCount = bugs.filter(bug => bug.type === 'boss-bug').length;
   const speedBugCount = bugs.filter(bug => bug.type === 'speed-bug').length;
   
   return (
-    <div className="relative w-full h-96 bg-gradient-to-b from-gray-900 to-gray-800 border-2 border-green-400/30 rounded-lg overflow-hidden shadow-2xl">
+    <div className={`relative w-full ${isMobile ? 'h-full' : 'h-96'} bg-gradient-to-b from-gray-900 to-gray-800 border-2 border-green-400/30 ${isMobile ? '' : 'rounded-lg'} overflow-hidden shadow-2xl`}>
       {/* Matrix-style background */}
       <div className="absolute inset-0 opacity-5">
         <div className="grid grid-cols-20 h-full">
@@ -110,12 +116,13 @@ export const GameBoard: React.FC<GameBoardProps> = ({ bugs, onBugClick, isPlayin
             key={bug.id}
             bug={bug}
             onClick={() => onBugClick(bug.id)}
+            isMobile={isMobile}
           />
         ))}
       </AnimatePresence>
 
       {/* Enhanced debug info */}
-      {isPlaying && (
+      {isPlaying && !isMobile && (
         <div className="absolute top-2 left-2 text-xs text-green-400/80 space-y-1 bg-black/30 p-2 rounded backdrop-blur-sm">
           <div className="font-mono">
             <span className="text-green-300">PROC:</span> {bugs.length}
@@ -126,6 +133,13 @@ export const GameBoard: React.FC<GameBoardProps> = ({ bugs, onBugClick, isPlayin
           <div className="font-mono text-blue-300">
             <span>THREATS:</span> {bugs.filter(b => b.type !== 'bug').length}
           </div>
+        </div>
+      )}
+
+      {/* Mobile debug info - mais compacto */}
+      {isPlaying && isMobile && (
+        <div className="absolute top-2 left-2 text-xs text-green-400/90 bg-black/50 px-2 py-1 rounded font-mono">
+          {bossCount > 0 ? '🚨 BOSS' : speedBugCount > 0 ? '⚡ SPEED' : `${bugs.length} bugs`}
         </div>
       )}
 
