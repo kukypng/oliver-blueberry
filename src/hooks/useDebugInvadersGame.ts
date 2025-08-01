@@ -199,45 +199,44 @@ export const useDebugInvadersGame = () => {
   const clickBug = useCallback((bugId: string) => {
     if (!isPlaying) return;
 
-    setBugs(prev => {
-      const clickedBug = prev.find(bug => bug.id === bugId);
-      if (!clickedBug) return prev;
+    const clickedBug = bugs.find(bug => bug.id === bugId);
+    if (!clickedBug) return;
 
-      // Score based on bug type
-      let points = 10;
-      let logMessage = '';
-      
-      switch (clickedBug.type) {
-        case 'critical-bug':
-          points = 25;
-          logMessage = 'Erro crítico resolvido. Sistema estabilizado.';
-          break;
-        case 'memory-leak':
-          points = 50;
-          logMessage = 'Vazamento de memória corrigido. Performance otimizada.';
-          break;
-        case 'boss-bug':
-          points = 1000;
-          logMessage = 'EXCELENTE! Boss eliminado! Sistema seguro novamente.';
-          addLog('success', logMessage);
-          break;
-        case 'speed-bug':
-          points = 200;
-          logMessage = '⚡ INCRÍVEL! Bug ultrarrápido eliminado! Reflexos perfeitos!';
-          addLog('success', logMessage);
-          break;
-        default:
-          logMessage = 'Bug comum resolvido. Código limpo.';
-      }
+    // Score based on bug type
+    let points = 10;
+    let logMessage = '';
+    
+    switch (clickedBug.type) {
+      case 'critical-bug':
+        points = 25;
+        logMessage = 'Erro crítico resolvido. Sistema estabilizado.';
+        break;
+      case 'memory-leak':
+        points = 50;
+        logMessage = 'Vazamento de memória corrigido. Performance otimizada.';
+        break;
+      case 'boss-bug':
+        points = 1000;
+        logMessage = 'EXCELENTE! Boss eliminado! Sistema seguro novamente.';
+        addLog('success', logMessage);
+        break;
+      case 'speed-bug':
+        points = 200;
+        logMessage = '⚡ INCRÍVEL! Bug ultrarrápido eliminado! Reflexos perfeitos!';
+        addLog('success', logMessage);
+        break;
+      default:
+        logMessage = 'Bug comum resolvido. Código limpo.';
+    }
 
-      if (clickedBug.type !== 'boss-bug' && clickedBug.type !== 'speed-bug') {
-        addLog('info', logMessage);
-      }
+    if (clickedBug.type !== 'boss-bug' && clickedBug.type !== 'speed-bug') {
+      addLog('info', logMessage);
+    }
 
-      setScore(current => current + points);
-      return prev.filter(bug => bug.id !== bugId);
-    });
-  }, [isPlaying, addLog]);
+    // Update score and remove bug
+    setScore(current => current + points);
+    setBugs(prev => prev.filter(bug => bug.id !== bugId));
+  }, [isPlaying, bugs, addLog]);
 
   // Game controls
   const startGame = useCallback(() => {
