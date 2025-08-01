@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 export interface Bug {
   id: string;
@@ -22,6 +23,7 @@ export type GameState = 'idle' | 'playing' | 'paused' | 'gameOver';
 
 export const useDebugInvadersGame = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [gameState, setGameState] = useState<GameState>('idle');
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
@@ -29,6 +31,7 @@ export const useDebugInvadersGame = () => {
   const [bugs, setBugs] = useState<Bug[]>([]);
   const [logs, setLogs] = useState<GameLog[]>([]);
   const [gameSettings, setGameSettings] = useState({ speed_bug_spawn_rate: 0.02, speed_bug_speed_multiplier: 2.0 });
+  const [particles, setParticles] = useState<Array<{id: string, x: number, y: number, type: Bug['type']}>>([]);
   
   const gameLoopRef = useRef<NodeJS.Timeout>();
   const spawnTimerRef = useRef<NodeJS.Timeout>();
@@ -202,6 +205,15 @@ export const useDebugInvadersGame = () => {
     const clickedBug = bugs.find(bug => bug.id === bugId);
     if (!clickedBug) return;
 
+    // Create particle effect
+    const particleId = `particle-${Date.now()}-${Math.random()}`;
+    setParticles(prev => [...prev, {
+      id: particleId,
+      x: clickedBug.x,
+      y: clickedBug.y,
+      type: clickedBug.type
+    }]);
+
     // Score based on bug type
     let points = 10;
     let logMessage = '';
@@ -210,23 +222,48 @@ export const useDebugInvadersGame = () => {
       case 'critical-bug':
         points = 25;
         logMessage = 'Erro crítico resolvido. Sistema estabilizado.';
+        toast({
+          title: "🔥 Bug Crítico Eliminado!",
+          description: `+${points} pontos`,
+          duration: 2000,
+        });
         break;
       case 'memory-leak':
         points = 50;
         logMessage = 'Vazamento de memória corrigido. Performance otimizada.';
+        toast({
+          title: "💀 Vazamento Corrigido!",
+          description: `+${points} pontos`,
+          duration: 2000,
+        });
         break;
       case 'boss-bug':
         points = 1000;
         logMessage = 'EXCELENTE! Boss eliminado! Sistema seguro novamente.';
         addLog('success', logMessage);
+        toast({
+          title: "🐛 BOSS ELIMINADO!",
+          description: `+${points} pontos - Sistema salvo!`,
+          duration: 3000,
+        });
         break;
       case 'speed-bug':
         points = 200;
         logMessage = '⚡ INCRÍVEL! Bug ultrarrápido eliminado! Reflexos perfeitos!';
         addLog('success', logMessage);
+        toast({
+          title: "⚡ Bug Ultrarrápido!",
+          description: `+${points} pontos - Reflexos perfeitos!`,
+          duration: 2000,
+        });
         break;
       default:
         logMessage = 'Bug comum resolvido. Código limpo.';
+        toast({
+          title: "🐞 Bug Eliminado",
+          description: `+${points} pontos`,
+          duration: 1500,
+        });
     }
 
     if (clickedBug.type !== 'boss-bug' && clickedBug.type !== 'speed-bug') {
@@ -236,7 +273,7 @@ export const useDebugInvadersGame = () => {
     // Update score and remove bug
     setScore(current => current + points);
     setBugs(prev => prev.filter(bug => bug.id !== bugId));
-  }, [isPlaying, bugs, addLog]);
+  }, [isPlaying, bugs, addLog, toast]);
 
   // Game controls
   const startGame = useCallback(() => {
@@ -299,6 +336,11 @@ export const useDebugInvadersGame = () => {
     };
   }, []);
 
+  // Remove particle after animation
+  const removeParticle = useCallback((particleId: string) => {
+    setParticles(prev => prev.filter(p => p.id !== particleId));
+  }, []);
+
   return {
     gameState,
     score,
@@ -306,11 +348,13 @@ export const useDebugInvadersGame = () => {
     lives,
     bugs,
     logs,
+    particles,
     isPlaying,
     isGameOver,
     startGame,
     restartGame,
     pauseGame,
-    clickBug
+    clickBug,
+    removeParticle
   };
 };

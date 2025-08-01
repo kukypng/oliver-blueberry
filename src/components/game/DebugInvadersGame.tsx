@@ -4,10 +4,12 @@ import { GameStats } from './GameStats';
 import { GameOver } from './GameOver';
 import { Ranking } from './Ranking';
 import { GameConfigDisplay } from './GameConfigDisplay';
+import { ParticleEffect } from './ParticleEffect';
 import { useDebugInvadersGame } from '@/hooks/useDebugInvadersGame';
 import { useGameSounds } from '@/hooks/useGameSounds';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { AnimatePresence } from 'framer-motion';
 export const DebugInvadersGame = () => {
   const navigate = useNavigate();
   const {
@@ -24,11 +26,13 @@ export const DebugInvadersGame = () => {
     lives,
     bugs,
     logs,
+    particles,
     isGameOver,
     isPlaying,
     startGame,
     clickBug,
-    restartGame
+    restartGame,
+    removeParticle
   } = useDebugInvadersGame();
   const handleBugClick = useCallback((bugId: string) => {
     clickBug(bugId);
@@ -80,6 +84,19 @@ export const DebugInvadersGame = () => {
           
           <div className="relative">
             <GameBoard bugs={bugs} onBugClick={handleBugClick} isPlaying={isPlaying} />
+            
+            {/* Particle Effects */}
+            <AnimatePresence>
+              {particles.map(particle => (
+                <ParticleEffect
+                  key={particle.id}
+                  x={particle.x}
+                  y={particle.y}
+                  type={particle.type}
+                  onComplete={() => removeParticle(particle.id)}
+                />
+              ))}
+            </AnimatePresence>
             
             {!isPlaying && !isGameOver && <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm">
                 <div className="text-center">
