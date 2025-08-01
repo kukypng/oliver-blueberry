@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BudgetLiteCardiOS } from './BudgetLiteCardiOS';
 import { useToast } from '@/hooks/use-toast';
@@ -8,7 +8,7 @@ import { IOSContextualHeaderEnhanced } from './enhanced/IOSContextualHeaderEnhan
 import { GlassCard } from '@/components/ui/animations/micro-interactions';
 import { StaggerContainer } from '@/components/ui/animations/page-transitions';
 import { AdvancedSkeleton } from '@/components/ui/animations/loading-states';
-import { useIOSBudgetSearch } from '@/hooks/useIOSBudgetSearch';
+import { useBudgetData } from '@/hooks/useBudgetData';
 
 interface Budget {
   id: string;
@@ -51,24 +51,66 @@ export const BudgetLiteListiOS = ({
   const [updating, setUpdating] = useState<string | null>(null);
   const { toast } = useToast();
   
-  // Hook unificado para pesquisa e dados
-  const {
-    budgets,
-    searchTerm,
-    actualSearchTerm,
-    isSearchActive,
-    isSearching,
-    isLoading,
-    error,
-    searchSubtitle,
-    hasActiveSearch,
-    handleSearchChange,
-    handleSearchSubmit,
-    handleSearchClear,
-    handleSearchToggle,
-    handleRefresh,
-    handleDelete: deleteFromHook
-  } = useIOSBudgetSearch(userId);
+  // Hook de dados dos orçamentos
+  const { budgets: allBudgets, loading: isLoading, error, handleRefresh } = useBudgetData(userId);
+  
+  // Estados de pesquisa
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
+  // Filtrar orçamentos baseado na pesquisa
+  const budgets = useMemo(() => {
+    if (!searchTerm.trim()) return allBudgets;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return allBudgets.filter(budget => 
+      budget.client_name?.toLowerCase().includes(searchLower) ||
+      budget.device_model?.toLowerCase().includes(searchLower) ||
+      budget.device_type?.toLowerCase().includes(searchLower)
+    );
+  }, [allBudgets, searchTerm]);
+
+  // Handlers de pesquisa
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+  }, []);
+
+  const handleSearchSubmit = useCallback(() => {
+    // Pesquisa é feita automaticamente
+  }, []);
+
+  const handleSearchClear = useCallback(() => {
+    setSearchTerm('');
+    setIsSearchActive(false);
+  }, []);
+
+  const handleSearchToggle = useCallback(() => {
+    setIsSearchActive(!isSearchActive);
+    if (isSearchActive) {
+      setSearchTerm('');
+    }
+  }, [isSearchActive]);
+
+  // Estados derivados
+  const hasActiveSearch = searchTerm.trim().length > 0;
+  const searchSubtitle = hasActiveSearch ? `${budgets.length} resultado(s) encontrado(s)` : `${allBudgets.length} orçamentos`;
+
+  // Função de exclusão simples
+  const handleDeleteBudget = useCallback(async (budgetId: string) => {
+    try {
+      const { error: deleteError } = await supabase
+        .from('budgets')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', budgetId);
+
+      if (deleteError) throw deleteError;
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting budget:', error);
+      return { success: false, error: 'Erro ao excluir orçamento' };
+    }
+  }, []);
 
 
   // Compartilhamento WhatsApp usando utilitário original
@@ -168,14 +210,15 @@ export const BudgetLiteListiOS = ({
     }
   }, [toast]);
 
-  // Exclusão usando hook unificado
+  // Exclusão de orçamento
   const handleDelete = useCallback(async (budgetId: string) => {
     try {
       setUpdating(budgetId);
       
-      const result = await deleteFromHook(budgetId);
+      const result = await handleDeleteBudget(budgetId);
       
       if (result.success) {
+        handleRefresh(); // Atualiza a lista
         toast({
           title: "Orçamento removido",
           description: "O orçamento foi movido para a lixeira."
@@ -187,13 +230,13 @@ export const BudgetLiteListiOS = ({
       console.error('Error deleting budget:', error);
       toast({
         title: "Erro ao remover",
-        description: error instanceof Error ? error.message : "Não foi possível remover o orçamento.",
+        description: typeof error === 'string' ? error : "Não foi possível remover o orçamento.",
         variant: "destructive"
       });
     } finally {
       setUpdating(null);
     }
-  }, [deleteFromHook, toast]);
+  }, [handleDeleteBudget, handleRefresh, toast]);
 
   // Callback para atualização de orçamento  
   const handleBudgetUpdate = useCallback((budgetId: string, updates: Partial<Budget>) => {
@@ -223,7 +266,7 @@ export const BudgetLiteListiOS = ({
       <div className="min-h-[100dvh] bg-background text-foreground flex items-center justify-center p-4">
         <div className="text-center space-y-4 max-w-sm">
           <div className="text-destructive text-6xl">⚠️</div>
-          <p className="text-destructive text-lg">{error instanceof Error ? error.message : 'Erro inesperado'}</p>
+          <p className="text-destructive text-lg">{typeof error === 'string' ? error : 'Erro inesperado'}</p>
           <button 
             onClick={handleRefresh} 
             className="bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-6 rounded-lg font-medium transition-colors w-full"
@@ -252,7 +295,7 @@ export const BudgetLiteListiOS = ({
         onSearchSubmit={handleSearchSubmit}
         onSearchClear={handleSearchClear}
         searchPlaceholder="Buscar cliente ou dispositivo..."
-        isSearching={isSearching}
+        isSearching={false}
       />
 
       {/* Content com scroll otimizado para iOS */}
