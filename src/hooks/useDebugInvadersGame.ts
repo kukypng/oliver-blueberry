@@ -58,23 +58,23 @@ export const useDebugInvadersGame = () => {
       addLog('error', '⚡ BUG CRÍTICO: Processo ultrarrápido detectado!');
       return {
         id: `speed-${Date.now()}-${Math.random()}`,
-        x: Math.random() * 90,
+        x: Math.random() * 85 + 5, // Evitar bordas
         y: -5,
-        speed: (0.8 + (level * 0.1)) * gameSettings.speed_bug_speed_multiplier, // Super rápido
+        speed: (0.5 + (level * 0.05)) * gameSettings.speed_bug_speed_multiplier, // Mais controlável
         type: 'speed-bug'
       };
     }
     
-    // 0.1% chance for boss bug
-    if (Math.random() < 0.001) {
+    // 0.2% chance for boss bug - mais frequente
+    if (Math.random() < 0.002) {
       addLog('warning', 'ALERTA: Sistema crítico comprometido! Boss detectado!');
       return {
         id: `boss-${Date.now()}-${Math.random()}`,
-        x: Math.random() * 90,
+        x: Math.random() * 80 + 10, // Centro da tela
         y: -5,
-        speed: 0.2 + (level * 0.05), // Boss moves slower
+        speed: 0.15 + (level * 0.03), // Mais lento e previsível
         type: 'boss-bug',
-        bossTimer: 5000 // 5 seconds to click
+        bossTimer: 7000 // 7 segundos para clicar
       };
     }
     
@@ -83,19 +83,20 @@ export const useDebugInvadersGame = () => {
     
     return {
       id: `bug-${Date.now()}-${Math.random()}`,
-      x: Math.random() * 90,
+      x: Math.random() * 85 + 5, // Evitar bordas
       y: -5,
-      speed: 0.3 + (level * 0.1) + Math.random() * 0.3,
+      speed: 0.2 + (level * 0.05) + Math.random() * 0.2, // Velocidade mais controlada
       type
     };
   }, [level, addLog, gameSettings]);
 
-  // Spawn bugs
+  // Spawn bugs - Velocidade mais equilibrada
   const spawnBug = useCallback(() => {
     if (!isPlaying) return;
     
     const now = Date.now();
-    const spawnRate = Math.max(1200 - (level * 80), 500); // Mais tempo entre spawns
+    // Spawn rate mais generoso - mais tempo entre spawns para facilitar o jogo
+    const spawnRate = Math.max(1800 - (level * 100), 800);
     
     if (now - lastSpawnRef.current > spawnRate) {
       setBugs(prev => [...prev, createBug()]);

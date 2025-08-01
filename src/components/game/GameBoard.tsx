@@ -30,9 +30,10 @@ const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClic
   };
 
   const getBugSize = (type: Bug['type']) => {
-    if (type === 'boss-bug') return 'text-5xl w-16 h-16';
-    if (type === 'speed-bug') return 'text-3xl w-12 h-12';
-    return 'text-2xl w-10 h-10';
+    // Tamanhos maiores e hitbox generosa para melhor jogabilidade
+    if (type === 'boss-bug') return 'text-6xl w-20 h-20 min-w-[80px] min-h-[80px]';
+    if (type === 'speed-bug') return 'text-4xl w-16 h-16 min-w-[64px] min-h-[64px]';
+    return 'text-3xl w-14 h-14 min-w-[56px] min-h-[56px]';
   };
 
   const getClickEffect = () => ({
@@ -45,30 +46,38 @@ const BugComponent: React.FC<{ bug: Bug; onClick: () => void }> = ({ bug, onClic
   return (
     <motion.button
       onClick={onClick}
-      className={`absolute z-10 ${getBugSize(bug.type)} hover:scale-110 transition-transform cursor-pointer select-none ${getBugColor(bug.type)}`}
+      className={`absolute z-10 ${getBugSize(bug.type)} hover:scale-110 transition-transform cursor-pointer select-none ${getBugColor(bug.type)} 
+        flex items-center justify-center rounded-lg
+        active:scale-95 touch-manipulation
+        before:absolute before:inset-0 before:w-full before:h-full before:z-[-1]`}
       style={{
         left: `${bug.x}%`,
         top: `${bug.y}%`,
-        transform: 'translate(-50%, -50%)'
+        transform: 'translate(-50%, -50%)',
+        // Hitbox expandida invisível para facilitar cliques
+        padding: '10px',
+        margin: '-10px'
       }}
       animate={
         bug.type === 'boss-bug' 
-          ? { scale: [1, 1.2, 1] } 
+          ? { scale: [1, 1.1, 1] } 
           : bug.type === 'speed-bug' 
-          ? { y: [0, -5, 0], rotate: [0, 5, -5, 0] }
+          ? { y: [0, -3, 0], rotate: [0, 3, -3, 0] }
           : {}
       }
       transition={
         bug.type === 'boss-bug' 
-          ? { duration: 0.5, repeat: Infinity } 
+          ? { duration: 0.6, repeat: Infinity } 
           : bug.type === 'speed-bug'
-          ? { duration: 0.2, repeat: Infinity }
+          ? { duration: 0.3, repeat: Infinity }
           : {}
       }
     >
-      {getBugEmoji(bug.type)}
+      <span className="pointer-events-none select-none">
+        {getBugEmoji(bug.type)}
+      </span>
       {bug.type === 'boss-bug' && bug.bossTimer && (
-        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-sm px-3 py-1 rounded font-bold animate-pulse">
           {Math.ceil(bug.bossTimer / 1000)}s
         </div>
       )}

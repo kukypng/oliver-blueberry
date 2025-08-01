@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { GameBoard } from './GameBoard';
 import { GameStats } from './GameStats';
 import { GameOver } from './GameOver';
@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AnimatePresence } from 'framer-motion';
 export const DebugInvadersGame = () => {
   const navigate = useNavigate();
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const {
     user
   } = useAuth();
@@ -39,16 +40,51 @@ export const DebugInvadersGame = () => {
     playBugClick();
   }, [clickBug, playBugClick]);
 
+  // Fullscreen toggle
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+      }).catch(() => {
+        // Fallback para dispositivos que não suportam fullscreen API
+        setIsFullscreen(true);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+      });
+    }
+  }, []);
+
   // Handle ESC key to exit
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        navigate('/');
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+          setIsFullscreen(false);
+        } else {
+          navigate('/');
+        }
+      }
+      if (event.key === 'F11') {
+        event.preventDefault();
+        toggleFullscreen();
       }
     };
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
     window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [navigate]);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, [navigate, toggleFullscreen]);
 
   // Play game over sound
   useEffect(() => {
@@ -75,11 +111,20 @@ export const DebugInvadersGame = () => {
         </div>
       </div>;
   }
-  return <div className="max-w-6xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  return <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-black' : 'max-w-6xl mx-auto'}`}>
+      <div className={`${isFullscreen ? 'h-full flex flex-col' : 'grid grid-cols-1 lg:grid-cols-4 gap-6'}`}>
+        {/* Fullscreen Toggle Button */}
+        <button
+          onClick={toggleFullscreen}
+          className="fixed top-4 left-4 z-50 bg-green-600/80 hover:bg-green-700/80 text-white p-2 rounded-lg font-mono text-sm backdrop-blur-sm border border-green-400/50 transition-all"
+          title={isFullscreen ? 'Sair da tela cheia (ESC)' : 'Tela cheia (F11)'}
+        >
+          {isFullscreen ? '🗗' : '🗖'}
+        </button>
+
         {/* Game Area */}
-        <div className="lg:col-span-3 space-y-4">
-          <GameConfigDisplay />
+        <div className={`${isFullscreen ? 'flex-1 px-4 pt-16 pb-4' : 'lg:col-span-3'} space-y-4`}>
+          {!isFullscreen && <GameConfigDisplay />}
           <GameStats score={score} level={level} lives={lives} />
           
           <div className="relative">
@@ -111,8 +156,9 @@ export const DebugInvadersGame = () => {
           </div>
         </div>
 
-        {/* Sidebar with Logs and Ranking */}
-        <div className="lg:col-span-1 space-y-6">
+        {/* Sidebar with Logs and Ranking - Hide in fullscreen */}
+        {!isFullscreen && (
+          <div className="lg:col-span-1 space-y-6">
           {/* System Logs */}
           <div className="bg-gray-900 border border-green-400/30 rounded-lg">
             <div className="border-b border-green-400/30 p-3">
@@ -161,7 +207,8 @@ export const DebugInvadersGame = () => {
 
           {/* Ranking */}
           <Ranking />
-        </div>
+          </div>
+        )}
       </div>
     </div>;
 };
