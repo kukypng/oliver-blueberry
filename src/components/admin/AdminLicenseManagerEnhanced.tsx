@@ -20,7 +20,8 @@ import {
   Unlink,
   AlertCircle,
   CheckCircle,
-  BarChart3
+  BarChart3,
+  Copy
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -313,10 +314,24 @@ export const AdminLicenseManagerEnhanced = () => {
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
                       <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <Key className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-mono text-sm font-medium">{license.code}</span>
-                          {getStatusBadge(license)}
+                         <div className="flex items-center space-x-2">
+                           <Key className="h-4 w-4 text-muted-foreground" />
+                           <span className="font-mono text-sm font-medium">{license.code}</span>
+                           <Button
+                             size="sm"
+                             variant="ghost"
+                             onClick={() => {
+                               navigator.clipboard.writeText(license.code);
+                               showSuccess({
+                                 title: 'Copiado!',
+                                 description: 'Código da licença copiado para a área de transferência.'
+                               });
+                             }}
+                             className="h-6 w-6 p-0"
+                           >
+                             <Copy className="h-3 w-3" />
+                           </Button>
+                           {getStatusBadge(license)}
                         </div>
                         
                         {hasUser && (
